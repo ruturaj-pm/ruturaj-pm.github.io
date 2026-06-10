@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fit Check - CV vs Job Description</title>
+<meta name="description" content="Paste a CV and a job description, get a keyword-coverage score and the missing terms. Runs entirely in your browser - nothing is uploaded.">
+<meta name="robots" content="noindex">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230d1726'/%3E%3Ctext x='32' y='42' font-family='Arial' font-size='26' font-weight='bold' fill='%23ffffff' text-anchor='middle'%3EFC%3C/text%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,620&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#0d1726;--ink:#1f2430;--mut:#68707e;--bg:#f6f7f9;--card:#fff;--acc:#2f6fb2;--sand:#c89a5e;--good:#2e7d4f;--mid:#b07b2a;--bad:#b3433f}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--ink);line-height:1.6}
+.top{background:var(--navy);color:#fff;padding:13px 0}
+.top .in{max-width:900px;margin:0 auto;padding:0 20px;display:flex;justify-content:space-between;align-items:center}
+.top .name{font-weight:650;font-size:14.5px}
+.top span a{color:#cfd8e6;text-decoration:none;font-size:13px}
+main{max-width:900px;margin:34px auto;padding:0 20px}
+h1{font-family:'Fraunces',Georgia,serif;font-size:30px;color:var(--navy)}
+.lede{color:#39414f;font-size:14.5px;max-width:62ch;margin:8px 0 6px}
+.privacy{font-size:12.5px;color:var(--mut);margin-bottom:22px}
+.privacy strong{color:#2e7d4f}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.box{background:var(--card);border-radius:12px;padding:16px 18px;box-shadow:0 1px 3px rgba(0,0,0,.07)}
+.box label{font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--sand);display:block;margin-bottom:8px}
+textarea{width:100%;min-height:240px;border:1px solid #dfe4ea;border-radius:8px;padding:12px;font-family:'Inter',sans-serif;font-size:13.5px;resize:vertical;color:var(--ink)}
+textarea:focus{outline:2px solid var(--acc);border-color:transparent}
+.runrow{margin:18px 0;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+button{background:var(--navy);color:#fff;border:none;font-family:'Inter',sans-serif;font-size:14.5px;font-weight:650;padding:12px 26px;border-radius:9px;cursor:pointer;transition:transform .2s,box-shadow .2s}
+button:hover{transform:translateY(-1px);box-shadow:0 8px 20px rgba(13,23,38,.25)}
+.hintsmall{font-size:12.5px;color:var(--mut)}
+#result{display:none;margin-top:8px}
+.scorecard{background:var(--card);border-radius:12px;padding:22px 24px;box-shadow:0 1px 3px rgba(0,0,0,.07);display:flex;gap:26px;align-items:center;flex-wrap:wrap}
+.ring{position:relative;width:120px;height:120px;flex:0 0 auto}
+.ring svg{transform:rotate(-90deg)}
+.ring .val{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:27px;font-weight:800;color:var(--navy)}
+.verdict{flex:1;min-width:240px}
+.verdict h2{font-family:'Fraunces',Georgia,serif;font-size:20px;color:var(--navy);margin-bottom:4px}
+.verdict p{font-size:13.5px;color:#39414f}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
+.panel{background:var(--card);border-radius:12px;padding:18px 20px;box-shadow:0 1px 3px rgba(0,0,0,.07)}
+.panel h3{font-size:13px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;margin-bottom:10px}
+.panel.match h3{color:var(--good)}
+.panel.miss h3{color:var(--bad)}
+.tags{display:flex;flex-wrap:wrap;gap:7px}
+.tag{font-size:12.5px;font-weight:550;padding:5px 11px;border-radius:16px}
+.panel.match .tag{background:#e7f3ec;color:#1f5c3c}
+.panel.miss .tag{background:#f9e9e8;color:#7e2f2c}
+.tips{margin-top:16px;background:var(--card);border-radius:12px;padding:18px 20px;box-shadow:0 1px 3px rgba(0,0,0,.07)}
+.tips h3{font-size:13px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--acc);margin-bottom:8px}
+.tips ul{margin-left:18px}
+.tips li{font-size:13.5px;color:#39414f;margin:6px 0}
+.disclaimer{margin-top:18px;font-size:12px;color:var(--mut);max-width:70ch}
+footer{max-width:900px;margin:30px auto;padding:0 20px;font-size:12.5px;color:var(--mut);text-align:center}
+@media (max-width:720px){.cols,.grid2{grid-template-columns:1fr}textarea{min-height:170px}}
+</style>
+</head>
+<body>
+<div class="top"><div class="in"><span class="name">Fit Check</span><span><a href="https://ruturaj-pm.github.io/">by Ruturaj Sahasrabudhe</a></span></div></div>
+<main>
+<h1>Does your CV match the job?</h1>
+<p class="lede">Paste your CV and the job description. You get a keyword-coverage score, what already matches, and what is missing - the same surface-level screen many ATS filters and recruiters apply in the first pass.</p>
+<p class="privacy"><strong>Private by design:</strong> everything runs inside your browser. Your CV is never uploaded, stored, or sent anywhere - you can switch off the internet after the page loads and it still works.</p>
+<div class="cols">
+  <div class="box"><label for="cv">Your CV (paste as text)</label><textarea id="cv" placeholder="Copy everything from your CV and paste it here..."></textarea></div>
+  <div class="box"><label for="jd">Job description</label><textarea id="jd" placeholder="Paste the full job description, including requirements..."></textarea></div>
+</div>
+<div class="runrow">
+  <button onclick="run()">Check fit</button>
+  <span class="hintsmall">Tip: paste the whole JD, not just the title - requirements carry the keywords.</span>
+</div>
+<div id="result">
+  <div class="scorecard">
+    <div class="ring">
+      <svg width="120" height="120" viewBox="0 0 120 120">
+        <circle cx="60" cy="60" r="52" fill="none" stroke="#e7ecf2" stroke-width="11"/>
+        <circle id="arc" cx="60" cy="60" r="52" fill="none" stroke="#2e7d4f" stroke-width="11" stroke-linecap="round" stroke-dasharray="326.7" stroke-dashoffset="326.7"/>
+      </svg>
+      <div class="val" id="scoreval">0%</div>
+    </div>
+    <div class="verdict"><h2 id="vh">-</h2><p id="vp"></p></div>
+  </div>
+  <div class="grid2">
+    <div class="panel match"><h3>Already in your CV</h3><div class="tags" id="matched"></div></div>
+    <div class="panel miss"><h3>In the JD, missing from your CV</h3><div class="tags" id="missing"></div></div>
+  </div>
+  <div class="tips"><h3>What to do with this</h3><ul id="tipslist"></ul></div>
+  <p class="disclaimer">This is a keyword-coverage check, not a judgement of your ability. It approximates the shallow first-pass screen, nothing deeper. Never add a skill you do not have - add the true experiences you forgot to write down, using the words the employer uses. A 100% score is neither possible nor the goal.</p>
+</div>
+</main>
+<footer>Runs fully in your browser · No data leaves this page · Built by <a href="https://ruturaj-pm.github.io/">Ruturaj Sahasrabudhe</a></footer>
+<script>
+var STOP = new Set(("a,an,the,and,or,but,if,then,else,for,of,in,on,at,to,from,by,with,as,is,are,was,were,be,been,being,have,has,had,do,does,did,will,would,can,could,should,may,might,must,shall,this,that,these,those,it,its,we,you,your,yours,our,ours,they,them,their,i,me,my,he,she,his,her,not,no,yes,all,any,both,each,more,most,other,some,such,only,own,same,so,than,too,very,just,also,about,above,after,again,against,below,between,into,through,during,before,under,over,out,up,down,off,once,here,there,when,where,why,how,what,which,who,whom,years,year,experience,experienced,work,working,works,worked,role,job,candidate,candidates,team,teams,strong,good,excellent,ability,able,skills,skill,knowledge,understanding,plus,etc,eg,ie,across,within,including,required,requirements,requirement,preferred,must,nice,responsibilities,responsibility,looking,seeking,join,company,opportunity,position,description,apply,applicants,applicant,ideal,minimum,least,well,based,using,use,used,via,ensure,ensuring,drive,driving,help,helping,support,supporting,end,day,daily,new,key,per,andor,exposure,prior,relevant,related,degree,bachelor,bachelors,master,masters,equivalent,field,salary,location,benefits,full,time,part,remote,hybrid,onsite,immediate,notice,period,ctc,lpa,mumbai,delhi,bangalore,bengaluru,hyderabad,pune,chennai,kolkata,gurgaon,gurugram,noida,india,hiring,hire,hires,hands-on,background,own,owns,manage,managing,managed,report,reporting,reports,head,senior,junior,lead").split(","));
+function segs(t){
+  t=t.toLowerCase().replace(/['']/g,"");
+  return t.split(/[.;:!?()\n\r,•|]+| - /).map(function(seg){
+    return seg.replace(/[^a-z0-9+#./\- ]/g," ").replace(/\s+/g," ").trim().split(" ")
+      .map(function(w){return w.replace(/^[-./]+|[-./]+$/g,"");})
+      .filter(function(w){return w.length>1 && !STOP.has(w) && !/^\d/.test(w);});
+  }).filter(function(s){return s.length;});
+}
+function extract(jdRaw){
+  var S=segs(jdRaw), uni={}, bi={};
+  S.forEach(function(s){
+    s.forEach(function(w,i){
+      uni[w]=(uni[w]||0)+1;
+      if(i<s.length-1){var b=w+" "+s[i+1];bi[b]=(bi[b]||0)+1;}
+    });
+  });
+  var bigs=Object.keys(bi).filter(function(b){return bi[b]>=2;});
+  var inBig=new Set(); bigs.forEach(function(b){b.split(" ").forEach(function(w){inBig.add(w);});});
+  var unis=Object.keys(uni).filter(function(u){return uni[u]>=2 && !inBig.has(u);});
+  var terms=bigs.map(function(b){return{t:b,w:bi[b]*2.2};})
+    .concat(unis.map(function(u){return{t:u,w:uni[u]};}));
+  if(terms.length<10){ // short JD fallback: admit single-occurrence unigrams of length>=4
+    var extra=Object.keys(uni).filter(function(u){return uni[u]===1&&u.length>=4&&!inBig.has(u);}).map(function(u){return{t:u,w:0.8};});
+    terms=terms.concat(extra);
+  }
+  return terms.sort(function(a,b){return b.w-a.w;}).slice(0,40);
+}
+
+function run(){
+  var cvRaw = document.getElementById("cv").value, jdRaw = document.getElementById("jd").value;
+  if(cvRaw.trim().length < 120 || jdRaw.trim().length < 120){
+    alert("Paste the full CV and the full job description first (both look too short)."); return;
+  }
+  var terms = extract(jdRaw);
+  var cvS = segs(cvRaw), cvW = []; cvS.forEach(function(s){ cvW = cvW.concat(s); });
+  var cvSet = new Set(cvW), cvText = " " + cvW.join(" ") + " ";
+  var got = 0, total = 0, matched = [], missing = [];
+  terms.forEach(function(o){
+    total += o.w;
+    var hit;
+    if(o.t.indexOf(" ") > 0){
+      hit = cvText.indexOf(" " + o.t + " ") >= 0;
+      if(!hit){
+        var parts = o.t.split(" ");
+        var have = parts.filter(function(p2){ return cvSet.has(p2); }).length;
+        if(have === parts.length){ hit = true; }
+        else if(have > 0){ got += o.w * 0.4; }
+      }
+    } else { hit = cvSet.has(o.t); }
+    if(hit){ got += o.w; matched.push(o.t); } else { missing.push(o.t); }
+  });
+  var score = total ? Math.min(100, Math.round(100*got/total)) : 0;
+  var arc = document.getElementById("arc");
+  var col = score >= 70 ? "#2e7d4f" : score >= 45 ? "#b07b2a" : "#b3433f";
+  arc.style.stroke = col;
+  arc.style.transition = "stroke-dashoffset 1s ease";
+  document.getElementById("result").style.display = "block";
+  requestAnimationFrame(function(){ arc.style.strokeDashoffset = String(326.7*(1-score/100)); });
+  document.getElementById("scoreval").textContent = score + "%";
+  var vh = document.getElementById("vh"), vp = document.getElementById("vp");
+  if(score >= 70){ vh.textContent = "Strong keyword fit."; vp.textContent = "Your CV already speaks this JD's language. Polish the top matches into your summary and first bullets, then apply."; }
+  else if(score >= 45){ vh.textContent = "Workable, with gaps."; vp.textContent = "A focused edit pass can lift this. Look at the missing list: add the ones that are TRUE for you, in the JD's own words."; }
+  else { vh.textContent = "Big gap on paper."; vp.textContent = "Either this role is a stretch, or your CV hides relevant experience behind different words. Check the missing list before deciding which."; }
+  function fill(id, arr, cap){
+    var el = document.getElementById(id); el.innerHTML = "";
+    arr.slice(0,cap).forEach(function(t){ var sp = document.createElement("span"); sp.className = "tag"; sp.textContent = t; el.appendChild(sp); });
+    if(!arr.length){ var sp = document.createElement("span"); sp.className = "tag"; sp.textContent = "none found"; el.appendChild(sp); }
+  }
+  fill("matched", matched, 18); fill("missing", missing, 18);
+  var tips = [];
+  if(missing.length){ tips.push("Pick the missing terms that are genuinely true for you and write them into real bullets - same words as the JD, with a number attached where you can."); }
+  tips.push("Mirror the job title somewhere honest (summary or headline) if your actual role matches it.");
+  if(score < 70){ tips.push("Lead your CV with the matched terms - screeners rarely read past the first half page."); }
+  tips.push("Re-run after editing. Two or three true additions usually move the score a lot.");
+  var tl = document.getElementById("tipslist"); tl.innerHTML = "";
+  tips.forEach(function(t){ var li = document.createElement("li"); li.textContent = t; tl.appendChild(li); });
+  document.getElementById("result").scrollIntoView({behavior:"smooth", block:"start"});
+}
+
+</script>
+</body>
+</html>
