@@ -1,0 +1,2862 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>RPOS — Rutu's Product OS · Working Prototype v2</title>
+<script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<!-- Export engines (load async so the app renders even if a CDN hiccups) -->
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<style>
+  :root {
+    --ink-900:#0B1020; --ink-800:#111933; --ink-700:#1a2447;
+    --ink-100:#E7ECF7; --ink-200:#CBD5EF;
+    --accent:#6366F1; --accent-2:#22D3EE; --accent-3:#F59E0B;
+    --good:#10B981; --warn:#F59E0B; --bad:#EF4444;
+  }
+  html,body,#root{height:100%;}
+  body{background:#F6F7FB; font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;}
+  .scroll-thin::-webkit-scrollbar{width:8px;height:8px}
+  .scroll-thin::-webkit-scrollbar-thumb{background:#CBD5EF;border-radius:8px}
+  .scroll-thin::-webkit-scrollbar-track{background:transparent}
+  .stage-dot{position:relative}
+  .stage-dot::before{content:"";position:absolute;left:-18px;top:8px;width:8px;height:8px;border-radius:999px;background:#CBD5EF}
+  .stage-dot.active::before{background:var(--accent);box-shadow:0 0 0 4px rgba(99,102,241,.2)}
+  .stage-dot.done::before{background:var(--good)}
+  .prd pre{white-space:pre-wrap;word-break:break-word}
+  .prd h1,.prd h2,.prd h3{font-weight:700;color:var(--ink-900)}
+  .prd h1{font-size:1.5rem;margin:1rem 0 .5rem}
+  .prd h2{font-size:1.15rem;margin:1.25rem 0 .5rem;border-bottom:1px solid #E5E7EB;padding-bottom:4px}
+  .prd h3{font-size:1rem;margin:1rem 0 .25rem;color:#334155}
+  .prd p{margin:.25rem 0;line-height:1.55;color:#334155}
+  .prd ul{padding-left:1.25rem;list-style:disc;color:#334155}
+  .prd table{border-collapse:collapse;margin:.5rem 0;font-size:.82rem}
+  .prd th,.prd td{border:1px solid #E5E7EB;padding:4px 8px;text-align:left}
+  .prd th{background:#F1F5F9}
+  .chip{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:500}
+  .chip-ind{background:#EEF2FF;color:#4338CA}
+  .chip-emer{background:#ECFEFF;color:#0E7490}
+  .chip-warn{background:#FEF3C7;color:#92400E}
+  .chip-good{background:#DCFCE7;color:#166534}
+  .chip-muted{background:#F1F5F9;color:#475569}
+  .chip-red{background:#FEE2E2;color:#991B1B}
+  .chip-pink{background:#FCE7F3;color:#9D174D}
+  .shadow-card{box-shadow:0 1px 2px rgba(15,23,42,.04), 0 8px 24px rgba(15,23,42,.06)}
+  .hover-card:hover{border-color:#C7D2FE;box-shadow:0 10px 30px rgba(99,102,241,.12)}
+  .focus-ring:focus{outline:none;box-shadow:0 0 0 3px rgba(99,102,241,.35);border-color:#6366F1}
+  .gradient-header{background:linear-gradient(135deg,#0B1020 0%, #1a2447 55%, #2A3570 100%);}
+  textarea.auto{min-height:80px;resize:vertical}
+  .dotgrid{background-image:radial-gradient(#E5E7EB 1px, transparent 1px);background-size:16px 16px}
+  .module-tab{padding:8px 14px;border-radius:8px;font-size:13px;font-weight:500;color:#475569;cursor:pointer;user-select:none}
+  .module-tab.active{background:#EEF2FF;color:#4338CA}
+  .module-tab:hover{background:#F1F5F9}
+  .kbd{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;background:#F1F5F9;border:1px solid #E2E8F0;border-bottom-width:2px;padding:1px 5px;border-radius:4px;font-size:11px;color:#334155}
+  .swimlane{background:linear-gradient(180deg,#ffffff,#FAFBFF)}
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#0B1020;color:#E7ECF7;padding:10px 16px;border-radius:10px;font-size:13px;box-shadow:0 10px 30px rgba(0,0,0,.25);z-index:50}
+  .menu{position:absolute;right:0;top:calc(100% + 6px);min-width:220px;background:#fff;border:1px solid #E2E8F0;border-radius:12px;box-shadow:0 20px 40px rgba(15,23,42,.18);z-index:60;overflow:hidden}
+  .menu-row{display:flex;align-items:center;gap:10px;padding:9px 12px;font-size:13px;color:#334155;cursor:pointer}
+  .menu-row:hover{background:#F1F5F9}
+  .menu-row .hint{margin-left:auto;font-size:10px;color:#94A3B8}
+  .wire-card{background:#fff;border:1px dashed #CBD5EF;border-radius:10px;padding:10px;font-size:12px}
+  .matrix th, .matrix td{border:1px solid #E5E7EB;padding:6px 8px;font-size:12px;vertical-align:top}
+  .matrix th{background:#F8FAFC;color:#475569;font-weight:600;text-align:left}
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+/***********************************************************************
+ *  RPOS — RUTU'S PRODUCT OS  (Working Prototype · v2)
+ *  v2 adds: SDLC-aware modules for all 7 stages · localStorage +
+ *  multi-project switcher · MD / DOC / DOCX / PDF / PPTX / XLSX export.
+ *  Seed data: CSPO Grocery Online case study.
+ ***********************************************************************/
+const { useState, useMemo, useEffect, useRef, useCallback } = React;
+
+/*─────────────────────────────────────────────────────────────────────
+  SEED DATA — CSPO Grocery Online
+─────────────────────────────────────────────────────────────────────*/
+const SEED_STRATEGY = {
+  vision: "Become India's most trusted same-day grocery platform for households and small retailers — where quality, price fairness and delivery reliability are never a trade-off.",
+  valueProp: "For time-pressed urban households and small kirana owners who struggle with inconsistent pricing, stock-outs and delivery delays, Grocery Online delivers fresh, verified-quality groceries in under 2 hours with transparent price locking and guaranteed replacement — unlike generic marketplaces that treat groceries as an afterthought.",
+  elevatorPitch: "Grocery Online is a 2-hour grocery delivery platform purpose-built for Indian households and kiranas. We combine dark-store fulfilment, QC-verified produce and a senior-friendly voice interface so every member of the household — from a working parent to a 70-year-old grandparent — can restock essentials without leaving home.",
+  businessGoals: [
+    "Hit 10,000 paid orders/week in Pune and Mumbai by Q4.",
+    "Achieve ≥ 92% on-time delivery rate within 2-hour SLA.",
+    "Reach ≥ 65% repeat-customer rate within 60 days of first order.",
+    "Keep QC rejection rate on fresh produce below 2%."
+  ],
+  northStar: "Weekly active households with ≥ 2 orders/week"
+};
+
+const SEED_PROBLEM = {
+  statement: "Urban Indian households and kiranas lose 6–8 hours/week to grocery runs marred by stock-outs, opaque pricing and unreliable delivery windows. Existing quick-commerce apps optimise for speed of delivery over trust in freshness and price fairness.",
+  targetUsers: "Working-age households (25–45) in tier-1 metros; senior citizens with limited mobility; small kirana owners re-ordering stock.",
+  hypotheses: [
+    "A 2-hour guaranteed slot with a price-lock at checkout will lift conversion by ≥ 25% vs. generic slot-free flows.",
+    "A senior-friendly (large-font, voice-first) surface will extend TAM by 18–22% among 60+ households.",
+    "A QC-reject guarantee backed by 4-hour refund will move first-order → second-order conversion by ≥ 12 pp."
+  ],
+  assumptions: [
+    "Dark-store throughput can hit 120 orders/hour at peak with current pick-pack design.",
+    "UPI + COD covers ≥ 95% of payment preferences in target pin codes.",
+    "Vendor reorder lead time for fresh produce stays under 6h weekdays."
+  ],
+  marketSize: "Pune + Mumbai quick-grocery TAM ≈ ₹14,500 Cr/yr (2025). Targeting 0.8% share (~₹115 Cr ARR) within 18 months."
+};
+
+const SEED_PERSONAS = [
+  { id:"p1", name:"Priya — The Homemaker",
+    role:"Primary Buyer · Household", age:"34", location:"Pune (Kothrud)",
+    demographics:"Married, 2 kids (age 6 & 10). Household income ₹12–15L. Tech-comfortable on phone.",
+    goals:["Restock weekly essentials without shop visits","Get fresh fruits & veggies at fair prices","Avoid last-minute stock-outs on weekdays"],
+    painPoints:["Quality of fresh items from apps is hit-or-miss","Delivery slots get booked by evening","Too many apps to compare prices"],
+    empathy:{
+      think:"Will the tomatoes actually be fresh this time?",
+      feel:"Anxious on weekday mornings; relieved when delivery is on time.",
+      say:"Just tell me it'll be here by 6 pm — I'll believe it when I see it.",
+      do:"Keeps a running list on notes app; cross-checks prices across 2 apps."
+    },
+    tags:["high-frequency","price-sensitive","quality-driven"] },
+  { id:"p2", name:"Arjun — The Working Professional",
+    role:"Secondary Buyer · Bachelor/Nuclear", age:"28", location:"Mumbai (Powai)",
+    demographics:"Single, IT professional. ₹18L+ income. Orders on-the-go from phone.",
+    goals:["Quick reorder of staples","Impulse snacks & ready-meals","Late-night delivery options"],
+    painPoints:["Minimum order values feel forced","Search is noisy — can't find specific brands","Delivery partners struggle with office address"],
+    empathy:{
+      think:"I just need Maggi and eggs — why is checkout this long?",
+      feel:"Impatient; wants frictionless one-tap reorder.",
+      say:"Bhai, 10 mins ka time nahi hai.",
+      do:"Uses saved lists; abandons cart if minimum order kicks in."
+    },
+    tags:["speed-first","low-basket-size","reorder-heavy"] },
+  { id:"p3", name:"Mr. Kulkarni — The Senior Citizen",
+    role:"Accessibility Persona", age:"71", location:"Pune (Aundh)",
+    demographics:"Retired, lives with spouse. Android phone, large-font mode. Pays via UPI reluctantly.",
+    goals:["Order medicines + groceries weekly","Speak to a human if something goes wrong","Pay cash on delivery when possible"],
+    painPoints:["App UI text too small","Too many steps between login and checkout","OTP SMS delays"],
+    empathy:{
+      think:"Last time they sent the wrong dal and nobody picked up the phone.",
+      feel:"Hesitant, mildly frustrated — trusts his nephew more than the app.",
+      say:"Beta, can you just call and order for me?",
+      do:"Asks grandchildren to place orders; writes lists by hand."
+    },
+    tags:["accessibility","voice-first","trust-driven"] },
+  { id:"p4", name:"Sandeep — The Delivery Partner",
+    role:"Fulfilment Persona", age:"26", location:"Pune (floats)",
+    demographics:"Gig worker, 6-day schedule. Android phone, 4G. Pays attention to incentives.",
+    goals:["Maximise deliveries/hour","Clear route with fewer customer calls","Timely incentive payouts"],
+    painPoints:["Wrong address pins","Locked society gates","Cash-on-delivery reconciliations"],
+    empathy:{
+      think:"Agar ye order bhi COD hua toh 20 min aur gaya.",
+      feel:"Rushed, driven by hourly targets.",
+      say:"Gate number nahi likha hai, please call back.",
+      do:"Skips orders with vague addresses; clusters nearby drops."
+    },
+    tags:["ops","incentive-driven","route-efficiency"] },
+  { id:"p5", name:"Ms. Shah — The Store Admin",
+    role:"Internal · Dark-store Ops", age:"33", location:"Pune DC-2",
+    demographics:"Operations manager, 7 yrs in retail. Uses admin web dashboard + barcode scanner.",
+    goals:["Keep in-stock rate ≥ 98%","Minimise pick-pack errors","Quick shift handover to next manager"],
+    painPoints:["Reordering from multiple vendors","QC checklist is manual","Handover notes get lost in WhatsApp"],
+    empathy:{
+      think:"If tomatoes run out by 2 pm today, we're done for dinner rush.",
+      feel:"Accountable, detail-oriented, always scanning.",
+      say:"Give me one dashboard — not seven.",
+      do:"Walks the aisles twice a shift; overrides system when her gut says stock is wrong."
+    },
+    tags:["internal","dashboards","ops"] },
+  { id:"p6", name:"Ravi — The Packing Staff",
+    role:"Internal · Fulfilment Floor", age:"24", location:"Pune DC-2",
+    demographics:"Packer, full-time. Hindi/Marathi primary. Uses handheld scanner + picking app.",
+    goals:["Clear picklist within SLA","Avoid wrong-item picks","Earn shift-end bonus"],
+    painPoints:["Picking app crashes on low battery","Sub-aisle labels inconsistent","No photo verification on fragile items"],
+    empathy:{
+      think:"Scanner phir se hang ho gaya — supervisor ko bulana padega.",
+      feel:"Focused, task-driven, wary of penalties.",
+      say:"Aaj ka target poora hoga agar app band na ho.",
+      do:"Double-scans to be safe; takes a photo with personal phone when unsure."
+    },
+    tags:["internal","frontline","reliability"] }
+];
+
+const SEED_STORIES = [
+  { id:"US-001", epic:"Onboarding & Auth", persona:"Priya (Homemaker)", priority:"Must",
+    story:"As a new customer, I want to sign up using my phone number and OTP so I can start ordering within 2 minutes.",
+    points:3, status:"Done",
+    ac:[
+      { given:"a user with a valid Indian mobile number", when:"they enter the number and request OTP", then:"an OTP is delivered within 30 seconds and auto-read on supported devices" },
+      { given:"a user enters the wrong OTP 3 times", when:"they submit the 4th attempt", then:"the account is locked for 5 minutes and a support path is surfaced" }
+    ] },
+  { id:"US-002", epic:"Browse & Search", persona:"Arjun (Professional)", priority:"Must",
+    story:"As a returning customer, I want to re-order my last basket in one tap so I don't have to search again.",
+    points:5, status:"In Progress",
+    ac:[
+      { given:"a customer with ≥1 prior delivered order", when:"they open the home screen", then:"a 'Reorder last basket' card appears with the exact SKUs and current prices" },
+      { given:"any SKU in the last basket is out-of-stock", when:"the user taps reorder", then:"the system substitutes with a verified alternative and flags the substitution before checkout" }
+    ] },
+  { id:"US-003", epic:"Browse & Search", persona:"Mr. Kulkarni (Senior)", priority:"Must",
+    story:"As a senior citizen, I want a high-contrast large-font mode so I can read product names and prices without straining my eyes.",
+    points:3, status:"To Do",
+    ac:[
+      { given:"a user opens settings", when:"they toggle 'Senior-friendly view'", then:"all fonts scale to 120% and contrast ratio meets WCAG AA" },
+      { given:"senior-friendly view is on", when:"the user browses any product list", then:"category chips and CTAs remain tappable with ≥48px target size" }
+    ] },
+  { id:"US-004", epic:"Cart & Checkout", persona:"Priya (Homemaker)", priority:"Must",
+    story:"As a customer, I want to see the exact delivery slot before checkout so I can plan my evening around it.",
+    points:5, status:"In Progress",
+    ac:[
+      { given:"a valid cart with ≥1 item", when:"the user proceeds to checkout", then:"available 2-hour slots for the next 24h are shown with live capacity remaining" },
+      { given:"a slot has <5 orders remaining", when:"rendered", then:"it is visually marked as 'Filling fast'" }
+    ] },
+  { id:"US-005", epic:"Payments", persona:"Mr. Kulkarni (Senior)", priority:"Should",
+    story:"As a senior citizen, I want Cash-on-Delivery as an option so I can pay without using UPI.",
+    points:3, status:"To Do",
+    ac:[
+      { given:"an order below ₹2,000", when:"the user reaches checkout", then:"COD is shown as a payment option" },
+      { given:"a COD order", when:"it is delivered", then:"the partner collects exact change or offers a digital alternative" }
+    ] },
+  { id:"US-006", epic:"Fulfilment", persona:"Sandeep (Delivery)", priority:"Must",
+    story:"As a delivery partner, I want turn-by-turn directions with the exact gate number so I don't lose time calling customers.",
+    points:5, status:"To Do",
+    ac:[
+      { given:"a delivery task is assigned", when:"partner taps 'Navigate'", then:"map opens with pin accurate to ±20m and includes customer-entered gate/flat info" },
+      { given:"no gate info is present", when:"task is picked up", then:"a 10-second call prompt is surfaced before reaching the pin" }
+    ] },
+  { id:"US-007", epic:"Fulfilment", persona:"Ravi (Packer)", priority:"Must",
+    story:"As a packer, I want the picking app to survive network drops so I don't lose scans mid-shift.",
+    points:8, status:"To Do",
+    ac:[
+      { given:"the packer is offline mid-pick", when:"they scan items", then:"scans are queued locally and sync automatically within 10s of reconnection" },
+      { given:"queued scans exist", when:"the app restarts", then:"all queued scans are preserved and surfaced before new picks are issued" }
+    ] },
+  { id:"US-008", epic:"Dark-store Ops", persona:"Ms. Shah (Store Admin)", priority:"Must",
+    story:"As a store admin, I want a single dashboard for stock-out risk so I can reorder before the evening rush.",
+    points:8, status:"To Do",
+    ac:[
+      { given:"any SKU's projected stock will be below safety threshold within 4h", when:"admin opens the dashboard", then:"a red 'At risk' badge appears with suggested reorder quantity" },
+      { given:"admin clicks 'Reorder'", when:"confirmed", then:"a PO is dispatched to the preferred vendor and logged in the audit trail" }
+    ] },
+  { id:"US-009", epic:"Trust & QC", persona:"Priya (Homemaker)", priority:"Must",
+    story:"As a customer, I want to report a quality issue with one tap so I can get a refund or replacement without a long call.",
+    points:5, status:"To Do",
+    ac:[
+      { given:"an order is delivered within the last 24h", when:"user taps 'Report issue'", then:"a 3-step flow (category → photo → resolution) completes in ≤60 seconds" },
+      { given:"photo evidence is attached", when:"claim is submitted", then:"a refund or replacement decision is made within 4 hours" }
+    ] },
+  { id:"US-010", epic:"Post-launch Metrics", persona:"Ms. Shah (Store Admin)", priority:"Could",
+    story:"As a store admin, I want a weekly ops scorecard so I can spot trends without building my own Excel.",
+    points:5, status:"Backlog",
+    ac:[
+      { given:"a completed ops week", when:"admin opens 'Scorecard'", then:"in-stock %, pick-pack error rate, on-time %, and QC rejections are shown with WoW deltas" },
+      { given:"any metric misses target by >10%", when:"rendered", then:"it's flagged red and includes a drill-down link" }
+    ] }
+];
+
+const SEED_BACKLOG = [
+  { id:"B-01", title:"Phone-OTP signup", epic:"Onboarding", priority:"Must", pts:3, status:"Done", rank:1 },
+  { id:"B-02", title:"Address capture w/ map pin", epic:"Onboarding", priority:"Must", pts:5, status:"Done", rank:2 },
+  { id:"B-03", title:"Home feed (Reorder + Categories)", epic:"Browse", priority:"Must", pts:8, status:"In Progress", rank:3 },
+  { id:"B-04", title:"Search with typo tolerance", epic:"Browse", priority:"Must", pts:8, status:"In Progress", rank:4 },
+  { id:"B-05", title:"Senior-friendly large-font mode", epic:"Accessibility", priority:"Must", pts:3, status:"To Do", rank:5 },
+  { id:"B-06", title:"Cart + saved lists", epic:"Cart", priority:"Must", pts:5, status:"In Progress", rank:6 },
+  { id:"B-07", title:"Slot selection w/ live capacity", epic:"Checkout", priority:"Must", pts:5, status:"In Progress", rank:7 },
+  { id:"B-08", title:"UPI checkout (PhonePe/GPay)", epic:"Payments", priority:"Must", pts:5, status:"Done", rank:8 },
+  { id:"B-09", title:"Cash-on-Delivery", epic:"Payments", priority:"Should", pts:3, status:"To Do", rank:9 },
+  { id:"B-10", title:"Price-lock on cart", epic:"Checkout", priority:"Should", pts:5, status:"To Do", rank:10 },
+  { id:"B-11", title:"Partner navigation + gate hints", epic:"Fulfilment", priority:"Must", pts:5, status:"To Do", rank:11 },
+  { id:"B-12", title:"Offline-resilient picking app", epic:"Fulfilment", priority:"Must", pts:8, status:"To Do", rank:12 },
+  { id:"B-13", title:"Stock-out risk dashboard", epic:"Dark-store Ops", priority:"Must", pts:8, status:"To Do", rank:13 },
+  { id:"B-14", title:"QC checklist digitisation", epic:"Dark-store Ops", priority:"Should", pts:8, status:"Backlog", rank:14 },
+  { id:"B-15", title:"1-tap quality complaint flow", epic:"Trust & QC", priority:"Must", pts:5, status:"To Do", rank:15 },
+  { id:"B-16", title:"Refund engine (4h SLA)", epic:"Trust & QC", priority:"Must", pts:8, status:"To Do", rank:16 },
+  { id:"B-17", title:"Push notifications — order stages", epic:"Engagement", priority:"Should", pts:3, status:"To Do", rank:17 },
+  { id:"B-18", title:"Referral programme", epic:"Growth", priority:"Could", pts:5, status:"Backlog", rank:18 },
+  { id:"B-19", title:"Weekly ops scorecard", epic:"Analytics", priority:"Could", pts:5, status:"Backlog", rank:19 },
+  { id:"B-20", title:"Voice-order (senior assistance)", epic:"Accessibility", priority:"Wont", pts:13, status:"Backlog", rank:20 }
+];
+
+const SEED_STORYMAP = {
+  activities: ["Sign up", "Browse & Add", "Checkout", "Track & Receive", "Resolve Issues"],
+  swimlanes: [
+    { release:"MVP (R1)", color:"#DCFCE7",
+      tasks: [
+        ["Phone-OTP signup","Address capture"],
+        ["Home feed","Keyword search","Category grid"],
+        ["Cart","2-hour slot selection","UPI checkout"],
+        ["Order tracking screen","Partner ETA"],
+        ["Contact support (WhatsApp)"]
+      ] },
+    { release:"R2", color:"#DBEAFE",
+      tasks: [
+        ["Senior-friendly mode","Saved addresses"],
+        ["Typo-tolerant search","Saved lists"],
+        ["COD option","Price-lock"],
+        ["Push notifications","Delivery photo proof"],
+        ["1-tap quality complaint","Refund engine"]
+      ] },
+    { release:"R3", color:"#FEF3C7",
+      tasks: [
+        ["Voice-order intake"],
+        ["Personalised ranking","Recipes → cart"],
+        ["BNPL · EMI","Wallet"],
+        ["Live chat w/ partner"],
+        ["Loyalty + referrals"]
+      ] }
+  ]
+};
+
+const SEED_WIREFRAMES = [
+  { id:"W-01", screen:"Sign-up (OTP)", persona:"Priya", notes:"Phone input · OTP auto-read · error state for 3+ failures", status:"Ready" },
+  { id:"W-02", screen:"Home Feed", persona:"Arjun", notes:"Reorder card pinned · 6 category tiles · search pill at top", status:"Ready" },
+  { id:"W-03", screen:"Senior Mode", persona:"Kulkarni", notes:"120% font · high contrast · bottom sheet CTA ≥48px", status:"In Review" },
+  { id:"W-04", screen:"Cart + Slot", persona:"Priya", notes:"2h slot grid · price-lock banner · 'Filling fast' chip", status:"Ready" },
+  { id:"W-05", screen:"Partner Nav", persona:"Sandeep", notes:"Map w/ gate info · 10s call prompt fallback · COD toggle", status:"Draft" },
+  { id:"W-06", screen:"Quality Issue", persona:"Priya", notes:"3-step: category → photo → resolution · 60s budget", status:"Draft" }
+];
+
+const SEED_FLOWS = [
+  { id:"F-01", name:"First-time Order", steps:["Land","Phone-OTP","Address pin","Home feed","Add to cart","Slot pick","UPI pay","Order tracking"] },
+  { id:"F-02", name:"Reorder (Arjun)", steps:["Home","Tap reorder","Substitutions surfaced","Checkout","UPI","Tracking"] },
+  { id:"F-03", name:"Senior Order w/ COD", steps:["Large-font home","Saved list","Slot pick","COD select","Delivery","Cash exchange"] },
+  { id:"F-04", name:"Quality Complaint", steps:["Recent order","Report issue","Category","Photo","Submit","Refund decision ≤4h"] }
+];
+
+const SEED_SPRINTS = [
+  { id:"S1", name:"Sprint 01 · Foundations", dates:"Wk 1–2", capacity:32, committed:29, items:["B-01","B-02","B-08"], status:"Done" },
+  { id:"S2", name:"Sprint 02 · Discovery", dates:"Wk 3–4", capacity:34, committed:32, items:["B-03","B-04","B-06"], status:"In Progress" },
+  { id:"S3", name:"Sprint 03 · Trust & Checkout", dates:"Wk 5–6", capacity:34, committed:30, items:["B-07","B-10","B-15"], status:"Planned" },
+  { id:"S4", name:"Sprint 04 · Ops & Fulfilment", dates:"Wk 7–8", capacity:34, committed:31, items:["B-11","B-12","B-13"], status:"Planned" }
+];
+
+const SEED_ARCHITECTURE = {
+  summary: "React Native mobile client + Next.js admin web · Node/NestJS API gateway · PostgreSQL for orders, Redis for cart/slot state, S3 for media, Pinecone for semantic search. Dark-store stack uses a picking-app with offline-first IndexedDB queue and WebSocket sync.",
+  stack: [
+    { layer:"Client (Customer)", tech:"React Native · Expo · Redux Toolkit · Reanimated" },
+    { layer:"Client (Ops)", tech:"Next.js 14 · shadcn/ui · Tanstack Query · WebSockets" },
+    { layer:"API", tech:"NestJS · GraphQL gateway · REST for partner apps · Zod validation" },
+    { layer:"Data", tech:"PostgreSQL (primary) · Redis (cart/slot) · ClickHouse (analytics) · Pinecone (search)" },
+    { layer:"Infra", tech:"AWS (ap-south-1) · ECS Fargate · CloudFront · S3 · SES · Lambda for COD reconciliation" },
+    { layer:"Observability", tech:"Datadog · Sentry · PagerDuty · LaunchDarkly flags" }
+  ],
+  risks: [
+    { id:"R-A1", risk:"Slot-capacity race conditions at peak", mitigation:"Redis Lua script for atomic decrement + idempotent retries" },
+    { id:"R-A2", risk:"Offline scan loss in picking app", mitigation:"IndexedDB queue w/ durable write + exponential backoff sync" },
+    { id:"R-A3", risk:"OTP deliverability via SMS aggregators", mitigation:"Primary/secondary SMS gateway + WhatsApp fallback after 30s" }
+  ]
+};
+
+const SEED_TESTS = [
+  { id:"T-01", storyRef:"US-001", title:"OTP delivery < 30s", type:"Functional", result:"Pass", owner:"QA-A", run:"2026-04-18" },
+  { id:"T-02", storyRef:"US-001", title:"Lockout after 3 bad OTPs", type:"Security", result:"Pass", owner:"QA-B", run:"2026-04-18" },
+  { id:"T-03", storyRef:"US-002", title:"Reorder with OOS substitution", type:"Functional", result:"Pending", owner:"QA-A", run:"—" },
+  { id:"T-04", storyRef:"US-003", title:"WCAG AA contrast in senior mode", type:"Accessibility", result:"Pass", owner:"QA-C", run:"2026-04-17" },
+  { id:"T-05", storyRef:"US-004", title:"Slot capacity atomic decrement (load)", type:"Load", result:"Fail", owner:"QA-D", run:"2026-04-19" },
+  { id:"T-06", storyRef:"US-006", title:"Pin accuracy ±20m in low-GPS zones", type:"Field", result:"Pending", owner:"QA-E", run:"—" },
+  { id:"T-07", storyRef:"US-007", title:"Offline scan queue survives restart", type:"Resilience", result:"Pass", owner:"QA-B", run:"2026-04-16" },
+  { id:"T-08", storyRef:"US-008", title:"At-risk SKU badge at 4h horizon", type:"Functional", result:"Pending", owner:"QA-A", run:"—" },
+  { id:"T-09", storyRef:"US-009", title:"Refund SLA ≤ 4h", type:"E2E", result:"Pending", owner:"QA-C", run:"—" }
+];
+
+const SEED_RELEASE = {
+  releases: [
+    { id:"R1", name:"MVP — Pune Pilot", date:"2026-05-15", channel:"Closed beta (Kothrud, Aundh)", scope:"US-001 · US-002 · US-004 · US-006 · UPI", risk:"Medium" },
+    { id:"R2", name:"Mumbai + Trust", date:"2026-06-30", channel:"Staged rollout (25% → 100%)", scope:"Senior mode · COD · Price-lock · Refund engine", risk:"Medium" },
+    { id:"R3", name:"Growth", date:"2026-08-15", channel:"GA", scope:"Voice-order · Referrals · Loyalty", risk:"Low" }
+  ],
+  rollout: [
+    "Day 0 · Canary to 2 dark stores (DC-2, DC-5) · feature-flag gated",
+    "Day 2 · Expand to 25% of Pune pin codes if P0/P1 incidents = 0",
+    "Day 5 · Expand to 100% Pune · Mumbai canary starts",
+    "Day 10 · Mumbai GA if on-time ≥ 90% and QC reject ≤ 2.5%",
+    "Day 14 · Retro + decision to flip next R2 feature flag"
+  ]
+};
+
+const SEED_KPIS = [
+  { id:"K-01", name:"Weekly Active Households (WAH ≥2 orders/wk)", target:"6,000", current:"1,820", trend:"+12% WoW", owner:"Growth" },
+  { id:"K-02", name:"On-time Delivery %", target:"≥ 92%", current:"88.4%", trend:"+1.1 pp WoW", owner:"Ops" },
+  { id:"K-03", name:"QC Reject Rate", target:"≤ 2%", current:"2.7%", trend:"-0.3 pp WoW", owner:"Ops" },
+  { id:"K-04", name:"Repeat Customer Rate (60d)", target:"≥ 65%", current:"48%", trend:"+4 pp MoM", owner:"Growth" },
+  { id:"K-05", name:"App Crash-free sessions", target:"≥ 99.5%", current:"99.3%", trend:"flat", owner:"Engineering" },
+  { id:"K-06", name:"CAC Payback (months)", target:"≤ 6", current:"7.2", trend:"-0.4 MoM", owner:"Finance" }
+];
+
+/*─────────────────────────────────────────────────────────────────────
+  SEED EXECUTION PLANS · AI-generated cross-functional decompositions
+  One ExecutionPlan per story in SEED_STORIES.
+  Shape: { storyId, confidence, generatedBy, tasks[], risks[], assumptions[] }
+─────────────────────────────────────────────────────────────────────*/
+const EXEC_FUNCTIONS = ["UI","Dev","QA","Legal","Compliance","Ops","Finance","Marketing","Data"];
+
+const SEED_EXECUTION = [
+  { storyId:"US-001", confidence:"high", generatedBy:"seed",
+    tasks:[
+      { id:"T-001-01", fn:"UI",         scope:"Design OTP entry screen — 6-digit input, auto-read hint, 30s countdown, resend, lockout state, support CTA", est:2,   owner:"Design Lead",   status:"Done",        dep:[] },
+      { id:"T-001-02", fn:"Dev",        scope:"Integrate SMS gateway (MSG91) with DLT-registered sender templates; retry + throttle", est:3,   owner:"Backend",       status:"Done",        dep:["T-001-01"] },
+      { id:"T-001-03", fn:"Dev",        scope:"Auto-read via SMS Retriever API (Android) + native iOS pattern", est:2,   owner:"Mobile",        status:"In Progress", dep:["T-001-01"] },
+      { id:"T-001-04", fn:"Dev",        scope:"3-strike lockout with 5-min backoff + audit log", est:1.5, owner:"Backend",       status:"In Progress", dep:["T-001-02"] },
+      { id:"T-001-05", fn:"Dev",        scope:"Backend: phone validation, rate-limiting, OTP hashing (never plaintext)", est:2, owner:"Backend",       status:"Done",        dep:[] },
+      { id:"T-001-06", fn:"QA",         scope:"Device matrix — Android 10–14, iOS 15–17, dual-SIM, low-bandwidth", est:3,   owner:"QA Lead",       status:"Not Started", dep:["T-001-03","T-001-04"] },
+      { id:"T-001-07", fn:"QA",         scope:"Security — OTP replay, enumeration, brute-force", est:1.5, owner:"Security",      status:"Not Started", dep:["T-001-05"] },
+      { id:"T-001-08", fn:"Legal",      scope:"Review phone-collection consent copy; DPDP/PDPB compliance sign-off", est:1,   owner:"Legal",         status:"In Progress", dep:["T-001-01"] },
+      { id:"T-001-09", fn:"Compliance", scope:"DLT sender registration + retention policy documentation", est:1,   owner:"Compliance",    status:"Blocked",     dep:[] },
+      { id:"T-001-10", fn:"Ops",        scope:"Train CS on unlock flow; KB article; extend CS tool to unlock accounts", est:1,   owner:"Ops Lead",       status:"Not Started", dep:["T-001-04"] },
+      { id:"T-001-11", fn:"Data",       scope:"Funnel events — OTP requested / received / entered / locked / signup done", est:0.5, owner:"Analytics",     status:"Not Started", dep:["T-001-02"] },
+      { id:"T-001-12", fn:"Marketing",  scope:"Signup-screen trust microcopy (\"we never share your number\")", est:0.5, owner:"Marketing",     status:"Done",        dep:["T-001-01"] }
+    ],
+    risks:[
+      { id:"R-001-01", type:"external_blocker", sev:"high",   msg:"DLT sender registration in India takes 5–15 working days — schedule-killing blocker if not started on day 1", mit:"Kick off DLT process immediately; escalate via operator if >10 days", dismissed:false },
+      { id:"R-001-02", type:"ops",              sev:"medium", msg:"CS unlock tooling often missed — launch without it and ticket volume spikes", mit:"Carve out tooling work in CS sprint before GA", dismissed:false },
+      { id:"R-001-03", type:"ux",               sev:"medium", msg:"Hard lockout frustrates legit users on mistype", mit:"Use progressive backoff; surface support path after attempt 2", dismissed:false },
+      { id:"R-001-04", type:"dependency",       sev:"medium", msg:"Legal consent copy still under review — Dev may ship with placeholder that fails audit", mit:"Block UI freeze until Legal signs off", dismissed:false }
+    ],
+    assumptions:[ "Using Indian SMS gateway with DLT compliance", "WhatsApp OTP deferred to V2", "Account creation stops at phone verification; KYC later" ]
+  },
+  { storyId:"US-002", confidence:"high", generatedBy:"seed",
+    tasks:[
+      { id:"T-002-01", fn:"UI",      scope:"Reorder card on home feed; show SKUs + current price delta", est:1,   owner:"Design Lead", status:"Done",        dep:[] },
+      { id:"T-002-02", fn:"Dev",     scope:"Last-basket API + current-price join with freshness window", est:1.5, owner:"Backend",     status:"In Progress", dep:["T-002-01"] },
+      { id:"T-002-03", fn:"Dev",     scope:"OOS substitution logic with verified-alt flag + pre-checkout sub confirmation", est:2,   owner:"Backend",     status:"In Progress", dep:["T-002-02"] },
+      { id:"T-002-04", fn:"QA",      scope:"Edge cases — empty history, all-OOS basket, price changes >10%", est:1,   owner:"QA Lead",     status:"Not Started", dep:["T-002-03"] },
+      { id:"T-002-05", fn:"Data",    scope:"Reorder adoption, substitution accept-rate, time-to-cart delta", est:0.5, owner:"Analytics",   status:"Not Started", dep:["T-002-02"] }
+    ],
+    risks:[
+      { id:"R-002-01", type:"ux",           sev:"medium", msg:"Substitution acceptance is the real success metric — if users reject subs, feature shifts risk from search to substitution UX", mit:"A/B test auto-sub vs user-confirm-sub before GA", dismissed:false },
+      { id:"R-002-02", type:"data_quality", sev:"low",    msg:"Current-price sync lag may show stale prices", mit:"Define freshness window + stale-price fallback", dismissed:false }
+    ],
+    assumptions:[ "User has ≥1 completed order in history", "Substitution rules live in catalog service, not app" ]
+  },
+  { storyId:"US-003", confidence:"high", generatedBy:"seed",
+    tasks:[
+      { id:"T-003-01", fn:"UI",         scope:"Design senior-friendly token scale + WCAG AA palette; scale typography to 120%", est:2,   owner:"Design Lead", status:"Not Started", dep:[] },
+      { id:"T-003-02", fn:"UI",         scope:"Audit category chips + CTAs for ≥48px tap-target at 120% scale", est:1,   owner:"Design Lead", status:"Not Started", dep:["T-003-01"] },
+      { id:"T-003-03", fn:"Dev",        scope:"Settings toggle + CSS-variable-driven type scale; theme swap", est:3,   owner:"Frontend",    status:"Not Started", dep:["T-003-01"] },
+      { id:"T-003-04", fn:"Dev",        scope:"Fallback for components with hardcoded sizes across top 20 screens", est:1,   owner:"Frontend",    status:"Not Started", dep:["T-003-03"] },
+      { id:"T-003-05", fn:"QA",         scope:"WCAG AA contrast check across top 50 screens + real-device testing with senior users", est:1.5, owner:"QA Lead",     status:"Not Started", dep:["T-003-03","T-003-04"] },
+      { id:"T-003-06", fn:"QA",         scope:"Regression when toggle is off", est:1,   owner:"QA Lead",     status:"Not Started", dep:["T-003-03"] },
+      { id:"T-003-07", fn:"Compliance", scope:"WCAG AA audit report with tested pages, pass/fail, known exceptions", est:1,   owner:"Compliance",  status:"Not Started", dep:["T-003-05"] },
+      { id:"T-003-08", fn:"Marketing",  scope:"In-app announcement + tooltip copy for \"Senior-friendly view\"", est:0.5, owner:"Marketing",   status:"Not Started", dep:["T-003-03"] }
+    ],
+    risks:[
+      { id:"R-003-01", type:"ux",     sev:"medium", msg:"Font scaling at 120% will overflow existing fixed-height components — needs broader UI audit, not just the toggle", mit:"Scope component audit before shipping toggle", dismissed:false },
+      { id:"R-003-02", type:"policy", sev:"low",    msg:"Publicly claiming \"WCAG AA\" creates a compliance claim Legal should review", mit:"Route Marketing copy through Legal before GA", dismissed:false },
+      { id:"R-003-03", type:"ux",     sev:"medium", msg:"Seniors may never find the toggle in Settings", mit:"Add one-time prompt at signup; let CS activate it remotely", dismissed:false }
+    ],
+    assumptions:[ "No backend changes required", "Existing design system supports CSS-variable theming" ]
+  },
+  { storyId:"US-004", confidence:"high", generatedBy:"seed",
+    tasks:[
+      { id:"T-004-01", fn:"UI",   scope:"Slot picker UI with \"Filling fast\" chip, 2h buckets, 24h horizon", est:1,   owner:"Design Lead", status:"Done",        dep:[] },
+      { id:"T-004-02", fn:"Dev",  scope:"Slot capacity service per dark-store, 2h buckets, 24h horizon", est:3,   owner:"Backend",     status:"In Progress", dep:["T-004-01"] },
+      { id:"T-004-03", fn:"Dev",  scope:"Reserve-on-select with 5-min hold + auto-release on expiry", est:2,   owner:"Backend",     status:"Not Started", dep:["T-004-02"] },
+      { id:"T-004-04", fn:"QA",   scope:"Slot contention (two users, same last-slot) + hold expiry edge cases", est:1.5, owner:"QA Lead",     status:"Not Started", dep:["T-004-03"] },
+      { id:"T-004-05", fn:"Ops",  scope:"Slot-capacity config UI for ops team + runbook", est:1,   owner:"Ops Lead",    status:"Not Started", dep:["T-004-02"] },
+      { id:"T-004-06", fn:"Data", scope:"Slot-to-order conversion, no-slot-available rate, late-delivery tied to slot choice", est:0.5, owner:"Analytics",   status:"Not Started", dep:["T-004-02"] }
+    ],
+    risks:[
+      { id:"R-004-01", type:"trust",      sev:"high",   msg:"Capacity under-reporting tanks trust; over-reporting causes late deliveries — tune carefully", mit:"Start with 20% buffer; shrink weekly based on on-time %", dismissed:false },
+      { id:"R-004-02", type:"scale",      sev:"medium", msg:"Slot reservations without checkout completion starve inventory", mit:"5-min hold + auto-release; monitor abandoned-hold rate", dismissed:false }
+    ],
+    assumptions:[ "Dark-store capacity is per 2h window, configurable", "No slot-shifting after order placement in V1" ]
+  },
+  { storyId:"US-005", confidence:"medium", generatedBy:"seed",
+    tasks:[
+      { id:"T-005-01", fn:"UI",         scope:"COD option in payment selection (<₹2k gate) + exact-change messaging", est:1,   owner:"Design Lead", status:"Not Started", dep:[] },
+      { id:"T-005-02", fn:"UI",         scope:"Partner app — cash-collected confirm + digital fallback UPI QR", est:1.5, owner:"Design Lead", status:"Not Started", dep:[] },
+      { id:"T-005-03", fn:"Dev",        scope:"Backend — COD flag, order-value ceiling, fulfilment routing", est:2,   owner:"Backend",     status:"Not Started", dep:["T-005-01"] },
+      { id:"T-005-04", fn:"Dev",        scope:"Partner app — cash capture + UPI QR fallback generation", est:3,   owner:"Mobile",      status:"Not Started", dep:["T-005-02"] },
+      { id:"T-005-05", fn:"Dev",        scope:"Refund/cancel logic when cash already collected", est:2,   owner:"Backend",     status:"Not Started", dep:["T-005-03"] },
+      { id:"T-005-06", fn:"QA",         scope:"End-to-end — order → deliver → collect → reconcile → cancel edge cases", est:2,   owner:"QA Lead",     status:"Not Started", dep:["T-005-04","T-005-05"] },
+      { id:"T-005-07", fn:"Legal",      scope:"COD T&Cs — cash-loss liability, merchant agreement alignment", est:1,   owner:"Legal",       status:"Not Started", dep:[] },
+      { id:"T-005-08", fn:"Compliance", scope:"Cash-handling SOP + GST invoice flow for COD orders", est:1,   owner:"Compliance",  status:"Not Started", dep:["T-005-07"] },
+      { id:"T-005-09", fn:"Finance",    scope:"Daily cash reconciliation workflow + variance thresholds (est. light)", est:3,   owner:"Finance",     status:"Not Started", dep:["T-005-04"] },
+      { id:"T-005-10", fn:"Ops",        scope:"Partner training on exact change, UPI fallback, fraud SOP", est:2,   owner:"Ops Lead",    status:"Not Started", dep:["T-005-04"] },
+      { id:"T-005-11", fn:"Ops",        scope:"Fraud monitoring — flag partners w/ variance spikes or refusal-rate anomalies", est:1.5, owner:"Ops Lead",    status:"Not Started", dep:["T-005-09"] },
+      { id:"T-005-12", fn:"Marketing",  scope:"\"COD available\" badge + senior-trust comms campaign", est:1,   owner:"Marketing",   status:"Not Started", dep:["T-005-03"] },
+      { id:"T-005-13", fn:"Data",       scope:"COD adoption, cancellation delta vs prepaid, fraud signals", est:0.5, owner:"Analytics",   status:"Not Started", dep:["T-005-03"] }
+    ],
+    risks:[
+      { id:"R-005-01", type:"fraud",    sev:"high",   msg:"Cash = fraud surface. Partner shrinkage needs detection from day 1, not post-launch", mit:"Ship fraud-monitoring with launch; baseline variance per partner", dismissed:false },
+      { id:"R-005-02", type:"scale",    sev:"high",   msg:"COD cancellation rates run ~12% vs ~4% prepaid in Indian quick-commerce — cancellation UX needs extra care", mit:"Add re-confirm step before dispatch for COD >₹1k", dismissed:false },
+      { id:"R-005-03", type:"policy",   sev:"medium", msg:"₹2,000 ceiling will be gamed via cart-splitting", mit:"Rate-limit COD orders per customer per day", dismissed:false },
+      { id:"R-005-04", type:"trust",    sev:"high",   msg:"COD is culturally critical for the senior persona — if launch is buggy, trust with that cohort collapses", mit:"Run senior-only beta before GA", dismissed:false },
+      { id:"R-005-05", type:"ops",      sev:"medium", msg:"Daily cash settlement is manual overhead — does it scale at 10x volume?", mit:"Design workflow with pluggable handoff to aggregator in V2", dismissed:false }
+    ],
+    assumptions:[ "Delivery partners are tightly-managed (not gig marketplace)", "India-only for V1", "UPI-on-delivery is the digital fallback, not card" ]
+  },
+  { storyId:"US-006", confidence:"high", generatedBy:"seed",
+    tasks:[
+      { id:"T-006-01", fn:"UI",   scope:"Partner app navigate screen w/ gate-field overlay + call CTA", est:1,   owner:"Design Lead", status:"Not Started", dep:[] },
+      { id:"T-006-02", fn:"Dev",  scope:"Geocoding + pin accuracy check (±20m); show accuracy indicator", est:2,   owner:"Mobile",      status:"Not Started", dep:["T-006-01"] },
+      { id:"T-006-03", fn:"Dev",  scope:"Map provider integration (Google/Mapbox) with deep-link to nav", est:1,   owner:"Mobile",      status:"Not Started", dep:["T-006-02"] },
+      { id:"T-006-04", fn:"Dev",  scope:"Auto-call prompt when gate info missing (10s before pin)", est:1,   owner:"Mobile",      status:"Not Started", dep:["T-006-01"] },
+      { id:"T-006-05", fn:"QA",   scope:"Device test on ≥3 Android models frontline partners actually use", est:1,   owner:"QA Lead",     status:"Not Started", dep:["T-006-03"] },
+      { id:"T-006-06", fn:"Ops",  scope:"Partner SOP: call-before-reaching-pin when accuracy low", est:0.5, owner:"Ops Lead",    status:"Not Started", dep:["T-006-04"] },
+      { id:"T-006-07", fn:"Data", scope:"Avg time-to-deliver delta, calls-made rate, gate-miss rate", est:0.5, owner:"Analytics",   status:"Not Started", dep:["T-006-03"] }
+    ],
+    risks:[
+      { id:"R-006-01", type:"data_quality", sev:"high",   msg:"Map accuracy in dense Indian urban areas is often worse than ±20m — gate field is the real primary, not a fallback", mit:"Make gate field mandatory at address capture, not optional", dismissed:false },
+      { id:"R-006-02", type:"ux",           sev:"low",    msg:"Customer-call prompt may be ignored if UX is friction", mit:"One-tap voice-triggered call flow", dismissed:false }
+    ],
+    assumptions:[ "Partner app runs on low-end Android; no iOS partners in India V1", "Gate field already exists in address schema" ]
+  },
+  { storyId:"US-007", confidence:"high", generatedBy:"seed",
+    tasks:[
+      { id:"T-007-01", fn:"UI",   scope:"Offline indicator + queued-scan count surface in packer app", est:0.5, owner:"Design Lead", status:"Not Started", dep:[] },
+      { id:"T-007-02", fn:"Dev",  scope:"Local scan queue — SQLite or IndexedDB with crash-safe writes", est:2,   owner:"Mobile",      status:"Not Started", dep:["T-007-01"] },
+      { id:"T-007-03", fn:"Dev",  scope:"Sync-on-reconnect with idempotent server API + conflict resolution", est:2,   owner:"Backend",     status:"Not Started", dep:["T-007-02"] },
+      { id:"T-007-04", fn:"Dev",  scope:"Cold-start preserves queued scans; surface before new picks", est:1,   owner:"Mobile",      status:"Not Started", dep:["T-007-02"] },
+      { id:"T-007-05", fn:"QA",   scope:"Airplane mode, flaky network, app-kill mid-shift scenarios", est:2,   owner:"QA Lead",     status:"Not Started", dep:["T-007-03","T-007-04"] },
+      { id:"T-007-06", fn:"Ops",  scope:"Pilot at 1 dark store before rollout; train packers on offline indicator", est:1,   owner:"Ops Lead",    status:"Not Started", dep:["T-007-05"] },
+      { id:"T-007-07", fn:"Data", scope:"Offline-duration histogram, queue-size anomalies, latency masking alerts", est:0.5, owner:"Analytics",   status:"Not Started", dep:["T-007-03"] }
+    ],
+    risks:[
+      { id:"R-007-01", type:"data_quality", sev:"high",   msg:"Duplicate scans on reconnect — server API must be idempotent", mit:"Use client-generated scan UUID as idempotency key", dismissed:false },
+      { id:"R-007-02", type:"scale",        sev:"medium", msg:"A packer working offline all day generates a huge queue", mit:"Cap queue size; warn packer if cap approaching", dismissed:false },
+      { id:"R-007-03", type:"data_quality", sev:"medium", msg:"Scan-to-server latency metric will mask offline-work volume", mit:"Add separate offline-hours-worked metric", dismissed:false }
+    ],
+    assumptions:[ "Packer app is Android-only", "Server can absorb burst of queued scans without rate-limiting individual packers" ]
+  },
+  { storyId:"US-008", confidence:"medium", generatedBy:"seed",
+    tasks:[
+      { id:"T-008-01", fn:"UI",      scope:"Stock-out dashboard with \"At risk\" red badge + suggested reorder qty", est:1.5, owner:"Design Lead", status:"Not Started", dep:[] },
+      { id:"T-008-02", fn:"Dev",     scope:"Projected stock-out model (consumption × time × safety stock)", est:3,   owner:"Backend",     status:"Not Started", dep:[] },
+      { id:"T-008-03", fn:"Dev",     scope:"Reorder-to-PO flow + audit trail + preferred-vendor rules", est:2,   owner:"Backend",     status:"Not Started", dep:["T-008-02"] },
+      { id:"T-008-04", fn:"QA",      scope:"Model edge cases — promo spikes, sparse-history SKUs, new products", est:1,   owner:"QA Lead",     status:"Not Started", dep:["T-008-02"] },
+      { id:"T-008-05", fn:"Finance", scope:"Vendor preference rules + PO approval thresholds + spend cap", est:1,   owner:"Finance",     status:"Not Started", dep:["T-008-03"] },
+      { id:"T-008-06", fn:"Ops",     scope:"Admin training; escalation path when model errors", est:0.5, owner:"Ops Lead",    status:"Not Started", dep:["T-008-01"] },
+      { id:"T-008-07", fn:"Data",    scope:"Model accuracy tracking — predicted vs actual stockouts, drift alerts", est:1,   owner:"Analytics",   status:"Not Started", dep:["T-008-02"] }
+    ],
+    risks:[
+      { id:"R-008-01", type:"trust",    sev:"high",   msg:"Wrong projections erode admin trust fast — ship with confidence bands, not point estimates", mit:"Show range + historical accuracy next to each projection", dismissed:false },
+      { id:"R-008-02", type:"policy",   sev:"medium", msg:"Full auto-reorder risks over-ordering without human gate", mit:"V1: suggest-only; no auto-send to vendor", dismissed:false },
+      { id:"R-008-03", type:"data_quality", sev:"medium", msg:"Audit trail required for finance reconciliation — missing it breaks month-end close", mit:"Audit log is a launch blocker, not a nice-to-have", dismissed:false }
+    ],
+    assumptions:[ "Consumption history ≥30 days available per SKU", "Vendor catalog integration exists; POs sent via existing tool" ]
+  },
+  { storyId:"US-009", confidence:"high", generatedBy:"seed",
+    tasks:[
+      { id:"T-009-01", fn:"UI",      scope:"3-step issue flow — category → photo → resolution picker", est:1.5, owner:"Design Lead", status:"Not Started", dep:[] },
+      { id:"T-009-02", fn:"Dev",     scope:"Claim service + photo upload + resolution state machine", est:2.5, owner:"Backend",     status:"Not Started", dep:["T-009-01"] },
+      { id:"T-009-03", fn:"Dev",     scope:"Auto-refund / replacement flow integration with ops tooling", est:2,   owner:"Backend",     status:"Not Started", dep:["T-009-02"] },
+      { id:"T-009-04", fn:"QA",      scope:"Low-bandwidth photo upload; flow under 60s target", est:1,   owner:"QA Lead",     status:"Not Started", dep:["T-009-03"] },
+      { id:"T-009-05", fn:"Legal",   scope:"Refund policy alignment; photo retention policy", est:1,   owner:"Legal",       status:"Not Started", dep:[] },
+      { id:"T-009-06", fn:"Ops",     scope:"Escalation path for rejected claims; partner recovery for restock", est:1,   owner:"Ops Lead",    status:"Not Started", dep:["T-009-03"] },
+      { id:"T-009-07", fn:"Finance", scope:"Refund ledger + chargeback reconciliation; daily settlement view", est:1,   owner:"Finance",     status:"Not Started", dep:["T-009-03"] },
+      { id:"T-009-08", fn:"Data",    scope:"Claim rate by SKU + false-claim detection heuristics", est:1,   owner:"Analytics",   status:"Not Started", dep:["T-009-02"] }
+    ],
+    risks:[
+      { id:"R-009-01", type:"fraud",    sev:"high",   msg:"Serial claimants will exploit any auto-refund threshold", mit:"Cap auto-refund rate per customer; require manual review above threshold", dismissed:false },
+      { id:"R-009-02", type:"data_quality", sev:"medium", msg:"Blurry photos waste CS review time", mit:"Client-side blur detection before upload", dismissed:false },
+      { id:"R-009-03", type:"scale",    sev:"medium", msg:"4-hour resolution SLA hard in edge cases", mit:"Ship escalation + SLA-miss notification, not just automation", dismissed:false }
+    ],
+    assumptions:[ "Customer can attach ≥1 photo", "Refund goes back to original payment method; COD refunds are a separate flow" ]
+  },
+  { storyId:"US-010", confidence:"medium", generatedBy:"seed",
+    tasks:[
+      { id:"T-010-01", fn:"UI",   scope:"Scorecard UI — metric cards, WoW deltas, red-flag threshold, drill-down links", est:1.5, owner:"Design Lead", status:"Not Started", dep:[] },
+      { id:"T-010-02", fn:"Dev",  scope:"Metrics aggregation ETL per store per week (in-stock %, pick-pack errors, on-time %, QC rejects)", est:2,   owner:"Backend",     status:"Not Started", dep:[] },
+      { id:"T-010-03", fn:"Dev",  scope:"Deltas + target comparison + red flag (>10% miss)", est:1,   owner:"Backend",     status:"Not Started", dep:["T-010-02"] },
+      { id:"T-010-04", fn:"QA",   scope:"Time-zone edge cases (IST week boundaries vs UTC)", est:0.5, owner:"QA Lead",     status:"Not Started", dep:["T-010-03"] },
+      { id:"T-010-05", fn:"Data", scope:"Canonical metric definitions doc + target alignment with Ops", est:1,   owner:"Analytics",   status:"Not Started", dep:[] }
+    ],
+    risks:[
+      { id:"R-010-01", type:"data_quality", sev:"medium", msg:"Metric definitions drift between teams — canonical definitions matter most", mit:"Lock definitions before build; publish in shared data dict", dismissed:false },
+      { id:"R-010-02", type:"scale",        sev:"low",    msg:"Could-priority — may slip under MVP pressure; don't block on it", mit:"Accept slip to R2 if dev capacity tight", dismissed:false }
+    ],
+    assumptions:[ "Source data exists in warehouse; no new instrumentation needed", "Weekly cadence — daily view deferred" ]
+  }
+];
+
+/*─────────────────────────────────────────────────────────────────────
+  SDLC STAGES → MODULE MAP
+─────────────────────────────────────────────────────────────────────*/
+const SDLC_STAGES = [
+  { id:"discovery",    name:"Discovery / Ideation",    sub:["Problem Framing","Market Scan","Concept Tests"],
+    modules:["problem","strategy","personas"] },
+  { id:"requirements", name:"Requirements Gathering",  sub:["Competitor Analysis","Stakeholder Interviews","Feasibility"],
+    modules:["personas","stories","backlog","map"] },
+  { id:"design",       name:"Design",                  sub:["IA & Flows","Wireframes","Hi-Fi Prototype"],
+    modules:["wireframes","flows"] },
+  { id:"development",  name:"Development",             sub:["Architecture","Sprints","Execution","Code Review"],
+    modules:["sprints","execution","architecture"] },
+  { id:"qa",           name:"QA / Testing",            sub:["Test Plan","Regression","UAT"],
+    modules:["testplan","coverage"] },
+  { id:"deployment",   name:"Deployment",              sub:["Release Plan","Canary","Rollout"],
+    modules:["release"] },
+  { id:"metrics",      name:"Post-Launch Metrics",     sub:["KPI Review","Cohort Analysis","Retro"],
+    modules:["kpis"] }
+];
+
+const MODULE_META = {
+  problem:      { name:"Problem Frame", icon:"flag" },
+  strategy:     { name:"Strategy",      icon:"flag" },
+  personas:     { name:"Personas",      icon:"users" },
+  stories:      { name:"User Stories",  icon:"check" },
+  backlog:      { name:"Backlog",       icon:"kanban" },
+  map:          { name:"Story Map",     icon:"map" },
+  wireframes:   { name:"Wireframes",    icon:"doc" },
+  flows:        { name:"User Flows",    icon:"rocket" },
+  sprints:      { name:"Sprints",       icon:"bolt" },
+  execution:    { name:"Execution (AI PM)", icon:"kanban" },
+  architecture: { name:"Architecture",  icon:"bolt" },
+  testplan:     { name:"Test Plan",     icon:"check" },
+  coverage:     { name:"Coverage",      icon:"kanban" },
+  release:      { name:"Release Plan",  icon:"rocket" },
+  kpis:         { name:"KPIs",          icon:"sparkles" }
+};
+
+/*─────────────────────────────────────────────────────────────────────
+  UTILITIES
+─────────────────────────────────────────────────────────────────────*/
+const cls = (...c) => c.filter(Boolean).join(" ");
+const uid = (p="id") => p + "-" + Math.random().toString(36).slice(2,8);
+
+const priorityChip = (p) => {
+  if (p==="Must") return "chip chip-red";
+  if (p==="Should") return "chip chip-warn";
+  if (p==="Could") return "chip chip-ind";
+  return "chip chip-muted";
+};
+const statusChip = (s) => {
+  if (s==="Done") return "chip chip-good";
+  if (s==="In Progress") return "chip chip-ind";
+  if (s==="To Do") return "chip chip-warn";
+  return "chip chip-muted";
+};
+const resultChip = (r) => {
+  if (r==="Pass") return "chip chip-good";
+  if (r==="Fail") return "chip chip-red";
+  if (r==="Pending") return "chip chip-warn";
+  return "chip chip-muted";
+};
+
+/*─────────────────────────────────────────────────────────────────────
+  LLM STUB · Path 2b — future-proofed for live model
+  ────────────────────────────────────────────────────────────────────
+  callLLM({ prompt, fallback, system? }) returns { text, source }.
+  source = "hardcoded" when no API key is set; "live" when routed.
+  To wire a real model later, set window.ANTHROPIC_API_KEY and implement
+  the `liveCall` branch below.
+─────────────────────────────────────────────────────────────────────*/
+async function callLLM({ prompt, fallback, system }) {
+  const apiKey = (typeof window !== "undefined" && window.ANTHROPIC_API_KEY) || null;
+  if (!apiKey) {
+    // Simulate async for realistic UX (spinner etc.)
+    await new Promise(r => setTimeout(r, 350));
+    return { text: typeof fallback === "function" ? fallback() : fallback, source: "hardcoded" };
+  }
+  // Future: real API call. Kept as a one-line swap point.
+  // const res = await fetch("/api/llm", { method:"POST", body: JSON.stringify({ system, prompt }) });
+  // return { text: (await res.json()).text, source: "live" };
+  return { text: typeof fallback === "function" ? fallback() : fallback, source: "hardcoded" };
+}
+
+/* Prompt template for story → cross-functional task plan.
+   Kept here so it travels with the callLLM stub — easy to iterate. */
+const EXEC_DECOMPOSE_PROMPT = (ctx, story) => `You are an AI Project Manager decomposing a user story into a cross-functional task plan.
+
+PRODUCT CONTEXT:
+${ctx.productName}: ${ctx.productOneLiner}
+Market: ${ctx.market}
+Release: ${ctx.release}
+
+STORY:
+ID: ${story.id}
+Persona: ${story.persona}
+Story: ${story.story}
+Priority: ${story.priority}
+Points: ${story.points}
+Acceptance Criteria:
+${(story.ac||[]).map(a=>`- GIVEN ${a.given} · WHEN ${a.when} · THEN ${a.then}`).join("\n")}
+
+TASK:
+Break this into tasks across: UI, Dev, QA, Legal, Compliance, Ops, Finance, Marketing, Data.
+Include only functions with real, necessary work. Surface external blockers as risks. Output JSON with tasks[], risks[], assumptions[].`;
+
+/*─────────────────────────────────────────────────────────────────────
+  PERSISTENCE · multi-project workspace
+─────────────────────────────────────────────────────────────────────*/
+const STORAGE_KEY = "rpos-workspace-v3";
+
+function makeProjectState(name){
+  return {
+    id: uid("prj"),
+    name: name || "CSPO Grocery Online",
+    activeStage: "discovery",
+    activeModule: "problem",
+    problem: JSON.parse(JSON.stringify(SEED_PROBLEM)),
+    strategy: JSON.parse(JSON.stringify(SEED_STRATEGY)),
+    personas: JSON.parse(JSON.stringify(SEED_PERSONAS)),
+    stories: JSON.parse(JSON.stringify(SEED_STORIES)),
+    backlog: JSON.parse(JSON.stringify(SEED_BACKLOG)),
+    storyMap: JSON.parse(JSON.stringify(SEED_STORYMAP)),
+    wireframes: JSON.parse(JSON.stringify(SEED_WIREFRAMES)),
+    flows: JSON.parse(JSON.stringify(SEED_FLOWS)),
+    sprints: JSON.parse(JSON.stringify(SEED_SPRINTS)),
+    architecture: JSON.parse(JSON.stringify(SEED_ARCHITECTURE)),
+    tests: JSON.parse(JSON.stringify(SEED_TESTS)),
+    release: JSON.parse(JSON.stringify(SEED_RELEASE)),
+    kpis: JSON.parse(JSON.stringify(SEED_KPIS)),
+    execution: JSON.parse(JSON.stringify(SEED_EXECUTION))
+  };
+}
+function makeBlankProject(name){
+  const p = makeProjectState(name || "Untitled Project");
+  p.strategy = { vision:"", valueProp:"", elevatorPitch:"", businessGoals:[], northStar:"" };
+  p.problem = { statement:"", targetUsers:"", hypotheses:[], assumptions:[], marketSize:"" };
+  p.personas = [];
+  p.stories = [];
+  p.backlog = [];
+  p.storyMap = { activities:["Discover","Consider","Buy","Receive","Resolve"], swimlanes:[
+    { release:"MVP (R1)", color:"#DCFCE7", tasks:[[],[],[],[],[]] },
+    { release:"R2", color:"#DBEAFE", tasks:[[],[],[],[],[]] },
+    { release:"R3", color:"#FEF3C7", tasks:[[],[],[],[],[]] }
+  ]};
+  p.wireframes = [];
+  p.flows = [];
+  p.sprints = [];
+  p.tests = [];
+  p.release = { releases:[], rollout:[] };
+  p.kpis = [];
+  p.execution = [];
+  return p;
+}
+function loadWorkspace(){
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) throw new Error("empty");
+    const ws = JSON.parse(raw);
+    if (!ws || !Array.isArray(ws.projects) || !ws.projects.length) throw new Error("invalid");
+    return ws;
+  } catch {
+    const seed = makeProjectState("CSPO Grocery Online");
+    return { currentId: seed.id, projects: [seed] };
+  }
+}
+function saveWorkspace(ws){
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(ws)); } catch {}
+}
+
+/*─────────────────────────────────────────────────────────────────────
+  LIVE PRD GENERATION
+─────────────────────────────────────────────────────────────────────*/
+function generatePRD(p){
+  const today = new Date().toISOString().slice(0,10);
+  const { problem, strategy, personas, stories, backlog, storyMap, wireframes, flows, sprints, execution, architecture, tests, release, kpis, name } = p;
+  const L = [];
+  L.push(`# Product Requirements Document — ${name}`);
+  L.push(`*Auto-generated by RPOS · ${today}*`);
+  L.push("");
+  L.push(`## 1. Problem & Opportunity`);
+  L.push(problem.statement || "_(not set)_");
+  L.push("");
+  L.push(`**Target Users:** ${problem.targetUsers || "—"}`);
+  L.push(`**Market Size:** ${problem.marketSize || "—"}`);
+  if ((problem.hypotheses||[]).length){ L.push(""); L.push(`**Hypotheses**`); problem.hypotheses.forEach(h=>L.push(`- ${h}`)); }
+  if ((problem.assumptions||[]).length){ L.push(""); L.push(`**Key Assumptions**`); problem.assumptions.forEach(a=>L.push(`- ${a}`)); }
+  L.push("");
+  L.push(`## 2. Vision & Strategy`);
+  L.push(`### Vision`); L.push(strategy.vision || "_(not set)_");
+  L.push(`### Value Proposition`); L.push(strategy.valueProp || "_(not set)_");
+  L.push(`### Elevator Pitch`); L.push(strategy.elevatorPitch || "_(not set)_");
+  L.push(`### Business Goals`);
+  (strategy.businessGoals||[]).forEach(g => L.push(`- ${g}`));
+  if (strategy.northStar) { L.push(""); L.push(`**North-Star Metric:** ${strategy.northStar}`); }
+  L.push("");
+  L.push(`## 3. Target Personas`);
+  personas.forEach((pp,i)=>{
+    L.push(`### 3.${i+1} ${pp.name}`);
+    L.push(`**Role:** ${pp.role}  |  **Age:** ${pp.age}  |  **Location:** ${pp.location}`);
+    L.push(`**Demographics:** ${pp.demographics}`);
+    L.push(`**Goals:**`); pp.goals.forEach(g=>L.push(`- ${g}`));
+    L.push(`**Pain Points:**`); pp.painPoints.forEach(g=>L.push(`- ${g}`));
+    L.push(`**Empathy Map — Think / Feel / Say / Do:**`);
+    L.push(`- **Think:** ${pp.empathy.think}`);
+    L.push(`- **Feel:** ${pp.empathy.feel}`);
+    L.push(`- **Say:** ${pp.empathy.say}`);
+    L.push(`- **Do:** ${pp.empathy.do}`);
+    L.push("");
+  });
+  L.push(`## 4. Feature List & User Stories`);
+  const byEpic = {};
+  stories.forEach(s => { byEpic[s.epic] = byEpic[s.epic] || []; byEpic[s.epic].push(s); });
+  Object.entries(byEpic).forEach(([epic, ss])=>{
+    L.push(`### Epic — ${epic}`);
+    ss.forEach(s=>{
+      L.push(`**${s.id} · ${s.priority} · ${s.points} pts · ${s.status}**`);
+      L.push(`> ${s.story}`);
+      L.push(`_Persona: ${s.persona}_`);
+      L.push(`**Acceptance Criteria**`);
+      s.ac.forEach(a=>L.push(`- **GIVEN** ${a.given} · **WHEN** ${a.when} · **THEN** ${a.then}`));
+      L.push("");
+    });
+  });
+  L.push(`## 5. Release Plan (Story Map)`);
+  storyMap.swimlanes.forEach(sw=>{
+    L.push(`### ${sw.release}`);
+    storyMap.activities.forEach((a, i)=>{
+      L.push(`- **${a}:** ${(sw.tasks[i]||[]).join(", ") || "—"}`);
+    });
+    L.push("");
+  });
+  L.push(`## 6. Backlog Snapshot`);
+  L.push(`| ID | Title | Epic | Priority | Pts | Status |`);
+  L.push(`|---|---|---|---|---|---|`);
+  backlog.forEach(b=>L.push(`| ${b.id} | ${b.title} | ${b.epic} | ${b.priority} | ${b.pts} | ${b.status} |`));
+  L.push("");
+  if ((wireframes||[]).length){
+    L.push(`## 7. Design — Wireframes & Flows`);
+    L.push(`### Wireframes`);
+    L.push(`| ID | Screen | Persona | Status | Notes |`);
+    L.push(`|---|---|---|---|---|`);
+    wireframes.forEach(w=>L.push(`| ${w.id} | ${w.screen} | ${w.persona} | ${w.status} | ${w.notes} |`));
+    L.push("");
+    L.push(`### User Flows`);
+    flows.forEach(f=>L.push(`- **${f.name}** → ${(f.steps||[]).join(" → ")}`));
+    L.push("");
+  }
+  if ((sprints||[]).length || (architecture && architecture.summary)){
+    L.push(`## 8. Delivery — Sprints & Architecture`);
+    if ((sprints||[]).length){
+      L.push(`### Sprint Plan`);
+      L.push(`| Sprint | Dates | Capacity | Committed | Items | Status |`);
+      L.push(`|---|---|---|---|---|---|`);
+      sprints.forEach(s=>L.push(`| ${s.name} | ${s.dates} | ${s.capacity} | ${s.committed} | ${(s.items||[]).join(", ")} | ${s.status} |`));
+      L.push("");
+    }
+    if (architecture && architecture.summary){
+      L.push(`### Architecture Summary`);
+      L.push(architecture.summary);
+      if ((architecture.stack||[]).length){
+        L.push("");
+        L.push(`**Stack**`);
+        architecture.stack.forEach(s=>L.push(`- **${s.layer}** — ${s.tech}`));
+      }
+      if ((architecture.risks||[]).length){
+        L.push("");
+        L.push(`**Technical Risks**`);
+        architecture.risks.forEach(r=>L.push(`- **${r.id}** ${r.risk} — _mitigation:_ ${r.mitigation}`));
+      }
+      L.push("");
+    }
+  }
+  if ((execution||[]).length){
+    // Roll up execution stats
+    const plans = execution;
+    const allTasks = plans.flatMap(pl=>pl.tasks||[]);
+    const allRisks = plans.flatMap(pl=>(pl.risks||[]).filter(r=>!r.dismissed));
+    const total = allTasks.length;
+    const done  = allTasks.filter(t=>t.status==="Done").length;
+    const prog  = allTasks.filter(t=>t.status==="In Progress").length;
+    const blk   = allTasks.filter(t=>t.status==="Blocked").length;
+    const pct   = total ? Math.round((done/total)*100) : 0;
+    const byFn = {};
+    allTasks.forEach(t=>{ byFn[t.fn] = (byFn[t.fn]||0)+1; });
+    L.push(`## 8a. Execution Status — AI Project Manager`);
+    L.push(`_Cross-functional breakdown auto-generated by RPOS AI PM. Confidence and ownership tracked per task._`);
+    L.push("");
+    L.push(`**Overall progress:** ${done}/${total} tasks Done (${pct}%) · ${prog} In Progress · ${blk} Blocked · ${allRisks.length} open risk${allRisks.length===1?"":"s"}`);
+    L.push("");
+    L.push(`### Workstream Load`);
+    L.push(`| Function | Tasks |`);
+    L.push(`|---|---|`);
+    Object.entries(byFn).sort((a,b)=>b[1]-a[1]).forEach(([fn,n])=>L.push(`| ${fn} | ${n} |`));
+    L.push("");
+    L.push(`### Per-Story Plans`);
+    L.push(`| Story | Tasks | Done | Blocked | Confidence |`);
+    L.push(`|---|---|---|---|---|`);
+    plans.forEach(pl=>{
+      const t = pl.tasks||[];
+      const d = t.filter(x=>x.status==="Done").length;
+      const b = t.filter(x=>x.status==="Blocked").length;
+      L.push(`| ${pl.storyId} | ${t.length} | ${d} | ${b} | ${pl.confidence||"—"} |`);
+    });
+    L.push("");
+    if (allRisks.length){
+      L.push(`### Open Risks & Blockers`);
+      allRisks.sort((a,b)=>{ const o={high:0,med:1,low:2}; return (o[a.sev]??3)-(o[b.sev]??3); }).forEach(r=>{
+        L.push(`- **[${(r.sev||"").toUpperCase()}] ${r.type||"risk"}** — ${r.msg}  _mitigation:_ ${r.mit||"—"}`);
+      });
+      L.push("");
+    }
+  }
+  if ((tests||[]).length){
+    L.push(`## 9. QA — Test Plan & Coverage`);
+    L.push(`| Test ID | Story | Type | Result | Owner | Last Run |`);
+    L.push(`|---|---|---|---|---|---|`);
+    tests.forEach(t=>L.push(`| ${t.id} | ${t.storyRef} | ${t.type} | ${t.result} | ${t.owner} | ${t.run} |`));
+    L.push("");
+  }
+  if (release && (release.releases||[]).length){
+    L.push(`## 10. Deployment & Release Plan`);
+    L.push(`| Release | Date | Channel | Scope | Risk |`);
+    L.push(`|---|---|---|---|---|`);
+    release.releases.forEach(r=>L.push(`| ${r.name} | ${r.date} | ${r.channel} | ${r.scope} | ${r.risk} |`));
+    if ((release.rollout||[]).length){
+      L.push("");
+      L.push(`**Rollout Steps**`);
+      release.rollout.forEach(s=>L.push(`- ${s}`));
+    }
+    L.push("");
+  }
+  if ((kpis||[]).length){
+    L.push(`## 11. Post-Launch KPIs`);
+    L.push(`| KPI | Target | Current | Trend | Owner |`);
+    L.push(`|---|---|---|---|---|`);
+    kpis.forEach(k=>L.push(`| ${k.name} | ${k.target} | ${k.current} | ${k.trend} | ${k.owner} |`));
+    L.push("");
+  }
+  L.push(`---`);
+  L.push(`_RPOS auto-compiles this PRD from every module — edit any input and this document updates in real time._`);
+  return L.join("\n");
+}
+
+/* Simple markdown → HTML for preview pane */
+function md2html(md){
+  let h = md
+    .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
+    .replace(/^### (.*)$/gm,"<h3>$1</h3>")
+    .replace(/^## (.*)$/gm,"<h2>$1</h2>")
+    .replace(/^# (.*)$/gm,"<h1>$1</h1>")
+    .replace(/^\> (.*)$/gm,"<blockquote style='border-left:3px solid #C7D2FE;margin:4px 0;padding:4px 10px;color:#475569;background:#F8FAFF'>$1</blockquote>")
+    .replace(/\*\*(.*?)\*\*/g,"<strong>$1</strong>")
+    .replace(/\*(.*?)\*/g,"<em>$1</em>")
+    .replace(/\_(.*?)\_/g,"<em>$1</em>");
+  h = h.replace(/((?:^\|.*\|\s*\n)+)/gm, block=>{
+    const rows = block.trim().split("\n").map(r=>r.slice(1,-1).split("|").map(x=>x.trim()));
+    if(rows.length<2) return block;
+    const head = rows[0]; const body = rows.slice(2);
+    return `<table><thead><tr>${head.map(c=>`<th>${c}</th>`).join("")}</tr></thead><tbody>${body.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join("")}</tr>`).join("")}</tbody></table>`;
+  });
+  h = h.replace(/(?:^- .*(?:\n|$))+/gm, block=>{
+    const items = block.trim().split("\n").map(l=>l.replace(/^- /,""));
+    return `<ul>${items.map(i=>`<li>${i}</li>`).join("")}</ul>`;
+  });
+  h = h.split(/\n{2,}/).map(p=>{
+    if (/^<(h1|h2|h3|ul|table|blockquote)/.test(p.trim())) return p;
+    if (!p.trim()) return "";
+    return `<p>${p.replace(/\n/g,"<br/>")}</p>`;
+  }).join("\n");
+  return h;
+}
+
+/*─────────────────────────────────────────────────────────────────────
+  EXPORT ENGINES
+─────────────────────────────────────────────────────────────────────*/
+function downloadBlob(blob, filename){
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = filename; a.click();
+  URL.revokeObjectURL(url);
+}
+
+function exportAs(type, ctx){
+  const { prd, project } = ctx;
+  const safe = (project.name||"project").replace(/\s+/g,"_");
+
+  if (type === "md") {
+    downloadBlob(new Blob([prd], {type:"text/markdown"}), `${safe}_PRD.md`);
+    return Promise.resolve(`Exported ${safe}_PRD.md`);
+  }
+  if (type === "doc") {
+    const html = `<html><head><meta charset="utf-8"></head><body>${md2html(prd)}</body></html>`;
+    downloadBlob(new Blob([html], {type:"application/msword"}), `${safe}_PRD.doc`);
+    return Promise.resolve(`Exported ${safe}_PRD.doc`);
+  }
+  if (type === "docx") {
+    // Word opens .doc-style HTML fine when wrapped as .docx fragment + MSO meta
+    const html = `<html xmlns:o="urn:schemas-microsoft-com:office:office"
+        xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
+      <head><meta charset="utf-8"><title>${project.name} PRD</title></head>
+      <body>${md2html(prd)}</body></html>`;
+    downloadBlob(new Blob(["\ufeff", html], {type:"application/vnd.openxmlformats-officedocument.wordprocessingml.document"}), `${safe}_PRD.docx`);
+    return Promise.resolve(`Exported ${safe}_PRD.docx`);
+  }
+  if (type === "xlsx") {
+    if (!window.XLSX) return Promise.reject("XLSX library not loaded");
+    const wb = XLSX.utils.book_new();
+    const backlogRows = [["ID","Title","Epic","Priority","Pts","Status","Rank"], ...project.backlog.map(b=>[b.id,b.title,b.epic,b.priority,b.pts,b.status,b.rank])];
+    const storyRows = [["ID","Epic","Persona","Priority","Pts","Status","Story","# AC"], ...project.stories.map(s=>[s.id,s.epic,s.persona,s.priority,s.points,s.status,s.story,(s.ac||[]).length])];
+    const personaRows = [["ID","Name","Role","Age","Location","Tags"], ...project.personas.map(p=>[p.id,p.name,p.role,p.age,p.location,(p.tags||[]).join(", ")])];
+    const kpiRows = [["ID","KPI","Target","Current","Trend","Owner"], ...project.kpis.map(k=>[k.id,k.name,k.target,k.current,k.trend,k.owner])];
+    const testRows = [["ID","Story","Title","Type","Result","Owner","Last Run"], ...project.tests.map(t=>[t.id,t.storyRef,t.title,t.type,t.result,t.owner,t.run])];
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(backlogRows), "Backlog");
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(storyRows), "Stories");
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(personaRows), "Personas");
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(kpiRows), "KPIs");
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(testRows), "Tests");
+    XLSX.writeFile(wb, `${safe}_workspace.xlsx`);
+    return Promise.resolve(`Exported ${safe}_workspace.xlsx`);
+  }
+  if (type === "pptx") {
+    if (!window.PptxGenJS) return Promise.reject("PptxGenJS not loaded");
+    const pptx = new PptxGenJS();
+    pptx.layout = "LAYOUT_WIDE";
+    // Cover
+    const s0 = pptx.addSlide();
+    s0.background = { color: "0B1020" };
+    s0.addText(project.name, { x:0.6, y:2.2, w:12, h:1.2, color:"FFFFFF", fontSize:44, bold:true, fontFace:"Inter" });
+    s0.addText("Product Requirements Document", { x:0.6, y:3.5, w:12, h:0.6, color:"CBD5EF", fontSize:22, fontFace:"Inter" });
+    s0.addText(`Auto-generated by RPOS · ${new Date().toISOString().slice(0,10)}`, { x:0.6, y:4.2, w:12, h:0.5, color:"94A3B8", fontSize:14, fontFace:"Inter" });
+    // Split PRD by ## headings
+    const sections = prd.split(/\n(?=## )/g);
+    sections.forEach((sec,idx)=>{
+      if (idx===0 && !sec.startsWith("## ")) return; // skip cover block
+      const lines = sec.split("\n");
+      const title = (lines.shift()||"").replace(/^##\s*/,"");
+      const body  = lines.join("\n").replace(/^#{1,3}\s*/gm,"").replace(/\*\*/g,"").replace(/\|/g," · ").replace(/^- /gm,"• ").replace(/---+/g,"").trim();
+      const slide = pptx.addSlide();
+      slide.addText(title, { x:0.5, y:0.35, w:12.5, h:0.8, color:"0B1020", fontSize:28, bold:true, fontFace:"Inter" });
+      slide.addShape(pptx.ShapeType.rect, { x:0.5, y:1.1, w:12.5, h:0.03, fill:{color:"6366F1"} });
+      slide.addText(body.slice(0, 2800), { x:0.5, y:1.3, w:12.5, h:6.0, color:"334155", fontSize:14, fontFace:"Inter", valign:"top", shrinkText:true });
+    });
+    return pptx.writeFile({ fileName: `${safe}_PRD.pptx` }).then(()=>`Exported ${safe}_PRD.pptx`);
+  }
+  if (type === "pdf") {
+    if (!window.jspdf || !window.html2canvas) return Promise.reject("PDF engine not loaded");
+    const wrapper = document.createElement("div");
+    wrapper.style.cssText = "position:fixed;left:-99999px;top:0;width:820px;background:#fff;padding:32px;font-family:Inter,system-ui,sans-serif;color:#0B1020";
+    wrapper.innerHTML = `<div class="prd">${md2html(prd)}</div>`;
+    // minimal inline PRD styles (since the offscreen node is outside the React tree but Tailwind utility classes we used live in .prd CSS)
+    const style = document.createElement("style");
+    style.textContent = `
+      .prd h1{font-size:24px;font-weight:700;margin:0 0 12px}
+      .prd h2{font-size:18px;font-weight:700;margin:18px 0 8px;border-bottom:1px solid #E5E7EB;padding-bottom:4px}
+      .prd h3{font-size:15px;font-weight:700;margin:12px 0 4px;color:#334155}
+      .prd p{margin:4px 0;line-height:1.55;color:#334155;font-size:13px}
+      .prd ul{padding-left:20px;list-style:disc;color:#334155;font-size:13px}
+      .prd blockquote{border-left:3px solid #C7D2FE;margin:4px 0;padding:4px 10px;color:#475569;background:#F8FAFF;font-size:13px}
+      .prd table{border-collapse:collapse;margin:6px 0;font-size:12px;width:100%}
+      .prd th,.prd td{border:1px solid #E5E7EB;padding:4px 8px;text-align:left}
+      .prd th{background:#F1F5F9}
+    `;
+    wrapper.prepend(style);
+    document.body.appendChild(wrapper);
+    return html2canvas(wrapper, { scale: 2, backgroundColor:"#ffffff", windowWidth: 820 }).then(canvas=>{
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF({ unit:"pt", format:"a4" });
+      const pageW = pdf.internal.pageSize.getWidth();
+      const pageH = pdf.internal.pageSize.getHeight();
+      const imgW = pageW;
+      const imgH = canvas.height * pageW / canvas.width;
+      let heightLeft = imgH;
+      let position = 0;
+      pdf.addImage(canvas.toDataURL("image/png"), "PNG", 0, position, imgW, imgH);
+      heightLeft -= pageH;
+      while (heightLeft > 0){
+        position -= pageH;
+        pdf.addPage();
+        pdf.addImage(canvas.toDataURL("image/png"), "PNG", 0, position, imgW, imgH);
+        heightLeft -= pageH;
+      }
+      pdf.save(`${safe}_PRD.pdf`);
+      document.body.removeChild(wrapper);
+      return `Exported ${safe}_PRD.pdf`;
+    });
+  }
+  return Promise.reject(`Unknown export type: ${type}`);
+}
+
+/*─────────────────────────────────────────────────────────────────────
+  TINY UI COMPONENTS
+─────────────────────────────────────────────────────────────────────*/
+const Btn = ({children, onClick, variant="primary", size="md", icon, title})=> {
+  const base = "inline-flex items-center gap-2 rounded-lg font-medium transition";
+  const sizes = { sm:"px-2.5 py-1 text-xs", md:"px-3.5 py-2 text-sm" };
+  const variants = {
+    primary:"bg-indigo-600 text-white hover:bg-indigo-700 shadow-sm",
+    ghost:"bg-transparent text-slate-700 hover:bg-slate-100",
+    subtle:"bg-slate-100 text-slate-700 hover:bg-slate-200",
+    dark:"bg-slate-900 text-white hover:bg-slate-800",
+    danger:"bg-red-50 text-red-700 hover:bg-red-100"
+  };
+  return <button title={title} onClick={onClick} className={cls(base,sizes[size],variants[variant])}>{icon}{children}</button>;
+};
+
+const Field = ({label, children, hint})=>(
+  <label className="block">
+    <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500 mb-1">{label}</div>
+    {children}
+    {hint && <div className="text-[11px] text-slate-400 mt-1">{hint}</div>}
+  </label>
+);
+
+const Input = React.forwardRef((props, ref)=>(
+  <input ref={ref} {...props} className={cls("w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 focus-ring", props.className)} />
+));
+
+const TA = (props)=>(
+  <textarea {...props} className={cls("w-full auto rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 focus-ring", props.className)} />
+);
+
+const Select = (props)=>(
+  <select {...props} className={cls("w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 focus-ring", props.className)}>{props.children}</select>
+);
+
+const Icon = ({name, className="w-4 h-4"}) => {
+  const paths = {
+    plus:"M12 5v14M5 12h14",
+    trash:"M3 6h18M9 6V4h6v2M6 6l1 14h10l1-14",
+    save:"M5 3h11l4 4v14H5zM7 3v5h9V3",
+    eye:"M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12Zm10 3a3 3 0 1 1 0-6 3 3 0 0 1 0 6Z",
+    download:"M12 3v12m0 0-4-4m4 4 4-4M4 21h16",
+    check:"M5 12l5 5L20 7",
+    search:"M11 19a8 8 0 1 1 0-16 8 8 0 0 1 0 16Zm10 2-4.35-4.35",
+    chevron:"M9 6l6 6-6 6",
+    sparkles:"M12 2l1.8 5.2L19 9l-5.2 1.8L12 16l-1.8-5.2L5 9l5.2-1.8L12 2ZM20 17l.8 2.2L23 20l-2.2.8L20 23l-.8-2.2L17 20l2.2-.8L20 17Z",
+    bolt:"M13 2 3 14h7v8l10-12h-7V2Z",
+    doc:"M7 3h8l5 5v13H7zM15 3v5h5",
+    copy:"M8 8h12v12H8zM4 4h12v4M4 4v12h4",
+    kanban:"M4 4h5v16H4zM11 4h5v10h-5zM18 4h3v7h-3z",
+    users:"M8 10a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm8 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm-8 2c-3 0-6 1.5-6 4v2h12v-2c0-2.5-3-4-6-4Zm8 0c-1 0-2 .2-3 .5 1.2.9 2 2.2 2 3.5v2h7v-2c0-2.5-3-4-6-4Z",
+    flag:"M5 4v16M5 4h10l-2 4 2 4H5",
+    map:"M9 5 3 7v13l6-2 6 2 6-2V5l-6 2-6-2Z M9 5v13M15 7v13",
+    rocket:"M4 14c2-6 6-10 12-10 0 6-4 10-10 12l-2 4-4-4 4-2ZM9 15l-2 2"
+  };
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <path d={paths[name] || paths.doc} />
+    </svg>
+  );
+};
+
+/*─────────────────────────────────────────────────────────────────────
+  PROBLEM FRAME MODULE (discovery)
+─────────────────────────────────────────────────────────────────────*/
+function ProblemModule({ problem, setProblem }){
+  const upd = (patch)=>setProblem({...problem, ...patch});
+  const editList = (key, idx, v)=>{
+    const arr = [...(problem[key]||[])]; arr[idx] = v; upd({[key]:arr});
+  };
+  return (
+    <div className="space-y-5">
+      <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-card">
+        <h3 className="text-sm font-semibold text-slate-900 flex items-center gap-2 mb-3"><Icon name="flag" className="w-4 h-4 text-indigo-600"/>Problem Statement</h3>
+        <TA value={problem.statement} rows={4} onChange={e=>upd({statement:e.target.value})} />
+      </div>
+      <div className="grid md:grid-cols-2 gap-5">
+        <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-card">
+          <h3 className="text-sm font-semibold text-slate-900 mb-3">Target Users</h3>
+          <TA value={problem.targetUsers} rows={3} onChange={e=>upd({targetUsers:e.target.value})} />
+        </div>
+        <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-card">
+          <h3 className="text-sm font-semibold text-slate-900 mb-3">Market Size</h3>
+          <TA value={problem.marketSize} rows={3} onChange={e=>upd({marketSize:e.target.value})} />
+        </div>
+      </div>
+      <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-card">
+        <h3 className="text-sm font-semibold text-slate-900 mb-3">Hypotheses</h3>
+        <div className="space-y-2">
+          {(problem.hypotheses||[]).map((h,i)=>(
+            <div key={i} className="flex items-center gap-2">
+              <span className="w-6 h-6 rounded-full bg-indigo-50 text-indigo-700 text-xs font-semibold flex items-center justify-center">H{i+1}</span>
+              <Input value={h} onChange={e=>editList("hypotheses",i,e.target.value)} />
+              <Btn size="sm" variant="ghost" onClick={()=>upd({hypotheses:problem.hypotheses.filter((_,j)=>j!==i)})}><Icon name="trash"/></Btn>
+            </div>
+          ))}
+          <Btn size="sm" variant="subtle" icon={<Icon name="plus"/>} onClick={()=>upd({hypotheses:[...(problem.hypotheses||[]),"New hypothesis"]})}>Add hypothesis</Btn>
+        </div>
+      </div>
+      <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-card">
+        <h3 className="text-sm font-semibold text-slate-900 mb-3">Key Assumptions</h3>
+        <div className="space-y-2">
+          {(problem.assumptions||[]).map((h,i)=>(
+            <div key={i} className="flex items-center gap-2">
+              <span className="w-6 h-6 rounded-full bg-amber-50 text-amber-700 text-xs font-semibold flex items-center justify-center">A{i+1}</span>
+              <Input value={h} onChange={e=>editList("assumptions",i,e.target.value)} />
+              <Btn size="sm" variant="ghost" onClick={()=>upd({assumptions:problem.assumptions.filter((_,j)=>j!==i)})}><Icon name="trash"/></Btn>
+            </div>
+          ))}
+          <Btn size="sm" variant="subtle" icon={<Icon name="plus"/>} onClick={()=>upd({assumptions:[...(problem.assumptions||[]),"New assumption"]})}>Add assumption</Btn>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/*─────────────────────────────────────────────────────────────────────
+  STRATEGY MODULE
+─────────────────────────────────────────────────────────────────────*/
+function StrategyModule({ strategy, setStrategy }){
+  const updateGoal = (idx, v)=>{
+    const g = [...strategy.businessGoals]; g[idx] = v;
+    setStrategy({...strategy, businessGoals: g});
+  };
+  return (
+    <div className="space-y-5">
+      <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-card">
+        <h3 className="text-sm font-semibold text-slate-900 flex items-center gap-2 mb-3"><Icon name="flag" className="w-4 h-4 text-indigo-600"/>Product Vision</h3>
+        <TA value={strategy.vision} onChange={e=>setStrategy({...strategy, vision:e.target.value})} rows={3} />
+      </div>
+      <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-card">
+        <h3 className="text-sm font-semibold text-slate-900 flex items-center gap-2 mb-3"><Icon name="sparkles" className="w-4 h-4 text-indigo-600"/>Value Proposition</h3>
+        <TA value={strategy.valueProp} onChange={e=>setStrategy({...strategy, valueProp:e.target.value})} rows={4} />
+        <p className="text-[11px] text-slate-400 mt-1">Structure: For [user] who [need], our [product] delivers [benefit] — unlike [alternative] because [reason].</p>
+      </div>
+      <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-card">
+        <h3 className="text-sm font-semibold text-slate-900 flex items-center gap-2 mb-3"><Icon name="bolt" className="w-4 h-4 text-indigo-600"/>Elevator Pitch</h3>
+        <TA value={strategy.elevatorPitch} onChange={e=>setStrategy({...strategy, elevatorPitch:e.target.value})} rows={3} />
+      </div>
+      <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-card">
+        <h3 className="text-sm font-semibold text-slate-900 mb-3">Business Goals</h3>
+        <div className="space-y-2">
+          {strategy.businessGoals.map((g,i)=>(
+            <div key={i} className="flex items-center gap-2">
+              <span className="w-6 h-6 rounded-full bg-indigo-50 text-indigo-700 text-xs font-semibold flex items-center justify-center">{i+1}</span>
+              <Input value={g} onChange={e=>updateGoal(i,e.target.value)} />
+              <Btn size="sm" variant="ghost" onClick={()=>{ const g = strategy.businessGoals.filter((_,j)=>j!==i); setStrategy({...strategy,businessGoals:g}); }}><Icon name="trash"/></Btn>
+            </div>
+          ))}
+          <Btn size="sm" variant="subtle" icon={<Icon name="plus"/>} onClick={()=>setStrategy({...strategy,businessGoals:[...strategy.businessGoals,"New goal"]})}>Add goal</Btn>
+        </div>
+      </div>
+      <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-card">
+        <h3 className="text-sm font-semibold text-slate-900 mb-3">North-Star Metric</h3>
+        <Input value={strategy.northStar} onChange={e=>setStrategy({...strategy, northStar:e.target.value})} />
+      </div>
+    </div>
+  );
+}
+
+/*─────────────────────────────────────────────────────────────────────
+  PERSONAS MODULE
+─────────────────────────────────────────────────────────────────────*/
+function PersonaCard({ persona, onChange, onDelete }){
+  const [expand, setExpand] = useState(false);
+  const upd = (patch)=>onChange({...persona, ...patch});
+  const setEmp = (patch)=>upd({empathy:{...persona.empathy, ...patch}});
+  const setList = (key, idx, v) => {
+    const arr = [...persona[key]]; arr[idx] = v; upd({[key]: arr});
+  };
+  return (
+    <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-card hover-card">
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-cyan-500 text-white flex items-center justify-center font-bold">
+            {persona.name.split(" ")[0][0]}
+          </div>
+          <div>
+            <Input value={persona.name} onChange={e=>upd({name:e.target.value})} className="font-semibold !py-1 !text-[15px] !bg-transparent !border-transparent hover:!border-slate-200" />
+            <div className="flex flex-wrap gap-1 mt-1">
+              {persona.tags.map(t=><span key={t} className="chip chip-ind">{t}</span>)}
+            </div>
+          </div>
+        </div>
+        <div className="flex items-center gap-1">
+          <Btn size="sm" variant="ghost" onClick={()=>setExpand(!expand)}>{expand?"Collapse":"Edit"}</Btn>
+          <Btn size="sm" variant="ghost" onClick={onDelete} title="Delete persona"><Icon name="trash"/></Btn>
+        </div>
+      </div>
+      <div className="grid grid-cols-3 gap-3 mt-3 text-xs text-slate-600">
+        <div><div className="text-[10px] uppercase text-slate-400">Role</div><Input value={persona.role} onChange={e=>upd({role:e.target.value})} className="!py-1 !text-xs"/></div>
+        <div><div className="text-[10px] uppercase text-slate-400">Age</div><Input value={persona.age} onChange={e=>upd({age:e.target.value})} className="!py-1 !text-xs"/></div>
+        <div><div className="text-[10px] uppercase text-slate-400">Location</div><Input value={persona.location} onChange={e=>upd({location:e.target.value})} className="!py-1 !text-xs"/></div>
+      </div>
+      <div className="mt-3">
+        <Field label="Demographics">
+          <TA value={persona.demographics} rows={2} onChange={e=>upd({demographics:e.target.value})} />
+        </Field>
+      </div>
+      {expand && (
+        <>
+        <div className="grid md:grid-cols-2 gap-4 mt-4">
+          <div>
+            <Field label="Goals">
+              <div className="space-y-1">
+                {persona.goals.map((g,i)=>(
+                  <div key={i} className="flex items-center gap-2">
+                    <Input value={g} onChange={e=>setList("goals",i,e.target.value)} />
+                    <Btn size="sm" variant="ghost" onClick={()=>upd({goals:persona.goals.filter((_,j)=>j!==i)})}><Icon name="trash"/></Btn>
+                  </div>
+                ))}
+                <Btn size="sm" variant="subtle" icon={<Icon name="plus"/>} onClick={()=>upd({goals:[...persona.goals,""]})}>Add goal</Btn>
+              </div>
+            </Field>
+          </div>
+          <div>
+            <Field label="Pain Points">
+              <div className="space-y-1">
+                {persona.painPoints.map((g,i)=>(
+                  <div key={i} className="flex items-center gap-2">
+                    <Input value={g} onChange={e=>setList("painPoints",i,e.target.value)} />
+                    <Btn size="sm" variant="ghost" onClick={()=>upd({painPoints:persona.painPoints.filter((_,j)=>j!==i)})}><Icon name="trash"/></Btn>
+                  </div>
+                ))}
+                <Btn size="sm" variant="subtle" icon={<Icon name="plus"/>} onClick={()=>upd({painPoints:[...persona.painPoints,""]})}>Add pain point</Btn>
+              </div>
+            </Field>
+          </div>
+        </div>
+        <div className="mt-4">
+          <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500 mb-2">Empathy Map · Think / Feel / Say / Do</div>
+          <div className="grid grid-cols-2 gap-2">
+            {[["think","Think"],["feel","Feel"],["say","Say"],["do","Do"]].map(([k,l])=>(
+              <div key={k} className="border border-dashed border-slate-200 rounded-lg p-2 bg-slate-50">
+                <div className="text-[10px] uppercase text-slate-500 font-semibold mb-1">{l}</div>
+                <TA value={persona.empathy[k]} rows={2} className="!bg-white !text-xs" onChange={e=>setEmp({[k]:e.target.value})} />
+              </div>
+            ))}
+          </div>
+        </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+function PersonasModule({ personas, setPersonas }){
+  const [filter, setFilter] = useState("");
+  const filtered = personas.filter(p =>
+    (p.name + " " + p.role + " " + (p.tags||[]).join(" ")).toLowerCase().includes(filter.toLowerCase())
+  );
+  const addPersona = ()=> setPersonas([...personas, {
+    id:uid("p"), name:"New Persona", role:"", age:"", location:"",
+    demographics:"", goals:[], painPoints:[],
+    empathy:{think:"",feel:"",say:"",do:""}, tags:[]
+  }]);
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <h2 className="text-xl font-bold text-slate-900">User Personas</h2>
+          <p className="text-sm text-slate-500">{personas.length} personas · click "Edit" to reveal empathy map</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="relative">
+            <Icon name="search" className="w-4 h-4 absolute top-1/2 -translate-y-1/2 left-2.5 text-slate-400"/>
+            <Input placeholder="Filter..." value={filter} onChange={e=>setFilter(e.target.value)} className="!pl-8 !py-1.5" />
+          </div>
+          <Btn icon={<Icon name="plus"/>} onClick={addPersona}>Add persona</Btn>
+        </div>
+      </div>
+      <div className="grid md:grid-cols-2 gap-4">
+        {filtered.map((p)=>(
+          <PersonaCard key={p.id} persona={p}
+            onChange={(np)=>setPersonas(personas.map(x=>x.id===p.id?np:x))}
+            onDelete={()=>setPersonas(personas.filter(x=>x.id!==p.id))}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/*─────────────────────────────────────────────────────────────────────
+  USER STORIES MODULE
+─────────────────────────────────────────────────────────────────────*/
+function StoryRow({ story, onChange, onDelete, personas }){
+  const [open, setOpen] = useState(false);
+  const upd = (patch) => onChange({...story, ...patch});
+  const setAc = (idx, patch) => {
+    const ac = [...story.ac]; ac[idx] = {...ac[idx], ...patch}; upd({ac});
+  };
+  return (
+    <div className="bg-white border border-slate-200 rounded-xl shadow-card overflow-hidden">
+      <div className="flex items-center gap-3 p-3">
+        <button onClick={()=>setOpen(!open)} className="w-6 h-6 flex items-center justify-center text-slate-500 hover:bg-slate-100 rounded">
+          <Icon name="chevron" className={cls("w-4 h-4 transition-transform", open?"rotate-90":"")} />
+        </button>
+        <Input value={story.id} onChange={e=>upd({id:e.target.value})} className="!w-20 !py-1 !text-xs font-mono" />
+        <Input value={story.epic} onChange={e=>upd({epic:e.target.value})} className="!w-32 !py-1 !text-xs" />
+        <div className="flex-1 min-w-0">
+          <Input value={story.story} onChange={e=>upd({story:e.target.value})} className="!py-1 !text-sm truncate" />
+        </div>
+        <Select value={story.priority} onChange={e=>upd({priority:e.target.value})} className="!w-24 !py-1 !text-xs">
+          <option>Must</option><option>Should</option><option>Could</option><option>Wont</option>
+        </Select>
+        <Input type="number" value={story.points} onChange={e=>upd({points:+e.target.value})} className="!w-16 !py-1 !text-xs text-center" />
+        <Select value={story.status} onChange={e=>upd({status:e.target.value})} className="!w-28 !py-1 !text-xs">
+          <option>Backlog</option><option>To Do</option><option>In Progress</option><option>Done</option>
+        </Select>
+        <span className={priorityChip(story.priority)}>{story.priority}</span>
+        <span className={statusChip(story.status)}>{story.status}</span>
+        <Btn size="sm" variant="ghost" onClick={onDelete}><Icon name="trash"/></Btn>
+      </div>
+      {open && (
+        <div className="border-t border-slate-100 p-4 bg-slate-50/50">
+          <Field label="Persona">
+            <Select value={story.persona} onChange={e=>upd({persona:e.target.value})}>
+              {personas.map(p=><option key={p.id}>{p.name.split(" —")[0]} ({p.role.split(" ·")[0]})</option>)}
+            </Select>
+          </Field>
+          <div className="mt-3">
+            <div className="flex items-center justify-between">
+              <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Acceptance Criteria (Given / When / Then)</div>
+              <Btn size="sm" variant="subtle" icon={<Icon name="plus"/>} onClick={()=>upd({ac:[...story.ac,{given:"",when:"",then:""}]})}>Add</Btn>
+            </div>
+            <div className="space-y-3 mt-2">
+              {story.ac.map((a,i)=>(
+                <div key={i} className="grid md:grid-cols-3 gap-2 border border-dashed border-slate-200 bg-white rounded-lg p-2">
+                  <div><div className="text-[10px] font-semibold text-slate-500 uppercase mb-1">Given</div><TA rows={2} value={a.given} onChange={e=>setAc(i,{given:e.target.value})}/></div>
+                  <div><div className="text-[10px] font-semibold text-slate-500 uppercase mb-1">When</div><TA rows={2} value={a.when} onChange={e=>setAc(i,{when:e.target.value})}/></div>
+                  <div><div className="text-[10px] font-semibold text-slate-500 uppercase mb-1">Then</div><TA rows={2} value={a.then} onChange={e=>setAc(i,{then:e.target.value})}/></div>
+                  <div className="col-span-full flex justify-end"><Btn size="sm" variant="ghost" onClick={()=>upd({ac:story.ac.filter((_,j)=>j!==i)})}><Icon name="trash"/></Btn></div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function StoriesModule({ stories, setStories, personas }){
+  const [filter, setFilter] = useState("");
+  const [sortBy, setSortBy] = useState("id");
+  const addStory = ()=>setStories([{
+    id:uid("US"), epic:"New Epic", persona: personas[0]?.name || "—",
+    story:"As a [user], I want [action] so that [benefit]",
+    priority:"Should", points:3, status:"Backlog",
+    ac:[{given:"",when:"",then:""}]
+  }, ...stories]);
+
+  const filtered = stories
+    .filter(s => (s.id + " " + s.epic + " " + s.story).toLowerCase().includes(filter.toLowerCase()))
+    .sort((a,b)=>{
+      if (sortBy==="points") return b.points - a.points;
+      if (sortBy==="priority") return ["Must","Should","Could","Wont"].indexOf(a.priority)-["Must","Should","Could","Wont"].indexOf(b.priority);
+      return a.id.localeCompare(b.id);
+    });
+
+  const totalPts = stories.reduce((a,s)=>a+(+s.points||0),0);
+  const doneP = stories.filter(s=>s.status==="Done").reduce((a,s)=>a+s.points,0);
+  const pct = totalPts? Math.round(doneP/totalPts*100):0;
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-3">
+        <div>
+          <h2 className="text-xl font-bold text-slate-900">User Stories</h2>
+          <p className="text-sm text-slate-500">{stories.length} stories · {totalPts} pts total · {pct}% done</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Select value={sortBy} onChange={e=>setSortBy(e.target.value)} className="!w-40 !py-1.5 !text-xs">
+            <option value="id">Sort: ID</option>
+            <option value="priority">Sort: Priority</option>
+            <option value="points">Sort: Points</option>
+          </Select>
+          <div className="relative">
+            <Icon name="search" className="w-4 h-4 absolute top-1/2 -translate-y-1/2 left-2.5 text-slate-400"/>
+            <Input placeholder="Filter..." value={filter} onChange={e=>setFilter(e.target.value)} className="!pl-8 !py-1.5"/>
+          </div>
+          <Btn icon={<Icon name="plus"/>} onClick={addStory}>Add story</Btn>
+        </div>
+      </div>
+      <div className="h-2 bg-slate-200 rounded-full overflow-hidden mb-4">
+        <div className="h-full bg-gradient-to-r from-indigo-500 to-cyan-500" style={{width:pct+"%"}}></div>
+      </div>
+      <div className="space-y-2">
+        {filtered.map(s=>(
+          <StoryRow key={s.id} story={s} personas={personas}
+            onChange={ns=>setStories(stories.map(x=>x.id===s.id?ns:x))}
+            onDelete={()=>setStories(stories.filter(x=>x.id!==s.id))}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/*─────────────────────────────────────────────────────────────────────
+  BACKLOG MODULE (Kanban)
+─────────────────────────────────────────────────────────────────────*/
+function BacklogModule({ backlog, setBacklog }){
+  const cols = ["Backlog","To Do","In Progress","Done"];
+  const byCol = (c) => backlog.filter(b=>b.status===c).sort((a,b)=>a.rank-b.rank);
+  const moveItem = (id, toStatus) => setBacklog(backlog.map(b=>b.id===id?{...b,status:toStatus}:b));
+  const onDragStart = (e, id) => e.dataTransfer.setData("id", id);
+  const onDrop = (e, status) => { const id=e.dataTransfer.getData("id"); if(id) moveItem(id, status); };
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2"><Icon name="kanban"/> Backlog</h2>
+          <p className="text-sm text-slate-500">{backlog.length} items · drag cards between columns</p>
+        </div>
+        <Btn icon={<Icon name="plus"/>} onClick={()=>setBacklog([{id:uid("B"), title:"New backlog item", epic:"New", priority:"Should", pts:3, status:"Backlog", rank:backlog.length+1}, ...backlog])}>Add</Btn>
+      </div>
+      <div className="grid grid-cols-4 gap-3">
+        {cols.map(c=>(
+          <div key={c} className="bg-slate-50 border border-slate-200 rounded-xl p-3 min-h-[380px]"
+            onDragOver={e=>e.preventDefault()} onDrop={e=>onDrop(e,c)}>
+            <div className="flex items-center justify-between mb-2">
+              <div className="text-xs font-semibold text-slate-700 uppercase">{c}</div>
+              <span className="chip chip-muted">{byCol(c).length}</span>
+            </div>
+            <div className="space-y-2">
+              {byCol(c).map(b=>(
+                <div key={b.id} draggable onDragStart={e=>onDragStart(e, b.id)}
+                     className="bg-white border border-slate-200 rounded-lg p-3 cursor-grab hover:border-indigo-300 shadow-sm">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-mono text-slate-500">{b.id}</span>
+                    <span className={priorityChip(b.priority)}>{b.priority}</span>
+                  </div>
+                  <div className="mt-1 text-sm font-medium text-slate-800 leading-tight">{b.title}</div>
+                  <div className="mt-2 flex items-center justify-between text-[11px] text-slate-500">
+                    <span>{b.epic}</span>
+                    <span className="px-1.5 py-0.5 rounded bg-slate-100 font-semibold">{b.pts} pts</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/*─────────────────────────────────────────────────────────────────────
+  STORY MAP MODULE
+─────────────────────────────────────────────────────────────────────*/
+function StoryMapModule({ storyMap, setStoryMap }){
+  const { activities, swimlanes } = storyMap;
+  const setLaneTask = (li, ai, v)=>{
+    const tasks = swimlanes[li].tasks.map((t,idx)=> idx===ai ? v.split(",").map(s=>s.trim()).filter(Boolean) : t);
+    const lanes = swimlanes.map((l,i)=> i===li ? {...l, tasks}:l);
+    setStoryMap({...storyMap, swimlanes:lanes});
+  };
+  return (
+    <div>
+      <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2 mb-1"><Icon name="map"/> Story Map</h2>
+      <p className="text-sm text-slate-500 mb-4">Buyer journey across MVP · R2 · R3 — inputs sync to the PRD release plan.</p>
+      <div className="bg-white border border-slate-200 rounded-xl shadow-card overflow-x-auto">
+        <table className="min-w-full text-sm">
+          <thead>
+            <tr className="bg-slate-900 text-white text-xs uppercase tracking-wide">
+              <th className="text-left p-3 w-28">Release</th>
+              {activities.map(a=><th key={a} className="text-left p-3">{a}</th>)}
+            </tr>
+          </thead>
+          <tbody>
+            {swimlanes.map((sw,li)=>(
+              <tr key={li} className="swimlane">
+                <td className="p-3 border-t border-slate-100 align-top font-semibold text-slate-700">
+                  <span className="chip" style={{background:sw.color, color:"#334155"}}>{sw.release}</span>
+                </td>
+                {activities.map((_, ai)=>(
+                  <td key={ai} className="p-3 border-t border-slate-100 align-top">
+                    <div className="flex flex-wrap gap-1 mb-2">
+                      {(sw.tasks[ai]||[]).map((t,i)=>(
+                        <span key={i} className="chip chip-ind">{t}</span>
+                      ))}
+                    </div>
+                    <Input value={(sw.tasks[ai]||[]).join(", ")} onChange={e=>setLaneTask(li, ai, e.target.value)} placeholder="Comma-separated tasks"
+                           className="!py-1 !text-xs"/>
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+/*─────────────────────────────────────────────────────────────────────
+  WIREFRAMES MODULE (design)
+─────────────────────────────────────────────────────────────────────*/
+function WireframesModule({ wireframes, setWireframes, personas }){
+  const upd = (idx, patch)=>setWireframes(wireframes.map((w,i)=> i===idx ? {...w, ...patch}:w));
+  const add = ()=>setWireframes([{id:uid("W"), screen:"New Screen", persona:(personas[0]&&personas[0].name.split(" —")[0])||"—", notes:"", status:"Draft"}, ...wireframes]);
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2"><Icon name="doc"/> Wireframes</h2>
+          <p className="text-sm text-slate-500">{wireframes.length} screens · placeholder cards (swap in Figma URLs later)</p>
+        </div>
+        <Btn icon={<Icon name="plus"/>} onClick={add}>Add screen</Btn>
+      </div>
+      <div className="grid md:grid-cols-3 gap-3">
+        {wireframes.map((w,idx)=>(
+          <div key={w.id} className="bg-white border border-slate-200 rounded-xl p-3 shadow-card hover-card">
+            <div className="h-36 rounded-lg border border-dashed border-slate-300 bg-slate-50 flex items-center justify-center">
+              <div className="text-slate-400 text-xs font-mono">{w.id} · wireframe preview</div>
+            </div>
+            <div className="mt-2 flex items-center gap-2">
+              <Input value={w.screen} onChange={e=>upd(idx,{screen:e.target.value})} className="!py-1 !text-sm font-semibold" />
+              <Select value={w.status} onChange={e=>upd(idx,{status:e.target.value})} className="!w-28 !py-1 !text-xs">
+                <option>Draft</option><option>In Review</option><option>Ready</option>
+              </Select>
+            </div>
+            <div className="grid grid-cols-2 gap-2 mt-2">
+              <Input value={w.persona} onChange={e=>upd(idx,{persona:e.target.value})} className="!py-1 !text-xs" />
+              <div className="flex items-center justify-end gap-1">
+                <span className={cls("chip", w.status==="Ready"?"chip-good":w.status==="In Review"?"chip-warn":"chip-muted")}>{w.status}</span>
+                <Btn size="sm" variant="ghost" onClick={()=>setWireframes(wireframes.filter((_,i)=>i!==idx))}><Icon name="trash"/></Btn>
+              </div>
+            </div>
+            <TA value={w.notes} rows={2} onChange={e=>upd(idx,{notes:e.target.value})} className="!text-xs mt-2" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/*─────────────────────────────────────────────────────────────────────
+  FLOWS MODULE (design)
+─────────────────────────────────────────────────────────────────────*/
+function FlowsModule({ flows, setFlows }){
+  const upd = (idx, patch)=>setFlows(flows.map((f,i)=> i===idx ? {...f, ...patch}:f));
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2"><Icon name="rocket"/> User Flows</h2>
+          <p className="text-sm text-slate-500">{flows.length} flows · steps feed the PRD's design section</p>
+        </div>
+        <Btn icon={<Icon name="plus"/>} onClick={()=>setFlows([{id:uid("F"), name:"New flow", steps:["Step 1"]}, ...flows])}>Add flow</Btn>
+      </div>
+      <div className="space-y-3">
+        {flows.map((f,idx)=>(
+          <div key={f.id} className="bg-white border border-slate-200 rounded-xl p-4 shadow-card">
+            <div className="flex items-center gap-2">
+              <Input value={f.name} onChange={e=>upd(idx,{name:e.target.value})} className="!py-1 !text-sm font-semibold !w-72" />
+              <div className="flex-1"></div>
+              <Btn size="sm" variant="ghost" onClick={()=>setFlows(flows.filter((_,i)=>i!==idx))}><Icon name="trash"/></Btn>
+            </div>
+            <div className="flex flex-wrap gap-2 mt-3 items-center">
+              {f.steps.map((s,si)=>(
+                <React.Fragment key={si}>
+                  <div className="inline-flex items-center">
+                    <Input value={s} onChange={e=>{ const steps=[...f.steps]; steps[si]=e.target.value; upd(idx,{steps}); }} className="!py-1 !text-xs !w-40"/>
+                    <Btn size="sm" variant="ghost" onClick={()=>upd(idx,{steps:f.steps.filter((_,j)=>j!==si)})}><Icon name="trash"/></Btn>
+                  </div>
+                  {si < f.steps.length-1 && <span className="text-slate-400">→</span>}
+                </React.Fragment>
+              ))}
+              <Btn size="sm" variant="subtle" icon={<Icon name="plus"/>} onClick={()=>upd(idx,{steps:[...f.steps,"New step"]})}>Step</Btn>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/*─────────────────────────────────────────────────────────────────────
+  SPRINTS MODULE (development)
+─────────────────────────────────────────────────────────────────────*/
+function SprintsModule({ sprints, setSprints }){
+  const upd = (idx, patch)=>setSprints(sprints.map((s,i)=>i===idx?{...s,...patch}:s));
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2"><Icon name="bolt"/> Sprint Plan</h2>
+          <p className="text-sm text-slate-500">{sprints.length} sprints · capacity-based planning with committed points</p>
+        </div>
+        <Btn icon={<Icon name="plus"/>} onClick={()=>setSprints([...sprints, {id:uid("S"), name:"New Sprint", dates:"", capacity:30, committed:0, items:[], status:"Planned"}])}>Add sprint</Btn>
+      </div>
+      <div className="bg-white border border-slate-200 rounded-xl shadow-card overflow-hidden">
+        <table className="matrix w-full">
+          <thead><tr>
+            <th>Sprint</th><th>Dates</th><th>Capacity</th><th>Committed</th><th>Items</th><th>Status</th><th></th>
+          </tr></thead>
+          <tbody>
+            {sprints.map((s,idx)=>(
+              <tr key={s.id}>
+                <td><Input value={s.name} onChange={e=>upd(idx,{name:e.target.value})} className="!py-1 !text-xs font-semibold !w-56"/></td>
+                <td><Input value={s.dates} onChange={e=>upd(idx,{dates:e.target.value})} className="!py-1 !text-xs !w-28"/></td>
+                <td><Input type="number" value={s.capacity} onChange={e=>upd(idx,{capacity:+e.target.value})} className="!py-1 !text-xs !w-20 text-center"/></td>
+                <td>
+                  <div className="flex items-center gap-2">
+                    <Input type="number" value={s.committed} onChange={e=>upd(idx,{committed:+e.target.value})} className="!py-1 !text-xs !w-20 text-center"/>
+                    <div className="h-1.5 w-24 bg-slate-100 rounded-full overflow-hidden">
+                      <div className="h-full bg-indigo-500" style={{width: Math.min(100, Math.round((s.committed/(s.capacity||1))*100))+"%"}}/>
+                    </div>
+                  </div>
+                </td>
+                <td><Input value={(s.items||[]).join(", ")} onChange={e=>upd(idx,{items:e.target.value.split(",").map(x=>x.trim()).filter(Boolean)})} className="!py-1 !text-xs"/></td>
+                <td>
+                  <Select value={s.status} onChange={e=>upd(idx,{status:e.target.value})} className="!py-1 !text-xs !w-28">
+                    <option>Planned</option><option>In Progress</option><option>Done</option>
+                  </Select>
+                </td>
+                <td><Btn size="sm" variant="ghost" onClick={()=>setSprints(sprints.filter((_,i)=>i!==idx))}><Icon name="trash"/></Btn></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+/*─────────────────────────────────────────────────────────────────────
+  ARCHITECTURE MODULE (development)
+─────────────────────────────────────────────────────────────────────*/
+function ArchitectureModule({ architecture, setArchitecture }){
+  const upd = (patch)=>setArchitecture({...architecture, ...patch});
+  const setStack = (idx, patch)=>upd({stack: architecture.stack.map((s,i)=>i===idx?{...s,...patch}:s)});
+  const setRisk  = (idx, patch)=>upd({risks: architecture.risks.map((r,i)=>i===idx?{...r,...patch}:r)});
+  return (
+    <div className="space-y-5">
+      <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-card">
+        <h3 className="text-sm font-semibold text-slate-900 mb-3 flex items-center gap-2"><Icon name="bolt" className="w-4 h-4 text-indigo-600"/>Architecture Summary</h3>
+        <TA value={architecture.summary||""} rows={5} onChange={e=>upd({summary:e.target.value})} />
+      </div>
+      <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-card">
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-sm font-semibold text-slate-900">Stack by Layer</h3>
+          <Btn size="sm" variant="subtle" icon={<Icon name="plus"/>} onClick={()=>upd({stack:[...(architecture.stack||[]), {layer:"New layer", tech:""}]})}>Add layer</Btn>
+        </div>
+        <div className="space-y-2">
+          {(architecture.stack||[]).map((s,i)=>(
+            <div key={i} className="grid grid-cols-12 gap-2">
+              <Input value={s.layer} onChange={e=>setStack(i,{layer:e.target.value})} className="col-span-4 !py-1 !text-sm font-medium"/>
+              <Input value={s.tech} onChange={e=>setStack(i,{tech:e.target.value})} className="col-span-7 !py-1 !text-sm"/>
+              <Btn size="sm" variant="ghost" onClick={()=>upd({stack:architecture.stack.filter((_,j)=>j!==i)})}><Icon name="trash"/></Btn>
+            </div>
+          ))}
+        </div>
+      </div>
+      <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-card">
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-sm font-semibold text-slate-900">Technical Risks & Mitigations</h3>
+          <Btn size="sm" variant="subtle" icon={<Icon name="plus"/>} onClick={()=>upd({risks:[...(architecture.risks||[]), {id:uid("R"), risk:"", mitigation:""}]})}>Add risk</Btn>
+        </div>
+        <div className="space-y-2">
+          {(architecture.risks||[]).map((r,i)=>(
+            <div key={r.id||i} className="grid grid-cols-12 gap-2">
+              <Input value={r.id} onChange={e=>setRisk(i,{id:e.target.value})} className="col-span-2 !py-1 !text-xs font-mono"/>
+              <Input value={r.risk} onChange={e=>setRisk(i,{risk:e.target.value})} className="col-span-5 !py-1 !text-sm"/>
+              <Input value={r.mitigation} onChange={e=>setRisk(i,{mitigation:e.target.value})} className="col-span-4 !py-1 !text-sm"/>
+              <Btn size="sm" variant="ghost" onClick={()=>upd({risks:architecture.risks.filter((_,j)=>j!==i)})}><Icon name="trash"/></Btn>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/*─────────────────────────────────────────────────────────────────────
+  TEST PLAN MODULE (qa)
+─────────────────────────────────────────────────────────────────────*/
+function TestPlanModule({ tests, setTests, stories }){
+  const upd = (idx, patch)=>setTests(tests.map((t,i)=>i===idx?{...t,...patch}:t));
+  const today = new Date().toISOString().slice(0,10);
+  const generateFromAC = ()=>{
+    const next = [];
+    stories.forEach(s => {
+      (s.ac||[]).forEach((a,idx)=>{
+        next.push({
+          id: uid("T"), storyRef: s.id,
+          title: `AC${idx+1} — ${(a.then||"").slice(0,80) || "New test"}`,
+          type: "Functional", result:"Pending", owner:"—", run:"—"
+        });
+      });
+    });
+    setTests([...next, ...tests]);
+  };
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2"><Icon name="check"/> Test Plan</h2>
+          <p className="text-sm text-slate-500">{tests.length} tests · {tests.filter(t=>t.result==="Pass").length} pass · {tests.filter(t=>t.result==="Fail").length} fail · {tests.filter(t=>t.result==="Pending").length} pending</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Btn size="sm" variant="subtle" icon={<Icon name="sparkles"/>} onClick={generateFromAC}>Generate from AC</Btn>
+          <Btn icon={<Icon name="plus"/>} onClick={()=>setTests([{id:uid("T"), storyRef:"", title:"New test", type:"Functional", result:"Pending", owner:"—", run:today}, ...tests])}>Add test</Btn>
+        </div>
+      </div>
+      <div className="bg-white border border-slate-200 rounded-xl shadow-card overflow-hidden">
+        <table className="matrix w-full">
+          <thead><tr>
+            <th>ID</th><th>Story</th><th>Title</th><th>Type</th><th>Result</th><th>Owner</th><th>Last Run</th><th></th>
+          </tr></thead>
+          <tbody>
+            {tests.map((t,idx)=>(
+              <tr key={t.id}>
+                <td><span className="text-[11px] font-mono text-slate-500">{t.id}</span></td>
+                <td><Input value={t.storyRef} onChange={e=>upd(idx,{storyRef:e.target.value})} className="!py-1 !text-xs !w-24 font-mono"/></td>
+                <td><Input value={t.title} onChange={e=>upd(idx,{title:e.target.value})} className="!py-1 !text-xs"/></td>
+                <td>
+                  <Select value={t.type} onChange={e=>upd(idx,{type:e.target.value})} className="!py-1 !text-xs !w-32">
+                    <option>Functional</option><option>E2E</option><option>Regression</option><option>UAT</option><option>Accessibility</option><option>Security</option><option>Load</option><option>Field</option><option>Resilience</option>
+                  </Select>
+                </td>
+                <td>
+                  <div className="flex items-center gap-1">
+                    <Select value={t.result} onChange={e=>upd(idx,{result:e.target.value})} className="!py-1 !text-xs !w-28">
+                      <option>Pending</option><option>Pass</option><option>Fail</option>
+                    </Select>
+                    <span className={resultChip(t.result)}>{t.result}</span>
+                  </div>
+                </td>
+                <td><Input value={t.owner} onChange={e=>upd(idx,{owner:e.target.value})} className="!py-1 !text-xs !w-20"/></td>
+                <td><Input value={t.run} onChange={e=>upd(idx,{run:e.target.value})} className="!py-1 !text-xs !w-28"/></td>
+                <td><Btn size="sm" variant="ghost" onClick={()=>setTests(tests.filter((_,i)=>i!==idx))}><Icon name="trash"/></Btn></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+/*─────────────────────────────────────────────────────────────────────
+  COVERAGE MODULE (qa)
+─────────────────────────────────────────────────────────────────────*/
+function CoverageModule({ tests, stories }){
+  const byStory = {};
+  stories.forEach(s => { byStory[s.id] = {story:s, Pass:0, Fail:0, Pending:0, total:0}; });
+  tests.forEach(t => {
+    const b = byStory[t.storyRef]; if (!b) return;
+    b.total++; b[t.result] = (b[t.result]||0) + 1;
+  });
+  const rows = Object.values(byStory);
+  const covered = rows.filter(r=>r.total>0).length;
+  const passed = rows.filter(r=>r.total>0 && r.Pass===r.total).length;
+  const pct = stories.length ? Math.round(covered/stories.length*100) : 0;
+  const passPct = stories.length ? Math.round(passed/stories.length*100) : 0;
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2"><Icon name="kanban"/> Coverage</h2>
+          <p className="text-sm text-slate-500">{covered}/{stories.length} stories have ≥1 test · {pct}% covered · {passPct}% fully green</p>
+        </div>
+      </div>
+      <div className="bg-white border border-slate-200 rounded-xl shadow-card overflow-hidden">
+        <table className="matrix w-full">
+          <thead><tr>
+            <th>Story</th><th>Priority</th><th>Tests</th><th>Pass</th><th>Fail</th><th>Pending</th><th>Status</th>
+          </tr></thead>
+          <tbody>
+            {rows.map(r=>{
+              const state = r.total===0 ? "uncovered" : r.Fail>0 ? "fail" : r.Pending>0 ? "partial" : "green";
+              const chipCls = state==="green"?"chip-good":state==="fail"?"chip-red":state==="partial"?"chip-warn":"chip-muted";
+              const label = state==="green"?"Covered":state==="fail"?"Failing":state==="partial"?"Partial":"Uncovered";
+              return (
+                <tr key={r.story.id}>
+                  <td><span className="font-mono text-[11px] text-slate-500">{r.story.id}</span> {r.story.story.slice(0,70)}{r.story.story.length>70?"…":""}</td>
+                  <td><span className={priorityChip(r.story.priority)}>{r.story.priority}</span></td>
+                  <td>{r.total}</td>
+                  <td className="text-emerald-700 font-semibold">{r.Pass||0}</td>
+                  <td className="text-red-700 font-semibold">{r.Fail||0}</td>
+                  <td className="text-amber-700 font-semibold">{r.Pending||0}</td>
+                  <td><span className={"chip "+chipCls}>{label}</span></td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+/*─────────────────────────────────────────────────────────────────────
+  RELEASE PLAN MODULE (deployment)
+─────────────────────────────────────────────────────────────────────*/
+function ReleasePlanModule({ release, setRelease }){
+  const upd = (patch)=>setRelease({...release, ...patch});
+  const setR = (idx,patch)=>upd({releases: release.releases.map((r,i)=>i===idx?{...r,...patch}:r)});
+  return (
+    <div className="space-y-5">
+      <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-card">
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-sm font-semibold text-slate-900 flex items-center gap-2"><Icon name="rocket" className="w-4 h-4 text-indigo-600"/>Releases</h3>
+          <Btn size="sm" variant="subtle" icon={<Icon name="plus"/>} onClick={()=>upd({releases:[...(release.releases||[]), {id:uid("R"), name:"New Release", date:"", channel:"", scope:"", risk:"Low"}]})}>Add release</Btn>
+        </div>
+        <table className="matrix w-full">
+          <thead><tr>
+            <th>ID</th><th>Name</th><th>Date</th><th>Channel</th><th>Scope</th><th>Risk</th><th></th>
+          </tr></thead>
+          <tbody>
+            {(release.releases||[]).map((r,i)=>(
+              <tr key={r.id}>
+                <td><Input value={r.id} onChange={e=>setR(i,{id:e.target.value})} className="!py-1 !text-xs font-mono !w-16"/></td>
+                <td><Input value={r.name} onChange={e=>setR(i,{name:e.target.value})} className="!py-1 !text-sm font-semibold"/></td>
+                <td><Input value={r.date} onChange={e=>setR(i,{date:e.target.value})} className="!py-1 !text-xs !w-28"/></td>
+                <td><Input value={r.channel} onChange={e=>setR(i,{channel:e.target.value})} className="!py-1 !text-xs"/></td>
+                <td><Input value={r.scope} onChange={e=>setR(i,{scope:e.target.value})} className="!py-1 !text-xs"/></td>
+                <td>
+                  <Select value={r.risk} onChange={e=>setR(i,{risk:e.target.value})} className="!py-1 !text-xs !w-24">
+                    <option>Low</option><option>Medium</option><option>High</option>
+                  </Select>
+                </td>
+                <td><Btn size="sm" variant="ghost" onClick={()=>upd({releases:release.releases.filter((_,j)=>j!==i)})}><Icon name="trash"/></Btn></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-card">
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-sm font-semibold text-slate-900">Rollout Steps</h3>
+          <Btn size="sm" variant="subtle" icon={<Icon name="plus"/>} onClick={()=>upd({rollout:[...(release.rollout||[]), "New step"]})}>Add step</Btn>
+        </div>
+        <div className="space-y-2">
+          {(release.rollout||[]).map((s,i)=>(
+            <div key={i} className="flex items-center gap-2">
+              <span className="w-6 h-6 rounded-full bg-indigo-50 text-indigo-700 text-xs font-semibold flex items-center justify-center">{i+1}</span>
+              <Input value={s} onChange={e=>upd({rollout: release.rollout.map((x,j)=>j===i?e.target.value:x)})}/>
+              <Btn size="sm" variant="ghost" onClick={()=>upd({rollout: release.rollout.filter((_,j)=>j!==i)})}><Icon name="trash"/></Btn>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/*─────────────────────────────────────────────────────────────────────
+  KPI MODULE (metrics)
+─────────────────────────────────────────────────────────────────────*/
+function KPIsModule({ kpis, setKpis }){
+  const upd = (idx,patch)=>setKpis(kpis.map((k,i)=>i===idx?{...k,...patch}:k));
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2"><Icon name="sparkles"/> KPIs</h2>
+          <p className="text-sm text-slate-500">{kpis.length} metrics · tracked against target with trend</p>
+        </div>
+        <Btn icon={<Icon name="plus"/>} onClick={()=>setKpis([{id:uid("K"), name:"New KPI", target:"", current:"", trend:"", owner:""}, ...kpis])}>Add KPI</Btn>
+      </div>
+      <div className="grid md:grid-cols-2 gap-3">
+        {kpis.map((k,idx)=>(
+          <div key={k.id} className="bg-white border border-slate-200 rounded-xl p-4 shadow-card hover-card">
+            <div className="flex items-center justify-between gap-2">
+              <Input value={k.name} onChange={e=>upd(idx,{name:e.target.value})} className="!py-1 !text-sm font-semibold"/>
+              <Btn size="sm" variant="ghost" onClick={()=>setKpis(kpis.filter((_,i)=>i!==idx))}><Icon name="trash"/></Btn>
+            </div>
+            <div className="grid grid-cols-2 gap-2 mt-3">
+              <div>
+                <div className="text-[10px] uppercase text-slate-400">Target</div>
+                <Input value={k.target} onChange={e=>upd(idx,{target:e.target.value})} className="!py-1 !text-xs"/>
+              </div>
+              <div>
+                <div className="text-[10px] uppercase text-slate-400">Current</div>
+                <Input value={k.current} onChange={e=>upd(idx,{current:e.target.value})} className="!py-1 !text-xs"/>
+              </div>
+              <div>
+                <div className="text-[10px] uppercase text-slate-400">Trend</div>
+                <Input value={k.trend} onChange={e=>upd(idx,{trend:e.target.value})} className="!py-1 !text-xs"/>
+              </div>
+              <div>
+                <div className="text-[10px] uppercase text-slate-400">Owner</div>
+                <Input value={k.owner} onChange={e=>upd(idx,{owner:e.target.value})} className="!py-1 !text-xs"/>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/*─────────────────────────────────────────────────────────────────────
+  DASHBOARD STRIP (top of workspace)
+─────────────────────────────────────────────────────────────────────*/
+/*─────────────────────────────────────────────────────────────────────
+  EXECUTION MODULE · AI PM coordination layer
+  Sprint Board · Timeline · Team Load + persistent Risks rail
+─────────────────────────────────────────────────────────────────────*/
+const TASK_STATUSES = ["Not Started","In Progress","Blocked","Done"];
+
+function taskStatusChip(s){
+  if (s==="Done") return "chip chip-good";
+  if (s==="In Progress") return "chip chip-ind";
+  if (s==="Blocked") return "chip chip-red";
+  return "chip chip-muted";
+}
+function sevChip(s){
+  if (s==="high") return "chip chip-red";
+  if (s==="medium") return "chip chip-warn";
+  return "chip chip-muted";
+}
+function confidenceChip(c){
+  if (c==="high") return "chip chip-good";
+  if (c==="medium") return "chip chip-warn";
+  return "chip chip-muted";
+}
+function rollupStatus(plan){
+  const ts = plan.tasks || [];
+  if (!ts.length) return "Not Started";
+  if (ts.some(t=>t.status==="Blocked")) return "Blocked";
+  if (ts.every(t=>t.status==="Done")) return "Done";
+  if (ts.some(t=>t.status==="In Progress") || ts.some(t=>t.status==="Done")) return "In Progress";
+  return "Not Started";
+}
+function planProgress(plan){
+  const ts = plan.tasks || [];
+  if (!ts.length) return 0;
+  const done = ts.filter(t=>t.status==="Done").length;
+  return Math.round(done/ts.length*100);
+}
+function fnColor(fn){
+  const map = {
+    UI:"bg-pink-50 text-pink-700 border-pink-200",
+    Dev:"bg-indigo-50 text-indigo-700 border-indigo-200",
+    QA:"bg-emerald-50 text-emerald-700 border-emerald-200",
+    Legal:"bg-amber-50 text-amber-700 border-amber-200",
+    Compliance:"bg-violet-50 text-violet-700 border-violet-200",
+    Ops:"bg-cyan-50 text-cyan-700 border-cyan-200",
+    Finance:"bg-slate-100 text-slate-700 border-slate-200",
+    Marketing:"bg-rose-50 text-rose-700 border-rose-200",
+    Data:"bg-sky-50 text-sky-700 border-sky-200"
+  };
+  return map[fn] || "bg-slate-100 text-slate-700 border-slate-200";
+}
+
+function buildStatusReportFallback(execution, stories){
+  const today = new Date().toISOString().slice(0,10);
+  const L = [];
+  L.push(`# Execution Status Report — ${today}`);
+  L.push("");
+  const allTasks = execution.flatMap(p => p.tasks || []);
+  const done = allTasks.filter(t=>t.status==="Done").length;
+  const inProg = allTasks.filter(t=>t.status==="In Progress").length;
+  const blocked = allTasks.filter(t=>t.status==="Blocked").length;
+  const notStarted = allTasks.filter(t=>t.status==="Not Started").length;
+  L.push(`**Overall:** ${allTasks.length} tasks across ${execution.length} stories · ${done} done · ${inProg} in progress · ${blocked} blocked · ${notStarted} not started.`);
+  L.push(`**Completion:** ${allTasks.length ? Math.round(done/allTasks.length*100):0}%`);
+  L.push("");
+  const highRisks = execution.flatMap(p => (p.risks||[]).filter(r=>!r.dismissed && r.sev==="high").map(r=>({r, sid:p.storyId})));
+  L.push(`## Active High-Severity Risks (${highRisks.length})`);
+  if (!highRisks.length) L.push("_None._");
+  highRisks.forEach(({r, sid})=>{
+    L.push(`- **${sid}** · ${r.msg}`);
+    L.push(`  - _Mitigation:_ ${r.mit}`);
+  });
+  L.push("");
+  L.push(`## Per-Story Status`);
+  execution.forEach(p => {
+    const story = stories.find(s => s.id === p.storyId);
+    const title = story ? story.story.slice(0, 90) : p.storyId;
+    const pct = planProgress(p);
+    const status = rollupStatus(p);
+    L.push(`### ${p.storyId} · ${status} · ${pct}% complete`);
+    L.push(`> ${title}`);
+    const blk = (p.tasks||[]).filter(t=>t.status==="Blocked");
+    if (blk.length){
+      L.push(`**Blocked:** ${blk.map(t=>`${t.fn} — ${t.scope}`).join("; ")}`);
+    }
+    L.push("");
+  });
+  L.push("---");
+  L.push(`_Generated by RPOS Execution · AI PM mode_`);
+  return L.join("\n");
+}
+
+function buildReplanFallback(execution, stories){
+  const L = [];
+  L.push(`# Re-plan Suggestions`);
+  L.push("");
+  L.push(`The AI PM scanned ${execution.length} execution plans and surfaced the following re-plan opportunities:`);
+  L.push("");
+  // Heuristic 1: Could-priority stories can slip
+  const coulds = execution.filter(p => {
+    const s = stories.find(st=>st.id===p.storyId);
+    return s && s.priority === "Could";
+  });
+  if (coulds.length){
+    L.push(`## Deferrable to next release`);
+    coulds.forEach(p => {
+      const s = stories.find(st=>st.id===p.storyId);
+      L.push(`- **${p.storyId}** (${s.priority}) — ${(p.tasks||[]).length} tasks · can slip to R2/R3 without MVP impact`);
+    });
+    L.push("");
+  }
+  // Heuristic 2: Blocked tasks = schedule risk
+  const blocked = execution.flatMap(p => (p.tasks||[]).filter(t=>t.status==="Blocked").map(t=>({t, sid:p.storyId})));
+  if (blocked.length){
+    L.push(`## Active schedule blockers`);
+    blocked.forEach(({t, sid}) => {
+      L.push(`- **${sid} · ${t.fn}** — ${t.scope}`);
+      L.push(`  - Owner: ${t.owner || "unassigned"} · Est: ${t.est}d`);
+    });
+    L.push("");
+  }
+  // Heuristic 3: Hidden dependency reversals
+  L.push(`## Sequencing recommendations`);
+  L.push(`- **US-001** — Compliance (DLT registration) is currently blocked; kick off day 1 regardless of Dev readiness. DLT lead time is 5–15 working days.`);
+  L.push(`- **US-005** — Finance reconciliation workflow should precede partner-app cash capture. Reorder T-005-09 before T-005-04 to avoid rework.`);
+  L.push(`- **US-008** — Audit trail must land with first reorder PO, not after. It's a launch blocker for finance reconciliation.`);
+  L.push("");
+  L.push(`_Review these with the PM before applying. Re-plan is advisory, not auto-applied._`);
+  return L.join("\n");
+}
+
+function TaskRow({ task, plan, allTasks, onChange }){
+  const depNames = (task.dep || []).map(id => {
+    const t = allTasks.find(x => x.id === id);
+    return t ? `${t.fn}·${t.id.split("-").pop()}` : id;
+  }).join(", ");
+  return (
+    <tr className="border-t border-slate-100 hover:bg-slate-50/50">
+      <td className="px-2 py-2 align-top">
+        <span className={cls("inline-flex items-center gap-1 px-2 py-0.5 rounded border text-[10px] font-semibold", fnColor(task.fn))}>{task.fn}</span>
+      </td>
+      <td className="px-2 py-2 text-[12px] text-slate-700 align-top">{task.scope}</td>
+      <td className="px-2 py-2 align-top">
+        <input value={task.owner || ""}
+          placeholder="—"
+          onChange={e=>onChange({...task, owner:e.target.value})}
+          className="w-28 text-[11px] border border-slate-200 rounded px-1.5 py-0.5 bg-white focus:outline-none focus:border-indigo-400"/>
+      </td>
+      <td className="px-2 py-2 text-[11px] text-slate-600 text-center align-top whitespace-nowrap">{task.est}d</td>
+      <td className="px-2 py-2 align-top">
+        <select value={task.status}
+          onChange={e=>onChange({...task, status:e.target.value})}
+          className={cls("text-[10px] font-semibold rounded border-0 px-1 py-0.5 cursor-pointer", taskStatusChip(task.status))}>
+          {TASK_STATUSES.map(s=><option key={s} value={s}>{s}</option>)}
+        </select>
+      </td>
+      <td className="px-2 py-2 text-[10px] text-slate-400 align-top whitespace-nowrap">{depNames || "—"}</td>
+    </tr>
+  );
+}
+
+function StoryPlanCard({ plan, story, onPlanChange, expanded, onToggle }){
+  const status = rollupStatus(plan);
+  const pct = planProgress(plan);
+  const taskCount = (plan.tasks||[]).length;
+  const doneCount = (plan.tasks||[]).filter(t=>t.status==="Done").length;
+  const riskCount = (plan.risks||[]).filter(r=>!r.dismissed).length;
+  const fnCounts = {};
+  (plan.tasks||[]).forEach(t => fnCounts[t.fn] = (fnCounts[t.fn]||0) + 1);
+
+  const updateTask = (updated) => {
+    const next = {...plan, tasks: plan.tasks.map(t => t.id===updated.id ? updated : t)};
+    onPlanChange(next);
+  };
+
+  return (
+    <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
+      <button onClick={onToggle} className="w-full text-left px-4 py-3 hover:bg-slate-50/50 flex items-start gap-3">
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-1 flex-wrap">
+            <span className="text-[11px] font-mono text-slate-500">{plan.storyId}</span>
+            <span className={taskStatusChip(status)}>{status}</span>
+            <span className={confidenceChip(plan.confidence)}>confidence: {plan.confidence}</span>
+            {riskCount > 0 && <span className="chip chip-warn">⚠ {riskCount} risk{riskCount>1?"s":""}</span>}
+          </div>
+          <div className="text-sm font-medium text-slate-900 truncate">{story ? story.story : "(unknown story)"}</div>
+          <div className="text-[11px] text-slate-500 mt-0.5">
+            {story ? `${story.persona} · ${story.priority} · ${story.points} pts` : ""}
+          </div>
+        </div>
+        <div className="shrink-0 text-right">
+          <div className="text-[11px] text-slate-500">{doneCount}/{taskCount} tasks</div>
+          <div className="w-32 h-1.5 bg-slate-100 rounded-full overflow-hidden mt-1.5">
+            <div className="h-full bg-emerald-500" style={{width: pct+"%"}}/>
+          </div>
+          <div className="text-[10px] text-slate-400 mt-0.5">{pct}%</div>
+        </div>
+        <Icon name="chevron" className={cls("w-4 h-4 text-slate-400 transition mt-1", expanded && "rotate-90")} />
+      </button>
+      {expanded && (
+        <div className="border-t border-slate-100 bg-slate-50/40">
+          <div className="px-4 py-2 flex items-center gap-2 flex-wrap border-b border-slate-100">
+            {Object.entries(fnCounts).map(([fn,n])=>(
+              <span key={fn} className={cls("inline-flex items-center gap-1 px-2 py-0.5 rounded border text-[10px] font-semibold", fnColor(fn))}>
+                {fn} <span className="opacity-60">×{n}</span>
+              </span>
+            ))}
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left">
+              <thead>
+                <tr className="text-[10px] uppercase tracking-wider text-slate-500 bg-slate-100/60">
+                  <th className="px-2 py-1.5 w-20">Fn</th>
+                  <th className="px-2 py-1.5">Task Scope</th>
+                  <th className="px-2 py-1.5 w-32">Owner</th>
+                  <th className="px-2 py-1.5 w-12 text-center">Est</th>
+                  <th className="px-2 py-1.5 w-28">Status</th>
+                  <th className="px-2 py-1.5 w-28">Deps</th>
+                </tr>
+              </thead>
+              <tbody>
+                {plan.tasks.map(t => (
+                  <TaskRow key={t.id} task={t} plan={plan} allTasks={plan.tasks} onChange={updateTask}/>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          {(plan.assumptions||[]).length > 0 && (
+            <div className="px-4 py-2 text-[11px] text-slate-600 border-t border-slate-100 bg-white/60">
+              <span className="font-semibold text-slate-500 uppercase tracking-wider text-[9px] mr-2">Assumptions</span>
+              {plan.assumptions.join(" · ")}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function TimelineView({ execution, stories }){
+  const maxEst = Math.max(1, ...execution.flatMap(p => (p.tasks||[]).map(t=>t.est)));
+  return (
+    <div className="bg-white border border-slate-200 rounded-xl p-4 space-y-4">
+      <div className="text-[11px] text-slate-500">
+        Dependency-ordered task bars per story. Width ∝ estimated days. Green = Done · Indigo = In Progress · Red = Blocked · Grey = Not Started.
+      </div>
+      {execution.map(plan => {
+        const story = stories.find(s=>s.id===plan.storyId);
+        return (
+          <div key={plan.storyId} className="border-t border-slate-100 pt-3">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-[11px] font-mono text-slate-500">{plan.storyId}</span>
+              <span className="text-[12px] font-medium text-slate-800 truncate">{story ? story.story.slice(0, 80) : ""}</span>
+            </div>
+            <div className="flex items-center gap-1 flex-wrap">
+              {(plan.tasks||[]).map(t => {
+                const w = Math.max(60, 40 * t.est);
+                const bg = t.status==="Done" ? "bg-emerald-500" : t.status==="In Progress" ? "bg-indigo-500" : t.status==="Blocked" ? "bg-red-500" : "bg-slate-300";
+                return (
+                  <div key={t.id} title={`${t.fn} · ${t.scope} · ${t.est}d · ${t.status}`}
+                    style={{width: w}}
+                    className={cls("h-6 rounded text-[10px] font-semibold text-white px-2 flex items-center gap-1 truncate", bg)}>
+                    <span className="opacity-90">{t.fn}</span>
+                    <span className="opacity-70">·{t.est}d</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function TeamLoadView({ execution }){
+  // Tally per owner
+  const byOwner = {};
+  execution.forEach(p => {
+    (p.tasks||[]).forEach(t => {
+      const o = (t.owner || "unassigned").trim();
+      if (!byOwner[o]) byOwner[o] = { active:0, total:0, days:0, blocked:0, fns:new Set() };
+      byOwner[o].total += 1;
+      if (t.status==="In Progress") byOwner[o].active += 1;
+      if (t.status==="Blocked") byOwner[o].blocked += 1;
+      if (t.status!=="Done") byOwner[o].days += Number(t.est) || 0;
+      byOwner[o].fns.add(t.fn);
+    });
+  });
+  const rows = Object.entries(byOwner).sort((a,b)=>b[1].days - a[1].days);
+  return (
+    <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
+      <div className="px-4 py-2 text-[11px] text-slate-500 border-b border-slate-100">
+        Per-owner load across all in-flight stories. Red rows = over 5 days of open commitment.
+      </div>
+      <table className="w-full text-left text-[12px]">
+        <thead>
+          <tr className="text-[10px] uppercase tracking-wider text-slate-500 bg-slate-100/60">
+            <th className="px-3 py-2">Owner</th>
+            <th className="px-3 py-2">Functions</th>
+            <th className="px-3 py-2 text-center">Active</th>
+            <th className="px-3 py-2 text-center">Blocked</th>
+            <th className="px-3 py-2 text-center">Total</th>
+            <th className="px-3 py-2 text-center">Open Days</th>
+            <th className="px-3 py-2">Load</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map(([owner, v])=>{
+            const overloaded = v.days > 5;
+            const pct = Math.min(100, v.days/10*100);
+            return (
+              <tr key={owner} className={cls("border-t border-slate-100", overloaded && "bg-red-50/40")}>
+                <td className="px-3 py-2 font-medium text-slate-800">{owner}</td>
+                <td className="px-3 py-2">
+                  <div className="flex gap-1 flex-wrap">
+                    {[...v.fns].map(f => <span key={f} className={cls("inline-flex items-center px-1.5 py-0 rounded border text-[9px] font-semibold", fnColor(f))}>{f}</span>)}
+                  </div>
+                </td>
+                <td className="px-3 py-2 text-center">{v.active}</td>
+                <td className="px-3 py-2 text-center">{v.blocked > 0 ? <span className="chip chip-red">{v.blocked}</span> : "—"}</td>
+                <td className="px-3 py-2 text-center">{v.total}</td>
+                <td className={cls("px-3 py-2 text-center font-semibold", overloaded ? "text-red-600" : "text-slate-700")}>{v.days}d</td>
+                <td className="px-3 py-2">
+                  <div className="w-32 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                    <div className={cls("h-full", overloaded ? "bg-red-500" : "bg-indigo-500")} style={{width: pct+"%"}}/>
+                  </div>
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function RisksRail({ execution, onDismiss, stories }){
+  const allRisks = execution.flatMap(p => (p.risks||[]).map(r => ({...r, storyId: p.storyId})))
+    .filter(r => !r.dismissed);
+  const bySev = { high: [], medium: [], low: [] };
+  allRisks.forEach(r => (bySev[r.sev] || bySev.low).push(r));
+  const order = ["high","medium","low"];
+  const total = allRisks.length;
+  return (
+    <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
+      <div className="px-4 py-3 border-b border-slate-100 bg-gradient-to-r from-amber-50/60 to-rose-50/40 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Icon name="flag" className="w-4 h-4 text-amber-600"/>
+          <div>
+            <div className="text-sm font-semibold text-slate-900">Active Risks</div>
+            <div className="text-[10px] text-slate-500">AI PM continuously re-scans · {total} active</div>
+          </div>
+        </div>
+      </div>
+      <div className="max-h-[620px] overflow-auto scroll-thin divide-y divide-slate-100">
+        {total === 0 && (
+          <div className="p-4 text-[12px] text-slate-500">No active risks. 🎉</div>
+        )}
+        {order.flatMap(sev => bySev[sev].map(r => (
+          <div key={r.id} className="p-3 hover:bg-slate-50/50">
+            <div className="flex items-center gap-2 mb-1 flex-wrap">
+              <span className={sevChip(r.sev)}>{r.sev}</span>
+              <span className="chip chip-ind">{r.type.replace(/_/g," ")}</span>
+              <span className="text-[10px] font-mono text-slate-500 ml-auto">{r.storyId}</span>
+            </div>
+            <div className="text-[12px] text-slate-800 leading-snug">{r.msg}</div>
+            {r.mit && <div className="text-[11px] text-slate-500 italic mt-1">Mitigation: {r.mit}</div>}
+            <div className="flex justify-end mt-2">
+              <button onClick={()=>onDismiss(r.storyId, r.id)}
+                className="text-[10px] text-slate-400 hover:text-slate-700">dismiss</button>
+            </div>
+          </div>
+        )))}
+      </div>
+    </div>
+  );
+}
+
+function AIModal({ title, text, source, onClose }){
+  return (
+    <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur flex items-center justify-center p-6">
+      <div className="bg-white w-full max-w-3xl max-h-[85vh] rounded-2xl shadow-2xl overflow-hidden flex flex-col">
+        <div className="h-12 shrink-0 flex items-center justify-between px-5 border-b border-slate-200 bg-gradient-to-r from-indigo-50 to-cyan-50/40">
+          <div className="flex items-center gap-2">
+            <div className="w-6 h-6 rounded bg-gradient-to-br from-indigo-500 to-cyan-400 text-white text-[10px] font-bold flex items-center justify-center">AI</div>
+            <div className="text-sm font-semibold text-slate-900">{title}</div>
+            <span className={cls("chip", source==="live" ? "chip-good" : "chip-muted")}>source: {source}</span>
+          </div>
+          <button onClick={onClose} className="text-slate-400 hover:text-slate-700 text-sm">Close ✕</button>
+        </div>
+        <div className="flex-1 overflow-auto scroll-thin p-6 prd text-sm"
+             dangerouslySetInnerHTML={{__html: md2html(text)}}/>
+        <div className="shrink-0 border-t border-slate-200 px-5 py-2 flex justify-end gap-2">
+          <Btn size="sm" variant="subtle" icon={<Icon name="copy"/>}
+            onClick={()=>{ navigator.clipboard.writeText(text); }}>Copy markdown</Btn>
+          <Btn size="sm" variant="primary" onClick={onClose}>Done</Btn>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ExecutionModule({ execution, setExecution, stories }){
+  const [view, setView] = useState("board");
+  const [expandedIds, setExpandedIds] = useState(()=>new Set([execution[0]?.storyId].filter(Boolean)));
+  const [aiModal, setAiModal] = useState(null); // { title, text, source } | null
+  const [loadingAI, setLoadingAI] = useState(false);
+
+  const toggle = (id) => {
+    setExpandedIds(s => { const n = new Set(s); n.has(id) ? n.delete(id) : n.add(id); return n; });
+  };
+  const updatePlan = (nextPlan) => {
+    setExecution(execution.map(p => p.storyId === nextPlan.storyId ? nextPlan : p));
+  };
+  const dismissRisk = (storyId, riskId) => {
+    setExecution(execution.map(p =>
+      p.storyId !== storyId ? p :
+      {...p, risks: p.risks.map(r => r.id===riskId ? {...r, dismissed:true} : r)}
+    ));
+  };
+  const expandAll = () => setExpandedIds(new Set(execution.map(p=>p.storyId)));
+  const collapseAll = () => setExpandedIds(new Set());
+
+  const onGenerateStatus = async () => {
+    setLoadingAI(true);
+    const fallback = () => buildStatusReportFallback(execution, stories);
+    const res = await callLLM({ prompt:"Generate execution status report from current plan state", fallback });
+    setLoadingAI(false);
+    setAiModal({ title:"Weekly Status Report", text:res.text, source:res.source });
+  };
+  const onReplan = async () => {
+    setLoadingAI(true);
+    const fallback = () => buildReplanFallback(execution, stories);
+    const res = await callLLM({ prompt:"Suggest re-plan moves given current plan state", fallback });
+    setLoadingAI(false);
+    setAiModal({ title:"Re-plan Suggestions", text:res.text, source:res.source });
+  };
+
+  const totalTasks = execution.flatMap(p => p.tasks||[]).length;
+  const doneTasks  = execution.flatMap(p => p.tasks||[]).filter(t=>t.status==="Done").length;
+  const blockedTasks = execution.flatMap(p => p.tasks||[]).filter(t=>t.status==="Blocked").length;
+  const highRisks = execution.flatMap(p => p.risks||[]).filter(r=>!r.dismissed && r.sev==="high").length;
+
+  return (
+    <div className="space-y-4">
+      {/* Header */}
+      <div className="flex items-center justify-between gap-3 flex-wrap">
+        <div>
+          <div className="flex items-center gap-2 mb-1">
+            <div className="w-7 h-7 rounded-md bg-gradient-to-br from-indigo-500 to-cyan-400 text-white text-[11px] font-bold flex items-center justify-center">AI</div>
+            <h2 className="text-lg font-semibold text-slate-900">Execution · AI Project Manager</h2>
+          </div>
+          <p className="text-[12px] text-slate-500">
+            Decomposes each story into a cross-functional task plan · tracks status · surfaces risks · generates status reports.
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Btn size="sm" variant="subtle" onClick={expandAll}>Expand all</Btn>
+          <Btn size="sm" variant="subtle" onClick={collapseAll}>Collapse</Btn>
+          <Btn size="sm" variant="subtle" icon={<Icon name="sparkles"/>} onClick={onReplan}>Re-plan release</Btn>
+          <Btn size="sm" variant="primary" icon={<Icon name="doc"/>} onClick={onGenerateStatus}>Generate status report</Btn>
+        </div>
+      </div>
+
+      {/* Execution KPI strip (module-local) */}
+      <div className="grid grid-cols-4 gap-2">
+        {[
+          { label:"Tasks", value: `${doneTasks}/${totalTasks}`, tone:"bg-slate-100 text-slate-700" },
+          { label:"Completion", value: totalTasks ? Math.round(doneTasks/totalTasks*100)+"%" : "—", tone:"bg-emerald-50 text-emerald-700" },
+          { label:"Blocked", value: blockedTasks, tone: blockedTasks ? "bg-red-50 text-red-700" : "bg-slate-100 text-slate-500" },
+          { label:"High-sev risks", value: highRisks, tone: highRisks ? "bg-amber-50 text-amber-700" : "bg-slate-100 text-slate-500" }
+        ].map(c=>(
+          <div key={c.label} className="bg-white border border-slate-200 rounded-lg p-3">
+            <div className={cls("chip mb-1.5", c.tone)}>{c.label}</div>
+            <div className="text-lg font-bold text-slate-900">{c.value}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Main grid: views + risks rail */}
+      <div className="grid grid-cols-12 gap-4">
+        <div className="col-span-8">
+          {/* View tabs */}
+          <div className="flex items-center gap-1 mb-3 bg-white border border-slate-200 rounded-xl p-1 w-fit shadow-sm">
+            {[["board","Sprint Board","kanban"],["timeline","Timeline","bolt"],["load","Team Load","users"]].map(([id, label, icon])=>(
+              <div key={id} className={cls("module-tab", view===id && "active")} onClick={()=>setView(id)}>
+                <span className="inline-flex items-center gap-2"><Icon name={icon} className="w-3.5 h-3.5"/>{label}</span>
+              </div>
+            ))}
+          </div>
+
+          {view === "board" && (
+            <div className="space-y-2">
+              {execution.map(plan => {
+                const story = stories.find(s => s.id === plan.storyId);
+                return (
+                  <StoryPlanCard key={plan.storyId}
+                    plan={plan} story={story}
+                    onPlanChange={updatePlan}
+                    expanded={expandedIds.has(plan.storyId)}
+                    onToggle={()=>toggle(plan.storyId)} />
+                );
+              })}
+            </div>
+          )}
+          {view === "timeline" && <TimelineView execution={execution} stories={stories}/>}
+          {view === "load"     && <TeamLoadView execution={execution}/>}
+        </div>
+        <div className="col-span-4">
+          <RisksRail execution={execution} stories={stories} onDismiss={dismissRisk}/>
+        </div>
+      </div>
+
+      {loadingAI && <div className="toast">AI PM is thinking…</div>}
+      {aiModal && <AIModal {...aiModal} onClose={()=>setAiModal(null)}/>}
+    </div>
+  );
+}
+
+function DashboardStrip({ project, activeStageName }){
+  const { stories, backlog, personas, tests, kpis, execution } = project;
+  const totalPts = stories.reduce((a,s)=>a+s.points,0);
+  const donePts = stories.filter(s=>s.status==="Done").reduce((a,s)=>a+s.points,0);
+  const mustCount = stories.filter(s=>s.priority==="Must").length;
+  const atRisk = backlog.filter(b=>b.priority==="Must" && (b.status==="To Do"||b.status==="Backlog")).length;
+  const testPass = tests.filter(t=>t.result==="Pass").length;
+  // AI PM execution rollup
+  const execTasks = (execution||[]).flatMap(pl=>pl.tasks||[]);
+  const execDone  = execTasks.filter(t=>t.status==="Done").length;
+  const execBlk   = execTasks.filter(t=>t.status==="Blocked").length;
+  const execRisks = (execution||[]).flatMap(pl=>(pl.risks||[]).filter(r=>!r.dismissed)).length;
+  const execPct   = execTasks.length ? Math.round((execDone/execTasks.length)*100) : 0;
+  const execLabel = execTasks.length ? `${execPct}% · ${execBlk?`${execBlk} blkd`:`${execRisks} risk${execRisks===1?"":"s"}`}` : "—";
+  const cards = [
+    { label:"SDLC Stage", value:activeStageName, tone:"indigo" },
+    { label:"Personas", value:personas.length, tone:"cyan" },
+    { label:"User Stories", value:stories.length + " · " + totalPts + "pts", tone:"slate" },
+    { label:"Completion", value: totalPts? Math.round(donePts/totalPts*100)+"%":"—", tone:"green" },
+    { label:"Must-haves", value:mustCount, tone:"amber" },
+    { label:"At-risk Musts", value:atRisk, tone:atRisk>3?"red":"slate" },
+    { label:"AI PM Exec", value: execLabel, tone: execBlk>0?"red":(execTasks.length?"violet":"slate") },
+    { label:"Tests Pass", value: tests.length ? `${testPass}/${tests.length}` : "—", tone:"green" },
+    { label:"KPIs", value: kpis.length, tone:"pink" }
+  ];
+  const tones = { indigo:"bg-indigo-50 text-indigo-700", cyan:"bg-cyan-50 text-cyan-700", slate:"bg-slate-100 text-slate-700", green:"bg-emerald-50 text-emerald-700", amber:"bg-amber-50 text-amber-700", red:"bg-red-50 text-red-700", pink:"bg-pink-50 text-pink-700", violet:"bg-violet-50 text-violet-700" };
+  return (
+    <div className="grid grid-cols-9 gap-2 mb-4">
+      {cards.map(c=>(
+        <div key={c.label} className="bg-white border border-slate-200 rounded-lg p-3">
+          <div className={cls("chip mb-2", tones[c.tone])}>{c.label}</div>
+          <div className="text-base font-bold text-slate-900 truncate">{c.value}</div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/*─────────────────────────────────────────────────────────────────────
+  PRD PREVIEW (right pane) · Export menu
+─────────────────────────────────────────────────────────────────────*/
+function ExportMenu({ onExport }){
+  const [open, setOpen] = useState(false);
+  useEffect(()=>{
+    if (!open) return;
+    const close = (e)=>{ if (!e.target.closest("[data-export]")) setOpen(false); };
+    setTimeout(()=>document.addEventListener("click", close), 0);
+    return ()=>document.removeEventListener("click", close);
+  }, [open]);
+  return (
+    <div className="relative" data-export>
+      <Btn size="sm" variant="primary" icon={<Icon name="download"/>} onClick={()=>setOpen(!open)}>Export ▾</Btn>
+      {open && (
+        <div className="menu">
+          {[
+            ["md","Markdown (.md)","plain text"],
+            ["doc","Word (.doc)","HTML → Word"],
+            ["docx","Word (.docx)","OOXML"],
+            ["pdf","PDF (.pdf)","rendered PRD"],
+            ["pptx","PowerPoint (.pptx)","slides per section"],
+            ["xlsx","Excel (.xlsx)","backlog · stories · kpis"]
+          ].map(([t,l,h])=>(
+            <div key={t} className="menu-row" onClick={()=>{ setOpen(false); onExport(t); }}>
+              <Icon name="download" className="w-4 h-4 text-indigo-600"/>
+              <div>
+                <div>{l}</div>
+                <div className="text-[10px] text-slate-400">{h}</div>
+              </div>
+              <span className="hint">{t.toUpperCase()}</span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function PRDPreview({ prd, onExport, onCopy }){
+  const html = useMemo(()=>md2html(prd), [prd]);
+  return (
+    <div className="h-full flex flex-col bg-white border-l border-slate-200">
+      <div className="px-4 py-3 border-b border-slate-200 flex items-center justify-between bg-gradient-to-r from-slate-50 to-indigo-50/40">
+        <div className="flex items-center gap-2">
+          <Icon name="doc" className="w-4 h-4 text-indigo-600"/>
+          <div>
+            <div className="text-sm font-semibold text-slate-900">Live PRD</div>
+            <div className="text-[11px] text-slate-500">auto-syncs from all modules</div>
+          </div>
+        </div>
+        <div className="flex items-center gap-1">
+          <Btn size="sm" variant="subtle" icon={<Icon name="copy"/>} onClick={onCopy} title="Copy markdown"/>
+          <ExportMenu onExport={onExport} />
+        </div>
+      </div>
+      <div id="prd-render-target" className="flex-1 overflow-auto scroll-thin p-6 prd text-sm"
+        dangerouslySetInnerHTML={{__html: html}}></div>
+    </div>
+  );
+}
+
+/*─────────────────────────────────────────────────────────────────────
+  PROJECT SWITCHER
+─────────────────────────────────────────────────────────────────────*/
+function ProjectSwitcher({ ws, onSelect, onNew, onRename, onDelete }){
+  const [open, setOpen] = useState(false);
+  useEffect(()=>{
+    if (!open) return;
+    const close = (e)=>{ if (!e.target.closest("[data-proj]")) setOpen(false); };
+    setTimeout(()=>document.addEventListener("click", close), 0);
+    return ()=>document.removeEventListener("click", close);
+  }, [open]);
+  const cur = ws.projects.find(p=>p.id===ws.currentId) || ws.projects[0];
+  return (
+    <div className="relative" data-proj>
+      <button onClick={()=>setOpen(!open)}
+        className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-sm text-slate-800">
+        <div className="w-6 h-6 rounded-md bg-slate-900 text-white flex items-center justify-center text-[10px] font-bold">P</div>
+        <span className="font-medium max-w-[14rem] truncate">{cur.name}</span>
+        <Icon name="chevron" className="w-3.5 h-3.5 rotate-90 text-slate-500"/>
+      </button>
+      {open && (
+        <div className="menu" style={{left:0, right:"auto", minWidth:320}}>
+          <div className="px-3 py-2 text-[10px] uppercase tracking-wider text-slate-500 border-b border-slate-100">Projects</div>
+          {ws.projects.map(p => (
+            <div key={p.id} className={cls("menu-row", p.id===ws.currentId && "bg-indigo-50/60")}
+              onClick={()=>{ onSelect(p.id); setOpen(false); }}>
+              <span className="w-2 h-2 rounded-full bg-indigo-500"/>
+              <div className="flex-1 truncate">{p.name}</div>
+              {p.id===ws.currentId && <span className="chip chip-good">active</span>}
+            </div>
+          ))}
+          <div className="border-t border-slate-100"/>
+          <div className="menu-row" onClick={()=>{ const name = prompt("Project name?","Untitled Project"); if(name){ onNew(name); setOpen(false); } }}>
+            <Icon name="plus" className="w-4 h-4 text-indigo-600"/>
+            <div>New project</div>
+          </div>
+          <div className="menu-row" onClick={()=>{ const name = prompt("Rename to:", cur.name); if(name){ onRename(name); setOpen(false); } }}>
+            <Icon name="doc" className="w-4 h-4 text-slate-500"/>
+            <div>Rename current</div>
+          </div>
+          {ws.projects.length > 1 && (
+            <div className="menu-row" onClick={()=>{ if(confirm(`Delete "${cur.name}"? This cannot be undone.`)){ onDelete(); setOpen(false); } }}>
+              <Icon name="trash" className="w-4 h-4 text-red-500"/>
+              <div className="text-red-600">Delete current</div>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/*─────────────────────────────────────────────────────────────────────
+  SIDEBAR — SDLC NAV (content-aware)
+─────────────────────────────────────────────────────────────────────*/
+function Sidebar({ active, setActive, stageProgress }){
+  return (
+    <aside className="w-64 shrink-0 bg-slate-900 text-slate-200 flex flex-col">
+      <div className="p-5 border-b border-white/10">
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-cyan-400 text-white font-bold flex items-center justify-center text-sm">R</div>
+          <div>
+            <div className="font-semibold tracking-tight">RPOS</div>
+            <div className="text-[11px] text-slate-400">Rutu's Product OS</div>
+          </div>
+        </div>
+      </div>
+      <div className="p-5">
+        <div className="text-[10px] uppercase tracking-widest text-slate-500 mb-3">SDLC Stages</div>
+        <div className="relative ml-3 border-l border-white/10 space-y-3 pl-2">
+          {SDLC_STAGES.map((s)=>(
+            <button key={s.id}
+              onClick={()=>setActive(s.id)}
+              className={cls("w-full text-left stage-dot pl-2 pr-2 py-1.5 rounded-md transition",
+                active===s.id ? "active bg-white/5 text-white" : "text-slate-300 hover:bg-white/5",
+                stageProgress[s.id] === "done" ? "done" : ""
+              )}>
+              <div className="text-[13px] font-semibold flex items-center gap-2">
+                {s.name}
+                {stageProgress[s.id] === "done" && <span className="chip chip-good !text-[9px]">ready</span>}
+                {stageProgress[s.id] === "partial" && <span className="chip chip-warn !text-[9px]">in-prog</span>}
+              </div>
+              <div className="text-[10px] text-slate-400">{s.sub.join(" · ")}</div>
+            </button>
+          ))}
+        </div>
+      </div>
+      <div className="mt-auto p-5 border-t border-white/10">
+        <div className="text-[10px] uppercase tracking-widest text-slate-500 mb-2">Agents Pipeline</div>
+        <div className="space-y-1.5 text-[12px] text-slate-300">
+          <div className="flex items-center gap-2"><span className="w-5 h-5 rounded bg-indigo-500/30 text-indigo-300 flex items-center justify-center text-[10px] font-bold">1</span> Prompt Tool</div>
+          <div className="flex items-center gap-2"><span className="w-5 h-5 rounded bg-cyan-500/30 text-cyan-300 flex items-center justify-center text-[10px] font-bold">2</span> Research Tool</div>
+          <div className="flex items-center gap-2"><span className="w-5 h-5 rounded bg-amber-500/30 text-amber-300 flex items-center justify-center text-[10px] font-bold">3</span> PM Architecture <span className="ml-auto chip chip-good !text-[9px]">you are here</span></div>
+          <div className="flex items-center gap-2"><span className="w-5 h-5 rounded bg-pink-500/30 text-pink-300 flex items-center justify-center text-[10px] font-bold">4</span> Figma UI/UX</div>
+        </div>
+      </div>
+    </aside>
+  );
+}
+
+/*─────────────────────────────────────────────────────────────────────
+  TOP BAR
+─────────────────────────────────────────────────────────────────────*/
+function TopBar({ ws, onSelect, onNew, onRename, onDelete, onExport, onPresent, moduleName, savedAt }){
+  return (
+    <header className="h-14 bg-white border-b border-slate-200 flex items-center px-4 gap-3 shrink-0">
+      <ProjectSwitcher ws={ws} onSelect={onSelect} onNew={onNew} onRename={onRename} onDelete={onDelete} />
+      <span className="chip chip-ind">Core Workspace</span>
+      <span className="chip chip-muted">· {moduleName}</span>
+      <span className="text-[11px] text-slate-400 ml-2">Saved {savedAt}</span>
+      <div className="flex-1"></div>
+      <div className="flex items-center gap-1 text-xs text-slate-500">
+        <span className="kbd">⌘</span><span className="kbd">K</span><span className="ml-1">command</span>
+      </div>
+      <Btn variant="subtle" icon={<Icon name="eye"/>} onClick={onPresent}>Present</Btn>
+      <ExportMenu onExport={onExport} />
+    </header>
+  );
+}
+
+/*─────────────────────────────────────────────────────────────────────
+  PRESENT (demo) OVERLAY — full-screen live PRD
+─────────────────────────────────────────────────────────────────────*/
+function PresentOverlay({ prd, onClose }){
+  return (
+    <div className="fixed inset-0 z-40 bg-slate-900/90 backdrop-blur flex items-center justify-center p-6">
+      <div className="bg-white w-full max-w-5xl h-[90vh] rounded-2xl shadow-2xl overflow-hidden flex flex-col">
+        <div className="h-12 flex items-center justify-between px-5 bg-slate-900 text-white">
+          <div className="font-semibold">Live PRD · Presentation Mode</div>
+          <button onClick={onClose} className="text-slate-300 hover:text-white">Close ✕</button>
+        </div>
+        <div className="flex-1 overflow-auto scroll-thin p-10 prd" dangerouslySetInnerHTML={{__html:md2html(prd)}} />
+      </div>
+    </div>
+  );
+}
+
+/*─────────────────────────────────────────────────────────────────────
+  ROOT APP
+─────────────────────────────────────────────────────────────────────*/
+function App(){
+  const [ws, setWs] = useState(loadWorkspace);
+  const [toast, setToast] = useState(null);
+  const [present, setPresent] = useState(false);
+  const [savedAt, setSavedAt] = useState("just now");
+
+  // Persist on every workspace change
+  useEffect(()=>{
+    saveWorkspace(ws);
+    const now = new Date();
+    setSavedAt(now.toLocaleTimeString([], {hour:"2-digit", minute:"2-digit"}));
+  }, [ws]);
+
+  const cur = ws.projects.find(p=>p.id===ws.currentId) || ws.projects[0];
+
+  const updateProject = (patch) =>
+    setWs(w => ({...w, projects: w.projects.map(p => p.id===w.currentId ? {...p, ...patch} : p)}));
+
+  const setActiveStage = (id) => {
+    const stage = SDLC_STAGES.find(s=>s.id===id);
+    const firstModule = (stage && stage.modules[0]) || cur.activeModule;
+    updateProject({ activeStage: id, activeModule: firstModule });
+  };
+  const setActiveModule = (m) => updateProject({ activeModule: m });
+
+  const newProject = (name) => {
+    const p = makeBlankProject(name);
+    setWs(w => ({ currentId: p.id, projects: [...w.projects, p] }));
+  };
+  const selectProject = (id) => setWs(w => ({...w, currentId: id}));
+  const renameProject = (name) => updateProject({ name });
+  const deleteProject = () => setWs(w => {
+    const remaining = w.projects.filter(p=>p.id!==w.currentId);
+    if (!remaining.length){ const seed = makeProjectState("CSPO Grocery Online"); return { currentId: seed.id, projects: [seed] }; }
+    return { currentId: remaining[0].id, projects: remaining };
+  });
+
+  // PRD regeneration
+  const prd = useMemo(()=>generatePRD(cur),
+    [cur.problem, cur.strategy, cur.personas, cur.stories, cur.backlog, cur.storyMap,
+     cur.wireframes, cur.flows, cur.sprints, cur.execution, cur.architecture, cur.tests, cur.release, cur.kpis, cur.name]);
+
+  const showToast = (m) => { setToast(m); setTimeout(()=>setToast(null), 2000); };
+
+  const handleExport = (type) => {
+    if (type === "copy") { navigator.clipboard.writeText(prd); showToast("Copied markdown to clipboard"); return; }
+    showToast(`Exporting ${type.toUpperCase()}…`);
+    exportAs(type, { prd, project: cur }).then(msg => showToast(msg)).catch(err => showToast("Export failed: " + err));
+  };
+
+  // Stage progress heuristic for sidebar indicators
+  const stageProgress = useMemo(() => {
+    const sig = (arr) => (arr && arr.length) ? "done" : "empty";
+    const map = {};
+    map.discovery    = (cur.strategy.vision && (cur.problem.statement || cur.personas.length)) ? "done" : (cur.personas.length ? "partial" : "empty");
+    map.requirements = cur.stories.length && cur.backlog.length ? "done" : cur.stories.length ? "partial" : "empty";
+    map.design       = (cur.wireframes.length && cur.flows.length) ? "done" : (cur.wireframes.length || cur.flows.length) ? "partial" : "empty";
+    {
+      const execCount = (cur.execution||[]).length;
+      const hasSprints = cur.sprints.length;
+      const hasArch = cur.architecture && cur.architecture.summary;
+      map.development = (hasSprints && hasArch && execCount) ? "done"
+        : (hasSprints || execCount) ? "partial" : "empty";
+    }
+    map.qa           = cur.tests.filter(t=>t.result==="Pass").length >= Math.max(1, Math.floor(cur.tests.length*0.6)) && cur.tests.length ? "done" : (cur.tests.length ? "partial" : "empty");
+    map.deployment   = cur.release.releases.length ? "done" : "empty";
+    map.metrics      = cur.kpis.length ? "done" : "empty";
+    return map;
+  }, [cur]);
+
+  const stageMeta = SDLC_STAGES.find(s=>s.id===cur.activeStage) || SDLC_STAGES[0];
+  const moduleName = (MODULE_META[cur.activeModule] || {}).name || "—";
+  const activeModules = stageMeta.modules;
+
+  return (
+    <div className="flex h-full">
+      <Sidebar active={cur.activeStage} setActive={setActiveStage} stageProgress={stageProgress}/>
+      <div className="flex-1 flex flex-col min-w-0">
+        <TopBar
+          ws={ws}
+          onSelect={selectProject} onNew={newProject} onRename={renameProject} onDelete={deleteProject}
+          onExport={handleExport} onPresent={()=>setPresent(true)}
+          moduleName={moduleName} savedAt={savedAt}
+        />
+        <div className="flex-1 grid grid-cols-12 min-h-0">
+          <main className="col-span-8 overflow-auto scroll-thin p-6 bg-slate-50 dotgrid">
+            <div className="text-xs text-slate-500 mb-3 flex items-center gap-2 flex-wrap">
+              <span className="chip chip-ind">SDLC · {stageMeta.name}</span>
+              {stageMeta.sub.map(s=><span key={s} className="chip chip-muted">{s}</span>)}
+            </div>
+            <DashboardStrip project={cur} activeStageName={stageMeta.name} />
+            <div className="flex items-center gap-1 mb-4 bg-white border border-slate-200 rounded-xl p-1 w-fit shadow-sm flex-wrap">
+              {activeModules.map(id=>{
+                const meta = MODULE_META[id] || {name:id, icon:"doc"};
+                return (
+                  <div key={id} className={cls("module-tab", cur.activeModule===id && "active")} onClick={()=>setActiveModule(id)}>
+                    <span className="inline-flex items-center gap-2"><Icon name={meta.icon} className="w-3.5 h-3.5"/>{meta.name}</span>
+                  </div>
+                );
+              })}
+            </div>
+
+            {cur.activeModule==="problem"      && <ProblemModule problem={cur.problem} setProblem={v=>updateProject({problem:v})} />}
+            {cur.activeModule==="strategy"     && <StrategyModule strategy={cur.strategy} setStrategy={v=>updateProject({strategy:v})} />}
+            {cur.activeModule==="personas"     && <PersonasModule personas={cur.personas} setPersonas={v=>updateProject({personas:v})} />}
+            {cur.activeModule==="stories"      && <StoriesModule stories={cur.stories} setStories={v=>updateProject({stories:v})} personas={cur.personas} />}
+            {cur.activeModule==="backlog"      && <BacklogModule backlog={cur.backlog} setBacklog={v=>updateProject({backlog:v})} />}
+            {cur.activeModule==="map"          && <StoryMapModule storyMap={cur.storyMap} setStoryMap={v=>updateProject({storyMap:v})} />}
+            {cur.activeModule==="wireframes"   && <WireframesModule wireframes={cur.wireframes} setWireframes={v=>updateProject({wireframes:v})} personas={cur.personas} />}
+            {cur.activeModule==="flows"        && <FlowsModule flows={cur.flows} setFlows={v=>updateProject({flows:v})} />}
+            {cur.activeModule==="sprints"      && <SprintsModule sprints={cur.sprints} setSprints={v=>updateProject({sprints:v})} />}
+            {cur.activeModule==="execution"    && <ExecutionModule execution={cur.execution} setExecution={v=>updateProject({execution:v})} stories={cur.stories} />}
+            {cur.activeModule==="architecture" && <ArchitectureModule architecture={cur.architecture} setArchitecture={v=>updateProject({architecture:v})} />}
+            {cur.activeModule==="testplan"     && <TestPlanModule tests={cur.tests} setTests={v=>updateProject({tests:v})} stories={cur.stories} />}
+            {cur.activeModule==="coverage"     && <CoverageModule tests={cur.tests} stories={cur.stories} />}
+            {cur.activeModule==="release"      && <ReleasePlanModule release={cur.release} setRelease={v=>updateProject({release:v})} />}
+            {cur.activeModule==="kpis"         && <KPIsModule kpis={cur.kpis} setKpis={v=>updateProject({kpis:v})} />}
+          </main>
+          <section className="col-span-4 min-w-0">
+            <PRDPreview prd={prd} onExport={handleExport} onCopy={()=>handleExport("copy")}/>
+          </section>
+        </div>
+      </div>
+      {present && <PresentOverlay prd={prd} onClose={()=>setPresent(false)} />}
+      {toast && <div className="toast">{toast}</div>}
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>

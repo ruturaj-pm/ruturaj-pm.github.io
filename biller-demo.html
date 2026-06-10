@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Biller Collections Analytics - Product Demo</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1" integrity="sha384-jb8JQMbMoBUzgWatfe6COACi2ljcDdZQ2OxczGA3bGNeWe+6DChMTBJemed7ZnvJ" crossorigin="anonymous"></script>
+<style>
+:root{
+  --bg-primary:#f6f7f9; --bg-card:#ffffff; --bg-header:#15243b;
+  --text-primary:#1f2430; --text-secondary:#68707e; --text-on-dark:#ffffff;
+  --c1:#2f6fb2; --c2:#dd8452; --c3:#55a868; --c4:#c44e52; --c5:#8172b3; --c6:#937860;
+  --positive:#1e8e3e; --negative:#c5221f; --gap:14px; --radius:9px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg-primary);color:var(--text-primary);line-height:1.5}
+.wrap{max-width:1280px;margin:0 auto;padding:var(--gap)}
+.demo-banner{background:#fff7e0;border:1px solid #e6cf86;border-radius:var(--radius);padding:9px 14px;font-size:12.5px;color:#6b5a14;margin-bottom:var(--gap)}
+.demo-banner strong{color:#574a0e}
+header.dash{background:var(--bg-header);color:var(--text-on-dark);padding:18px 22px;border-radius:var(--radius);margin-bottom:var(--gap);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+header.dash h1{font-size:19px;font-weight:650}
+header.dash .sub{font-size:12.5px;color:rgba(255,255,255,.65);margin-top:2px}
+.filters{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.fg{display:flex;align-items:center;gap:6px}
+.fg label{font-size:12px;color:rgba(255,255,255,.7)}
+.fg select{padding:6px 9px;border:1px solid rgba(255,255,255,.25);border-radius:5px;background:rgba(255,255,255,.1);color:#fff;font-size:13px}
+.fg select option{background:var(--bg-header);color:#fff}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:var(--gap);margin-bottom:var(--gap)}
+.kpi{background:var(--bg-card);border-radius:var(--radius);padding:16px 18px;box-shadow:0 1px 3px rgba(0,0,0,.07)}
+.kpi .lbl{font-size:11.5px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px}
+.kpi .val{font-size:25px;font-weight:700}
+.kpi .chg{font-size:12px;font-weight:550;margin-top:2px}
+.chg.positive{color:var(--positive)} .chg.negative{color:var(--negative)}
+.charts{display:grid;grid-template-columns:repeat(auto-fit,minmax(380px,1fr));gap:var(--gap);margin-bottom:var(--gap)}
+.card{background:var(--bg-card);border-radius:var(--radius);padding:16px 20px;box-shadow:0 1px 3px rgba(0,0,0,.07)}
+.card h3{font-size:13.5px;font-weight:620;margin-bottom:4px}
+.card .note{font-size:11.5px;color:var(--text-secondary);margin-bottom:10px}
+.card canvas{max-height:265px}
+.tbl{background:var(--bg-card);border-radius:var(--radius);padding:16px 20px;box-shadow:0 1px 3px rgba(0,0,0,.07);overflow-x:auto;margin-bottom:var(--gap)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead th{text-align:left;padding:9px 11px;border-bottom:2px solid #dee2e6;color:var(--text-secondary);font-weight:600;font-size:11.5px;text-transform:uppercase;letter-spacing:.4px;white-space:nowrap;cursor:pointer;user-select:none}
+thead th:hover{color:var(--text-primary);background:#f8f9fa}
+tbody td{padding:8px 11px;border-bottom:1px solid #f0f0f0}
+tbody tr:hover{background:#f8f9fa}
+td.num,th.num{text-align:right}
+.pill{display:inline-block;padding:1px 8px;border-radius:10px;font-size:11.5px;background:#eef2f7;color:#3c4858}
+footer.dash{font-size:12px;color:var(--text-secondary);padding:4px 6px 20px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+@media (max-width:768px){.kpis{grid-template-columns:repeat(2,1fr)}.charts{grid-template-columns:1fr}header.dash{flex-direction:column;align-items:flex-start}}
+@media print{.filters{display:none}.card{break-inside:avoid}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="demo-banner"><strong>Portfolio demo - synthetic data.</strong>
+  This dashboard illustrates the product thinking behind a biller-facing collections analytics surface I designed for a national bill-payments platform serving 20,000+ billers across 30 categories. All billers, figures, and trends below are generated sample data. No proprietary data, designs, or internal material are reproduced.</div>
+
+  <header class="dash">
+    <div>
+      <h1>Biller Collections Analytics</h1>
+      <div class="sub">Self-serve performance view for a biller's collections through the platform rails</div>
+    </div>
+    <div class="filters">
+      <div class="fg"><label for="f-cat">Category</label><select id="f-cat" onchange="D.apply()"><option value="all">All categories</option></select></div>
+      <div class="fg"><label for="f-from">From</label><select id="f-from" onchange="D.apply()"></select></div>
+      <div class="fg"><label for="f-to">To</label><select id="f-to" onchange="D.apply()"></select></div>
+    </div>
+  </header>
+
+  <section class="kpis">
+    <div class="kpi"><div class="lbl">Transaction volume</div><div class="val" id="k-vol">-</div><div class="chg" id="k-vol-c"></div></div>
+    <div class="kpi"><div class="lbl">Collections value</div><div class="val" id="k-val">-</div><div class="chg" id="k-val-c"></div></div>
+    <div class="kpi"><div class="lbl">Success rate</div><div class="val" id="k-succ">-</div><div class="chg" id="k-succ-c"></div></div>
+    <div class="kpi"><div class="lbl">Technical decline</div><div class="val" id="k-tech">-</div><div class="chg" id="k-tech-c"></div></div>
+    <div class="kpi"><div class="lbl">Business decline</div><div class="val" id="k-biz">-</div><div class="chg" id="k-biz-c"></div></div>
+    <div class="kpi"><div class="lbl">Complaints / 10K txns</div><div class="val" id="k-comp">-</div><div class="chg" id="k-comp-c"></div></div>
+  </section>
+
+  <section class="charts">
+    <div class="card">
+      <h3>Volume and success rate by month</h3>
+      <div class="note">Volume growth means little if success rate decays with it - both on one chart so the trade-off is visible.</div>
+      <canvas id="ch-vol"></canvas>
+    </div>
+    <div class="card">
+      <h3>Decline rates: technical vs business</h3>
+      <div class="note">The split is the routing logic. Technical declines (gateway, timeout, connectivity) are the platform's to fix. Business declines (validation failures, fetch mismatches, customer-side) are the biller's funnel to fix.</div>
+      <canvas id="ch-dec"></canvas>
+    </div>
+    <div class="card">
+      <h3>Volume mix by category</h3>
+      <div class="note">Category mix sets benchmark expectations - a utility and an insurer should not be judged on the same decline baseline.</div>
+      <canvas id="ch-cat"></canvas>
+    </div>
+    <div class="card">
+      <h3>Complaints per 10K transactions by category</h3>
+      <div class="note">Complaints are normalised per 10K transactions, not raw counts - raw counts just rank the biggest categories.</div>
+      <canvas id="ch-comp"></canvas>
+    </div>
+  </section>
+
+  <section class="tbl">
+    <h3 style="font-size:13.5px;margin-bottom:2px">Biller detail</h3>
+    <div class="note" style="font-size:11.5px;color:var(--text-secondary);margin-bottom:10px">Click a column header to sort. The SPOC view a biller's operations team logs into - their own numbers, benchmarked against their category.</div>
+    <div id="tbl-host"></div>
+  </section>
+
+  <footer class="dash">
+    <span>Demo by Ruturaj Sahasrabudhe | ruturaj.mms@gmail.com | linkedin.com/in/ruturajsahasrabudhe</span>
+    <span>Synthetic data, generated in-browser. Single HTML file, no backend.</span>
+  </footer>
+</div>
+
+<script>
+// ---------- Synthetic data (seeded, stable across loads) ----------
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const rnd=mulberry32(20260610);
+
+const MONTHS=["Jul 24","Aug 24","Sep 24","Oct 24","Nov 24","Dec 24","Jan 25","Feb 25","Mar 25","Apr 25","May 25","Jun 25"];
+const CATS=[
+  {name:"Electricity",      base:520, ticket:1150, tech0:2.1, biz0:3.4, comp:1.1},
+  {name:"Mobile Postpaid",  base:160, ticket:620,  tech0:1.6, biz0:2.8, comp:0.8},
+  {name:"Loan Repayment",   base:120, ticket:5400, tech0:1.9, biz0:5.6, comp:2.2},
+  {name:"Insurance Premium",base:95,  ticket:8200, tech0:1.8, biz0:6.1, comp:2.6},
+  {name:"Water",            base:90,  ticket:480,  tech0:2.4, biz0:3.1, comp:1.3},
+  {name:"Broadband",        base:85,  ticket:780,  tech0:1.5, biz0:2.5, comp:0.9},
+  {name:"Piped Gas",        base:70,  ticket:540,  tech0:2.0, biz0:2.9, comp:1.0},
+  {name:"DTH",              base:65,  ticket:350,  tech0:1.4, biz0:2.3, comp:0.7},
+  {name:"FASTag Recharge",  base:60,  ticket:420,  tech0:1.7, biz0:3.8, comp:1.8},
+  {name:"Education Fees",   base:40,  ticket:14500,tech0:2.2, biz0:4.9, comp:2.0}
+];
+// Monthly per-category facts. Volume in thousands. Tech decline improves over the year (ops story); business decline wobbles seasonally.
+const FACTS=[]; // {m, mi, cat, vol, val, tech, biz, comp}
+CATS.forEach(c=>{
+  for(let mi=0;mi<12;mi++){
+    const growth=1+0.045*mi;                      // steady platform growth
+    const season=1+0.08*Math.sin((mi+2)/12*2*Math.PI)+(mi===5?0.06:0); // mild seasonality, Dec bump
+    const vol=c.base*growth*season*(0.95+rnd()*0.1);
+    const tech=Math.max(0.6,(c.tech0*(1-0.035*mi))*(0.92+rnd()*0.16)); // improving
+    const biz=c.biz0*(0.94+rnd()*0.16)*(mi===8?1.12:1);                // Mar validation spike
+    const comp=c.comp*(0.85+rnd()*0.3);
+    FACTS.push({m:MONTHS[mi],mi,cat:c.name,vol,val:vol*1000*c.ticket/1e7,tech,biz,comp}); // val in INR crore
+  }
+});
+// Synthetic billers: share of their category. All names invented.
+const BILLER_NAMES=[
+ ["Brightgrid Power Co","Electricity",0.34],["Suryadeep Energy","Electricity",0.27],["Metrovolt Distribution","Electricity",0.22],
+ ["Airlink Mobile","Mobile Postpaid",0.41],["TalkBridge Telecom","Mobile Postpaid",0.33],
+ ["Crestline Finance","Loan Repayment",0.38],["Anchor Lending Co","Loan Repayment",0.29],
+ ["Shieldsure General Insurance","Insurance Premium",0.36],["Lifevista Insurance","Insurance Premium",0.31],
+ ["Cityflow Water Board","Water",0.52],["Aquaserve Utilities","Water",0.30],
+ ["Fibernest Broadband","Broadband",0.44],["Skyweave Internet","Broadband",0.31],
+ ["Urbangas Pipelines","Piped Gas",0.55],["Homeflame Gas Co","Piped Gas",0.28],
+ ["Starbeam DTH","DTH",0.48],["Viewport Digital TV","DTH",0.33],
+ ["Swiftpass Tolling","FASTag Recharge",0.57],["Lanecredit Tags","FASTag Recharge",0.26],
+ ["Knowledgepath University","Education Fees",0.36],["Meridian Schools Trust","Education Fees",0.27]
+];
+const BILLERS=BILLER_NAMES.map((b,i)=>({name:b[0],cat:b[1],share:b[2],
+  techOff:(rnd()-0.5)*0.8, bizOff:(rnd()-0.5)*1.6, compOff:(rnd()-0.4)*0.9}));
+
+// ---------- Dashboard ----------
+const COLORS=["#2f6fb2","#dd8452","#55a868","#c44e52","#8172b3","#937860","#4c9fb8","#d8a541","#7a9b54","#a9626f"];
+const fmtM=v=>v>=1e6?(v/1e6).toFixed(2)+"M":v>=1e3?(v/1e3).toFixed(1)+"K":Math.round(v).toLocaleString();
+const fmtCr=v=>"INR "+(v>=1000?(v/1000).toFixed(2)+"K Cr":v.toFixed(0)+" Cr");
+const fmtPct=v=>v.toFixed(2)+"%";
+
+const D={
+ charts:{},
+ apply(){
+  const cat=document.getElementById("f-cat").value;
+  const from=+document.getElementById("f-from").value, to=+document.getElementById("f-to").value;
+  if(from>to){document.getElementById("f-to").value=from;return D.apply();}
+  const rows=FACTS.filter(r=>(cat==="all"||r.cat===cat)&&r.mi>=from&&r.mi<=to);
+  const prev=FACTS.filter(r=>(cat==="all"||r.cat===cat)&&r.mi>=from-(to-from+1)&&r.mi<to-(to-from+1)+1&&from-(to-from+1)>=0);
+  D.kpis(rows,prev); D.update(rows,cat); D.table(cat,from,to);
+ },
+ agg(rows){
+  const vol=rows.reduce((s,r)=>s+r.vol,0)*1000, val=rows.reduce((s,r)=>s+r.val,0);
+  const w=(f)=>rows.reduce((s,r)=>s+r[f]*r.vol,0)/Math.max(1,rows.reduce((s,r)=>s+r.vol,0));
+  return {vol,val,tech:w("tech"),biz:w("biz"),comp:w("comp"),succ:100-w("tech")-w("biz")};
+ },
+ kpi(id,txt,cur,prv,goodWhenUp){
+  document.getElementById(id).textContent=txt;
+  const el=document.getElementById(id+"-c");
+  if(!prv||!isFinite(prv)){el.textContent="";return;}
+  const d=(cur-prv)/prv*100, up=d>=0;
+  el.textContent=(up?"+":"")+d.toFixed(1)+"% vs prior period";
+  el.className="chg "+((up===goodWhenUp)?"positive":"negative");
+ },
+ kpis(rows,prevRows){
+  const a=D.agg(rows), p=prevRows.length?D.agg(prevRows):null;
+  D.kpi("k-vol",fmtM(a.vol),a.vol,p&&p.vol,true);
+  D.kpi("k-val",fmtCr(a.val),a.val,p&&p.val,true);
+  D.kpi("k-succ",fmtPct(a.succ),a.succ,p&&p.succ,true);
+  D.kpi("k-tech",fmtPct(a.tech),a.tech,p&&p.tech,false);
+  D.kpi("k-biz",fmtPct(a.biz),a.biz,p&&p.biz,false);
+  D.kpi("k-comp",a.comp.toFixed(2),a.comp,p&&p.comp,false);
+ },
+ series(rows){
+  const ms=[...new Set(rows.map(r=>r.mi))].sort((x,y)=>x-y);
+  return {labels:ms.map(i=>MONTHS[i]),
+    vol:ms.map(i=>rows.filter(r=>r.mi===i).reduce((s,r)=>s+r.vol,0)),
+    succ:ms.map(i=>{const rr=rows.filter(r=>r.mi===i),w=rr.reduce((s,r)=>s+r.vol,0);return 100-rr.reduce((s,r)=>s+(r.tech+r.biz)*r.vol,0)/w;}),
+    tech:ms.map(i=>{const rr=rows.filter(r=>r.mi===i),w=rr.reduce((s,r)=>s+r.vol,0);return rr.reduce((s,r)=>s+r.tech*r.vol,0)/w;}),
+    biz:ms.map(i=>{const rr=rows.filter(r=>r.mi===i),w=rr.reduce((s,r)=>s+r.vol,0);return rr.reduce((s,r)=>s+r.biz*r.vol,0)/w;})};
+ },
+ catAgg(rows){
+  const out=[];
+  CATS.forEach(c=>{const rr=rows.filter(r=>r.cat===c.name);if(!rr.length)return;
+    const w=rr.reduce((s,r)=>s+r.vol,0);
+    out.push({cat:c.name,vol:w,comp:rr.reduce((s,r)=>s+r.comp*r.vol,0)/w});});
+  return out.sort((a,b)=>b.vol-a.vol);
+ },
+ build(rows){
+  const s=D.series(rows), ca=D.catAgg(rows);
+  D.charts.vol=new Chart(document.getElementById("ch-vol"),{data:{labels:s.labels,datasets:[
+    {type:"bar",label:"Volume (K txns)",data:s.vol,backgroundColor:"#2f6fb2cc",borderRadius:4,yAxisID:"y"},
+    {type:"line",label:"Success rate %",data:s.succ,borderColor:"#c44e52",backgroundColor:"#c44e5220",borderWidth:2,tension:.3,pointRadius:3,yAxisID:"y1"}]},
+    options:{responsive:true,maintainAspectRatio:false,interaction:{mode:"index",intersect:false},
+     plugins:{legend:{position:"top",labels:{usePointStyle:true}}},
+     scales:{y:{beginAtZero:true,ticks:{callback:v=>fmtM(v*1000)}},y1:{position:"right",min:88,max:100,grid:{drawOnChartArea:false},ticks:{callback:v=>v+"%"}}}}});
+  D.charts.dec=new Chart(document.getElementById("ch-dec"),{type:"line",data:{labels:s.labels,datasets:[
+    {label:"Technical decline %",data:s.tech,borderColor:"#2f6fb2",backgroundColor:"#2f6fb220",borderWidth:2,tension:.3,pointRadius:3},
+    {label:"Business decline %",data:s.biz,borderColor:"#dd8452",backgroundColor:"#dd845220",borderWidth:2,tension:.3,pointRadius:3}]},
+    options:{responsive:true,maintainAspectRatio:false,interaction:{mode:"index",intersect:false},
+     plugins:{legend:{position:"top",labels:{usePointStyle:true}}},
+     scales:{y:{beginAtZero:true,ticks:{callback:v=>v.toFixed(1)+"%"}}}}});
+  D.charts.cat=new Chart(document.getElementById("ch-cat"),{type:"bar",data:{labels:ca.map(c=>c.cat),datasets:[{label:"Volume (K txns)",data:ca.map(c=>c.vol),backgroundColor:COLORS.map(c=>c+"cc"),borderRadius:4}]},
+    options:{responsive:true,maintainAspectRatio:false,indexAxis:"y",plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>fmtM(c.parsed.x*1000)+" txns"}}},scales:{x:{beginAtZero:true,ticks:{callback:v=>fmtM(v*1000)}}}}});
+  D.charts.comp=new Chart(document.getElementById("ch-comp"),{type:"bar",data:{labels:ca.map(c=>c.cat),datasets:[{label:"Complaints / 10K",data:ca.map(c=>c.comp),backgroundColor:"#8172b3cc",borderRadius:4}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true},x:{ticks:{maxRotation:60,minRotation:40}}}}});
+ },
+ update(rows,cat){
+  const s=D.series(rows), ca=D.catAgg(rows);
+  const set=(ch,labels,datas)=>{ch.data.labels=labels;datas.forEach((d,i)=>ch.data.datasets[i].data=d);ch.update("none");};
+  set(D.charts.vol,s.labels,[s.vol,s.succ]);
+  set(D.charts.dec,s.labels,[s.tech,s.biz]);
+  set(D.charts.cat,ca.map(c=>c.cat),[ca.map(c=>c.vol)]);
+  set(D.charts.comp,ca.map(c=>c.cat),[ca.map(c=>c.comp)]);
+ },
+ sortCol:"vol", sortDir:-1,
+ table(cat,from,to){
+  const rows=[];
+  BILLERS.filter(b=>cat==="all"||b.cat===cat).forEach(b=>{
+    const rr=FACTS.filter(r=>r.cat===b.cat&&r.mi>=from&&r.mi<=to);
+    if(!rr.length)return;
+    const w=rr.reduce((s,r)=>s+r.vol,0);
+    const tech=Math.max(.3,rr.reduce((s,r)=>s+r.tech*r.vol,0)/w+b.techOff);
+    const biz=Math.max(.5,rr.reduce((s,r)=>s+r.biz*r.vol,0)/w+b.bizOff);
+    rows.push({name:b.name,cat:b.cat,vol:w*1000*b.share,val:rr.reduce((s,r)=>s+r.val,0)*b.share,
+      tech,biz,succ:100-tech-biz,comp:Math.max(.1,rr.reduce((s,r)=>s+r.comp*r.vol,0)/w+b.compOff)});
+  });
+  rows.sort((a,b)=>(a[D.sortCol]<b[D.sortCol]?1:-1)*D.sortDir*-1);
+  const cols=[["name","Biller"],["cat","Category"],["vol","Volume","num"],["val","Value","num"],["succ","Success %","num"],["tech","Tech decline %","num"],["biz","Biz decline %","num"],["comp","Complaints /10K","num"]];
+  let h="<table><thead><tr>";
+  cols.forEach(c=>{h+=`<th class="${c[2]||""}" onclick="D.sort('${c[0]}')">${c[1]}${D.sortCol===c[0]?(D.sortDir===1?" ▲":" ▼"):""}</th>`;});
+  h+="</tr></thead><tbody>";
+  rows.forEach(r=>{h+=`<tr><td>${r.name}</td><td><span class="pill">${r.cat}</span></td><td class="num">${fmtM(r.vol)}</td><td class="num">${fmtCr(r.val)}</td><td class="num">${r.succ.toFixed(2)}%</td><td class="num">${r.tech.toFixed(2)}%</td><td class="num">${r.biz.toFixed(2)}%</td><td class="num">${r.comp.toFixed(2)}</td></tr>`;});
+  document.getElementById("tbl-host").innerHTML=h+"</tbody></table>";
+ },
+ sort(col){if(D.sortCol===col)D.sortDir*=-1;else{D.sortCol=col;D.sortDir=-1;}D.apply();},
+ init(){
+  const catSel=document.getElementById("f-cat");
+  CATS.forEach(c=>{const o=document.createElement("option");o.value=c.name;o.textContent=c.name;catSel.appendChild(o);});
+  const fr=document.getElementById("f-from"),toS=document.getElementById("f-to");
+  MONTHS.forEach((m,i)=>{fr.add(new Option(m,i));toS.add(new Option(m,i));});
+  fr.value=0;toS.value=11;
+  D.build(FACTS); D.kpis(FACTS,[]); D.table("all",0,11);
+ }
+};
+D.init();
+</script>
+</body>
+</html>

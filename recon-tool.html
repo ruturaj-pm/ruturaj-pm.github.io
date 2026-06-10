@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>A 90-day reconciliation build | Ruturaj Sahasrabudhe</title>
+<meta name="description" content="Case study: banking integration, receipting, and 2-way/3-way reconciliation for a greenfield digital insurer, discovery to pilot in 90 days.">
+<style>
+:root{--navy:#15243b;--ink:#1f2430;--mut:#68707e;--bg:#f6f7f9;--card:#fff;--acc:#2f6fb2}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--ink);line-height:1.65}
+.top{background:var(--navy);color:#fff;padding:14px 0}
+.top .in{max-width:760px;margin:0 auto;padding:0 20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+.top a{color:#cfd8e6;text-decoration:none;font-size:13.5px}
+.top a:hover{color:#fff}
+.top .name{font-weight:650;font-size:15px;color:#fff}
+article{max-width:760px;margin:28px auto 10px;padding:30px 34px;background:var(--card);border-radius:10px;box-shadow:0 1px 3px rgba(0,0,0,.07)}
+h1{font-size:26px;line-height:1.25;margin-bottom:10px}
+h2{font-size:18px;margin:26px 0 8px}
+p{margin:11px 0}
+em{color:var(--mut)}
+ul{margin:10px 0 10px 22px}
+li{margin:5px 0}
+hr{border:none;border-top:1px solid #e7eaee;margin:22px 0}
+strong{font-weight:650}
+a{color:var(--acc)}
+.actions{max-width:760px;margin:0 auto;padding:0 0 8px;display:flex;gap:10px;flex-wrap:wrap}
+.btn{display:inline-block;background:var(--acc);color:#fff;text-decoration:none;font-size:14px;font-weight:550;padding:9px 16px;border-radius:7px}
+.btn.ghost{background:#e8eef5;color:var(--acc)}
+footer{max-width:760px;margin:8px auto 34px;padding:0 20px;font-size:13px;color:var(--mut);text-align:center}
+@media(max-width:800px){article{margin:16px 12px;padding:22px 20px}.actions{padding:0 12px 8px}}
+</style>
+</head>
+<body>
+<div class="top"><div class="in"><span class="name">Ruturaj Sahasrabudhe</span><span><a href="index.html">Home</a>&nbsp;&nbsp;&nbsp;<a href="https://www.linkedin.com/in/ruturajsahasrabudhe">LinkedIn</a>&nbsp;&nbsp;&nbsp;<a href="mailto:ruturaj.mms@gmail.com">Email</a></span></div></div>
+<article>
+<h1>Case study: A 90-day reconciliation build for a greenfield digital insurer</h1>
+<p><em>Sole product owner, discovery to pilot, December 2025 - March 2026. The client is a pre-launch digital-first general insurer and is not named here for confidentiality.</em></p>
+<h2>Context</h2>
+<p>A greenfield insurer preparing for market launch needed its money-in stack built from scratch: premium collection across online and offline channels, receipting, and reconciliation. There was no existing ops team, no legacy system, and a fixed 90-day window to a working pilot. I was the sole PM on the engagement, hired specifically for digital payments and reconciliation depth.</p>
+<h2>The problem</h2>
+<p>For an insurer, reconciliation is not a back-office report - it is the trust layer. A premium that cannot be matched to a bank credit is a policy that should not exist yet. The build had to handle two structurally different money paths from day one:</p>
+<ul>
+<li><strong>Offline premium</strong> (cheque, cash, direct bank transfer): no payment gateway in the loop, so receipting data must reconcile directly against bank data. A 2-way match.</li>
+<li><strong>Online premium</strong> (gateway-mediated): three records of the same truth - receipting tool, payment gateway, bank. A 3-way match.</li>
+</ul>
+<h2>Key decisions</h2>
+<p><strong>Build reconciliation in-house, not via a recon vendor.</strong> A vendor would have added integration lead time the 90-day window could not absorb, and an external dependency on the insurer&#x27;s most trust-critical flow. We built the matching engine in-house instead.</p>
+<p><strong>Reconcile before issuance, not after.</strong> The tool&#x27;s core rule: only fully reconciled values get approved. Receipts are matched before policy issuance rather than chased after the fact. Designing leakage out of the flow beats detecting it downstream.</p>
+<p><strong>Partner selection as product scope.</strong> I selected the banking partner and the primary payment gateway, and owned partner specifications and integration sequencing - because in a 90-day build, vendor choice IS the architecture.</p>
+<h2>Outcome</h2>
+<p>The tool shipped into pilot before I rolled off; the insurer&#x27;s formal market launch followed about two months later. Honest scope note: this was a pre-launch build, so there are no live-volume metrics to claim - the value of this project is the reconciliation design and the delivery ownership, not scale.</p>
+<h2>Why this project matters in my work</h2>
+<p>It is the productised version of three years running merchant settlements, reconciliation, and chargebacks operations at a major Indian bank. Operating recon flows taught me where they break; this engagement was the chance to design them so they do not.</p>
+<hr>
+<p><em>Ruturaj Sahasrabudhe | ruturaj.mms@gmail.com | linkedin.com/in/ruturajsahasrabudhe</em></p>
+</article>
+
+<footer>Ruturaj Sahasrabudhe · Product Manager, Payments and Fintech · Mumbai, India<br>All client and platform material on this site is public, aggregate, or synthetic.</footer>
+</body>
+</html>

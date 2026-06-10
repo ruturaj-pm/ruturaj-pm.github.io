@@ -1,0 +1,1337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>RPOS · Visual Mock — Figma-style Prototype Browser</title>
+<script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  :root {
+    --ink-900:#0B1020; --ink-800:#111933; --ink-700:#1a2447;
+    --accent:#6366F1; --accent-2:#22D3EE; --accent-3:#F59E0B;
+  }
+  html,body,#root{height:100%}
+  body{background:#1A1D24;color:#E6E8EE;font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;}
+  .scroll-thin::-webkit-scrollbar{width:8px;height:8px}
+  .scroll-thin::-webkit-scrollbar-thumb{background:#2f3440;border-radius:8px}
+  .scroll-thin::-webkit-scrollbar-track{background:transparent}
+  .canvas-bg{background:
+    radial-gradient(1200px 600px at 30% 0%, rgba(99,102,241,.07), transparent 60%),
+    radial-gradient(800px 500px at 80% 100%, rgba(34,211,238,.06), transparent 60%),
+    #12141a;
+  }
+  .dot-bg{background-image: radial-gradient(rgba(255,255,255,0.035) 1px, transparent 1px); background-size: 18px 18px;}
+  .chip{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:500}
+  .chip-ind{background:#EEF2FF;color:#4338CA}
+  .chip-emer{background:#ECFEFF;color:#0E7490}
+  .chip-warn{background:#FEF3C7;color:#92400E}
+  .chip-good{background:#DCFCE7;color:#166534}
+  .chip-muted{background:#F1F5F9;color:#475569}
+  .chip-red{background:#FEE2E2;color:#991B1B}
+  .kbd{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;background:#2b2f3a;border:1px solid #3a3f4d;border-bottom-width:2px;padding:1px 5px;border-radius:4px;font-size:11px;color:#D1D5DB}
+  .frame-shadow{box-shadow: 0 30px 60px rgba(0,0,0,.45), 0 0 0 1px rgba(255,255,255,.06);}
+  .screen-card:hover{background:#23272f}
+  .screen-card.active{background:#2b3f78}
+  .dotgrid-light{background-image:radial-gradient(#E5E7EB 1px, transparent 1px);background-size:16px 16px}
+  .gradient-ind{background:linear-gradient(135deg,#6366F1,#22D3EE)}
+  .shadow-card{box-shadow:0 1px 2px rgba(15,23,42,.04), 0 8px 24px rgba(15,23,42,.06)}
+  .rpos-light { color:#0f172a; }
+  .stage-dot{position:relative}
+  .stage-dot::before{content:"";position:absolute;left:-18px;top:8px;width:8px;height:8px;border-radius:999px;background:#CBD5EF}
+  .stage-dot.active::before{background:#6366F1;box-shadow:0 0 0 4px rgba(99,102,241,.2)}
+  .stage-dot.done::before{background:#10B981}
+  .hotspot{position:absolute;border:2px dashed rgba(99,102,241,.9);background:rgba(99,102,241,.12);border-radius:8px;animation:pulse 1.8s ease-in-out infinite;cursor:pointer}
+  @keyframes pulse{0%,100%{transform:scale(1);opacity:.85}50%{transform:scale(1.025);opacity:1}}
+  .dashed{background-image: linear-gradient(90deg, #CBD5EF 50%, transparent 50%); background-size: 8px 1px; background-repeat: repeat-x; background-position: center;}
+</style>
+</head>
+<body class="overflow-hidden">
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useMemo, useEffect, useRef } = React;
+const cls = (...c)=>c.filter(Boolean).join(" ");
+
+/*─────────────────────────────────────────────────────────────────────
+  Seed data (matches working prototype — for visual consistency)
+─────────────────────────────────────────────────────────────────────*/
+const PERSONAS = [
+  { initials:"P", name:"Priya — Homemaker", role:"Primary Buyer · Household", age:"34", loc:"Pune", tags:["high-frequency","quality-driven"],
+    think:"Will the tomatoes actually be fresh this time?", feel:"Anxious on weekday mornings",
+    say:"Just tell me it'll be here by 6 pm — I'll believe it when I see it.", do:"Keeps a running list; compares 2 apps." },
+  { initials:"A", name:"Arjun — Professional", role:"Secondary Buyer · Nuclear", age:"28", loc:"Mumbai", tags:["speed-first","reorder-heavy"],
+    think:"I just need Maggi and eggs.", feel:"Impatient", say:"Bhai, 10 mins ka time nahi hai.", do:"Abandons cart at MOV." },
+  { initials:"K", name:"Mr. Kulkarni — Senior", role:"Accessibility", age:"71", loc:"Pune", tags:["voice-first","trust-driven"],
+    think:"Last time they sent the wrong dal.", feel:"Hesitant", say:"Beta, can you just call and order for me?", do:"Asks grandkids to order." },
+  { initials:"S", name:"Sandeep — Delivery", role:"Fulfilment", age:"26", loc:"Pune", tags:["ops","route-efficiency"],
+    think:"Agar COD hua toh 20 min aur gaya.", feel:"Rushed", say:"Gate number nahi likha hai.", do:"Skips vague addresses." },
+  { initials:"Sh", name:"Ms. Shah — Store Admin", role:"Dark-store Ops", age:"33", loc:"Pune DC-2", tags:["internal","dashboards"],
+    think:"If tomatoes run out by 2pm, dinner rush is done.", feel:"Accountable", say:"Give me one dashboard.", do:"Walks the aisles twice/shift." },
+  { initials:"R", name:"Ravi — Packer", role:"Fulfilment Floor", age:"24", loc:"Pune DC-2", tags:["internal","reliability"],
+    think:"Scanner phir se hang ho gaya.", feel:"Task-driven", say:"Aaj ka target poora hoga.", do:"Double-scans; photos fragile items." }
+];
+
+const STORIES = [
+  { id:"US-001", epic:"Onboarding", story:"Sign up with phone OTP in under 2 min", priority:"Must", pts:3, status:"Done" },
+  { id:"US-002", epic:"Browse", story:"One-tap reorder of last basket", priority:"Must", pts:5, status:"In Progress" },
+  { id:"US-003", epic:"Browse", story:"Senior-friendly large font & high contrast", priority:"Must", pts:3, status:"To Do" },
+  { id:"US-004", epic:"Checkout", story:"Show exact delivery slot before checkout", priority:"Must", pts:5, status:"In Progress" },
+  { id:"US-005", epic:"Payments", story:"Cash-on-Delivery option under ₹2k", priority:"Should", pts:3, status:"To Do" },
+  { id:"US-006", epic:"Fulfilment", story:"Turn-by-turn nav with gate hints", priority:"Must", pts:5, status:"To Do" },
+  { id:"US-007", epic:"Fulfilment", story:"Offline-resilient picking app", priority:"Must", pts:8, status:"To Do" },
+  { id:"US-008", epic:"Dark-store", story:"Stock-out risk dashboard", priority:"Must", pts:8, status:"To Do" },
+  { id:"US-009", epic:"Trust", story:"1-tap quality complaint flow", priority:"Must", pts:5, status:"To Do" },
+  { id:"US-010", epic:"Metrics", story:"Weekly ops scorecard", priority:"Could", pts:5, status:"Backlog" }
+];
+
+const BACKLOG_COLS = {
+  "Backlog":[
+    { id:"B-14", title:"QC checklist digitisation", pri:"Should", pts:8, epic:"Dark-store" },
+    { id:"B-18", title:"Referral programme", pri:"Could", pts:5, epic:"Growth" },
+    { id:"B-19", title:"Weekly ops scorecard", pri:"Could", pts:5, epic:"Analytics" },
+    { id:"B-20", title:"Voice-order (senior)", pri:"Wont", pts:13, epic:"Accessibility" },
+  ],
+  "To Do":[
+    { id:"B-05", title:"Senior-friendly large-font", pri:"Must", pts:3, epic:"Accessibility" },
+    { id:"B-09", title:"Cash-on-Delivery", pri:"Should", pts:3, epic:"Payments" },
+    { id:"B-10", title:"Price-lock on cart", pri:"Should", pts:5, epic:"Checkout" },
+    { id:"B-11", title:"Partner navigation + gate hints", pri:"Must", pts:5, epic:"Fulfilment" },
+    { id:"B-12", title:"Offline-resilient picker app", pri:"Must", pts:8, epic:"Fulfilment" },
+    { id:"B-13", title:"Stock-out risk dashboard", pri:"Must", pts:8, epic:"Dark-store" },
+    { id:"B-15", title:"1-tap quality complaint", pri:"Must", pts:5, epic:"Trust" },
+    { id:"B-17", title:"Push notifications", pri:"Should", pts:3, epic:"Engagement" }
+  ],
+  "In Progress":[
+    { id:"B-03", title:"Home feed (Reorder + Categories)", pri:"Must", pts:8, epic:"Browse" },
+    { id:"B-04", title:"Search with typo tolerance", pri:"Must", pts:8, epic:"Browse" },
+    { id:"B-06", title:"Cart + saved lists", pri:"Must", pts:5, epic:"Cart" },
+    { id:"B-07", title:"Slot selection w/ live capacity", pri:"Must", pts:5, epic:"Checkout" }
+  ],
+  "Done":[
+    { id:"B-01", title:"Phone-OTP signup", pri:"Must", pts:3, epic:"Onboarding" },
+    { id:"B-02", title:"Address capture w/ map pin", pri:"Must", pts:5, epic:"Onboarding" },
+    { id:"B-08", title:"UPI checkout", pri:"Must", pts:5, epic:"Payments" }
+  ]
+};
+
+const STORYMAP = {
+  activities:["Sign up","Browse & Add","Checkout","Track & Receive","Resolve Issues"],
+  lanes:[
+    { name:"MVP (R1)", color:"#DCFCE7", textColor:"#14532D", tasks:[
+      ["Phone-OTP signup","Address capture"],
+      ["Home feed","Keyword search","Category grid"],
+      ["Cart","2-hour slot","UPI checkout"],
+      ["Order tracking","Partner ETA"],
+      ["Contact support (WA)"]
+    ]},
+    { name:"R2", color:"#DBEAFE", textColor:"#1E3A8A", tasks:[
+      ["Senior mode","Saved addresses"],
+      ["Typo-tolerant search","Saved lists"],
+      ["COD","Price-lock"],
+      ["Push notifications","Photo proof"],
+      ["1-tap complaint","Refund engine"]
+    ]},
+    { name:"R3", color:"#FEF3C7", textColor:"#713F12", tasks:[
+      ["Voice-order intake"],
+      ["Personalised ranking","Recipes → cart"],
+      ["BNPL · EMI","Wallet"],
+      ["Live chat w/ partner"],
+      ["Loyalty + referrals"]
+    ]}
+  ]
+};
+
+const SDLC = [
+  { id:"discovery", name:"Discovery / Ideation", done:true },
+  { id:"requirements", name:"Requirements Gathering", active:true },
+  { id:"design", name:"Design" },
+  { id:"development", name:"Development" },
+  { id:"qa", name:"QA / Testing" },
+  { id:"deployment", name:"Deployment" },
+  { id:"metrics", name:"Post-Launch Metrics" }
+];
+
+/*─────────────────────────────────────────────────────────────────────
+  Shared primitives (light theme — inside frame)
+─────────────────────────────────────────────────────────────────────*/
+const priorityChip = (p) => {
+  if (p==="Must") return "chip chip-red";
+  if (p==="Should") return "chip chip-warn";
+  if (p==="Could") return "chip chip-ind";
+  return "chip chip-muted";
+};
+const statusChip = (s) => {
+  if (s==="Done") return "chip chip-good";
+  if (s==="In Progress") return "chip chip-ind";
+  if (s==="To Do") return "chip chip-warn";
+  return "chip chip-muted";
+};
+
+const Icon = ({name, className="w-4 h-4"}) => {
+  const paths = {
+    plus:"M12 5v14M5 12h14",
+    trash:"M3 6h18M9 6V4h6v2M6 6l1 14h10l1-14",
+    search:"M11 19a8 8 0 1 1 0-16 8 8 0 0 1 0 16Zm10 2-4.35-4.35",
+    chevron:"M9 6l6 6-6 6",
+    sparkles:"M12 2l1.8 5.2L19 9l-5.2 1.8L12 16l-1.8-5.2L5 9l5.2-1.8L12 2Z",
+    bolt:"M13 2 3 14h7v8l10-12h-7V2Z",
+    doc:"M7 3h8l5 5v13H7zM15 3v5h5",
+    download:"M12 3v12m0 0-4-4m4 4 4-4M4 21h16",
+    eye:"M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12Zm10 3a3 3 0 1 1 0-6 3 3 0 0 1 0 6Z",
+    map:"M9 5 3 7v13l6-2 6 2 6-2V5l-6 2-6-2Z M9 5v13M15 7v13",
+    flag:"M5 4v16M5 4h10l-2 4 2 4H5",
+    kanban:"M4 4h5v16H4zM11 4h5v10h-5zM18 4h3v7h-3z",
+    users:"M8 10a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm8 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z",
+    rocket:"M4 14c2-6 6-10 12-10 0 6-4 10-10 12l-2 4-4-4 4-2Z",
+    layers:"M12 2 2 7l10 5 10-5-10-5ZM2 12l10 5 10-5M2 17l10 5 10-5",
+    x:"M6 6l12 12M18 6 6 18",
+    arrow:"M5 12h14M13 5l7 7-7 7"
+  };
+  return <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d={paths[name]||paths.doc}/></svg>;
+};
+
+/*─────────────────────────────────────────────────────────────────────
+  FRAME CHROME — the Figma-style window around each screen
+─────────────────────────────────────────────────────────────────────*/
+function Frame({ title, size="1440×900", children }){
+  return (
+    <div className="frame-shadow rounded-xl overflow-hidden bg-white text-slate-900">
+      <div className="h-8 bg-[#f1f5f9] border-b border-slate-200 flex items-center px-3 gap-2">
+        <span className="w-3 h-3 rounded-full bg-red-400"></span>
+        <span className="w-3 h-3 rounded-full bg-amber-400"></span>
+        <span className="w-3 h-3 rounded-full bg-emerald-400"></span>
+        <div className="ml-3 text-[11px] text-slate-500 font-medium flex-1 truncate">{title}</div>
+        <div className="text-[10px] text-slate-400 font-mono">{size}</div>
+      </div>
+      {children}
+    </div>
+  );
+}
+
+/*─────────────────────────────────────────────────────────────────────
+  Reusable "app shell" inside a frame
+─────────────────────────────────────────────────────────────────────*/
+function AppShell({ activeStage="requirements", activeModule="personas", moduleName="Personas", children, hideRight=false, showHotspot=null }){
+  return (
+    <div className="flex h-[850px] bg-slate-50">
+      {/* Left rail */}
+      <aside className="w-56 bg-slate-900 text-slate-200 flex flex-col shrink-0">
+        <div className="p-4 border-b border-white/10">
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 rounded-lg gradient-ind text-white font-bold flex items-center justify-center text-xs">R</div>
+            <div>
+              <div className="font-semibold text-sm tracking-tight">RPOS</div>
+              <div className="text-[10px] text-slate-400">Rutu's Product OS</div>
+            </div>
+          </div>
+        </div>
+        <div className="p-4">
+          <div className="text-[9px] uppercase tracking-widest text-slate-500 mb-2">SDLC</div>
+          <div className="relative ml-3 border-l border-white/10 space-y-1.5 pl-2">
+            {SDLC.map((s)=>(
+              <div key={s.id}
+                className={cls("stage-dot pl-2 pr-2 py-1 rounded-md text-[12px]",
+                  s.id===activeStage ? "active bg-white/5 text-white" : (s.done?"done text-slate-400":"text-slate-400"))}>
+                <div className="font-medium">{s.name}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="mt-auto p-4 border-t border-white/10">
+          <div className="text-[9px] uppercase tracking-widest text-slate-500 mb-2">Agents</div>
+          <div className="space-y-1 text-[11px] text-slate-300">
+            <div className="flex items-center gap-2"><span className="w-4 h-4 rounded bg-indigo-500/30 text-indigo-300 flex items-center justify-center text-[9px] font-bold">1</span>Prompt</div>
+            <div className="flex items-center gap-2"><span className="w-4 h-4 rounded bg-cyan-500/30 text-cyan-300 flex items-center justify-center text-[9px] font-bold">2</span>Research</div>
+            <div className="flex items-center gap-2"><span className="w-4 h-4 rounded bg-amber-500/30 text-amber-300 flex items-center justify-center text-[9px] font-bold">3</span>PM <span className="ml-auto chip chip-good !text-[9px]">here</span></div>
+            <div className="flex items-center gap-2"><span className="w-4 h-4 rounded bg-pink-500/30 text-pink-300 flex items-center justify-center text-[9px] font-bold">4</span>Figma</div>
+          </div>
+        </div>
+      </aside>
+      {/* Main */}
+      <div className="flex-1 flex flex-col min-w-0">
+        {/* Top bar */}
+        <div className="h-12 bg-white border-b border-slate-200 flex items-center px-4 gap-3">
+          <div className="w-6 h-6 rounded-md bg-slate-900 text-white flex items-center justify-center text-[10px] font-bold">P</div>
+          <div className="text-sm font-semibold text-slate-800">CSPO Grocery Online</div>
+          <span className="chip chip-ind">Core Workspace</span>
+          <span className="chip chip-muted">· {moduleName}</span>
+          <div className="flex-1"></div>
+          <div className="text-xs text-slate-500 flex items-center gap-1"><span className="kbd">⌘</span><span className="kbd">K</span></div>
+          <button className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-100 text-slate-700 text-xs font-medium"><Icon name="eye" className="w-3.5 h-3.5"/> Present</button>
+          <button className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-indigo-600 text-white text-xs font-medium"><Icon name="download" className="w-3.5 h-3.5"/> Export PRD</button>
+        </div>
+        <div className="flex-1 flex min-h-0">
+          <div className="flex-1 overflow-hidden dotgrid-light bg-slate-50 relative">
+            {children}
+            {showHotspot}
+          </div>
+          {!hideRight && <PRDPanel activeModule={activeModule} />}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/*─────────────────────────────────────────────────────────────────────
+  PRD PREVIEW PANEL (right) — static but realistic
+─────────────────────────────────────────────────────────────────────*/
+function PRDPanel({ activeModule }){
+  return (
+    <div className="w-[380px] bg-white border-l border-slate-200 flex flex-col shrink-0">
+      <div className="px-4 py-3 border-b border-slate-200 flex items-center justify-between bg-gradient-to-r from-slate-50 to-indigo-50/40">
+        <div className="flex items-center gap-2"><Icon name="doc" className="w-4 h-4 text-indigo-600"/>
+          <div><div className="text-sm font-semibold">Live PRD</div><div className="text-[11px] text-slate-500">auto-syncs</div></div>
+        </div>
+        <div className="flex items-center gap-1">
+          <button className="p-1.5 rounded bg-slate-100 text-slate-600 hover:bg-slate-200"><Icon name="download" className="w-3.5 h-3.5"/></button>
+        </div>
+      </div>
+      <div className="flex-1 overflow-hidden p-5 text-[12px] leading-relaxed text-slate-700 space-y-3">
+        <div>
+          <div className="text-[17px] font-bold text-slate-900">Product Requirements Document — CSPO Grocery Online</div>
+          <div className="text-[10px] text-slate-400 italic">Auto-generated by RPOS · 2026-04-20</div>
+        </div>
+        <div>
+          <div className="text-[13px] font-bold border-b border-slate-200 pb-1 mb-1">1. Vision</div>
+          <p>Become India's most trusted same-day grocery platform for households and small retailers — where quality, price and delivery reliability are never a trade-off.</p>
+        </div>
+        <div>
+          <div className="text-[13px] font-bold border-b border-slate-200 pb-1 mb-1">2. Value Proposition</div>
+          <p>For time-pressed urban households and kirana owners who struggle with inconsistent pricing and delivery delays, Grocery Online delivers fresh, QC-verified groceries in under 2 hours with transparent price locking.</p>
+        </div>
+        <div>
+          <div className="text-[13px] font-bold border-b border-slate-200 pb-1 mb-1">3. Personas <span className="chip chip-good !text-[10px]">6</span></div>
+          <ul className="list-disc ml-4 space-y-0.5">
+            <li>Priya — Homemaker (Primary)</li>
+            <li>Arjun — Working Professional</li>
+            <li>Mr. Kulkarni — Senior Citizen (A11y)</li>
+            <li>Sandeep — Delivery Partner</li>
+            <li>Ms. Shah — Store Admin</li>
+            <li>Ravi — Packer</li>
+          </ul>
+        </div>
+        <div>
+          <div className="text-[13px] font-bold border-b border-slate-200 pb-1 mb-1">4. User Stories <span className="chip chip-ind !text-[10px]">10 · 50pts</span></div>
+          <div className="space-y-1.5">
+            <div className="bg-slate-50 rounded p-1.5 border border-slate-200"><span className="font-mono text-[10px] text-slate-500">US-001</span> <span className="chip chip-red !text-[10px]">Must</span> <span>Phone-OTP signup</span></div>
+            <div className="bg-slate-50 rounded p-1.5 border border-slate-200"><span className="font-mono text-[10px] text-slate-500">US-004</span> <span className="chip chip-red !text-[10px]">Must</span> <span>Slot-before-checkout</span></div>
+            <div className="bg-slate-50 rounded p-1.5 border border-slate-200"><span className="font-mono text-[10px] text-slate-500">US-007</span> <span className="chip chip-red !text-[10px]">Must</span> <span>Offline-resilient picker</span></div>
+          </div>
+        </div>
+        <div className="text-[10px] text-slate-400 italic border-t border-slate-200 pt-2">Edit any module → this PRD updates in real-time.</div>
+      </div>
+    </div>
+  );
+}
+
+/*─────────────────────────────────────────────────────────────────────
+  SCREEN 1 — LANDING / DASHBOARD
+─────────────────────────────────────────────────────────────────────*/
+function Screen_Dashboard(){
+  return (
+    <div className="h-[850px] bg-slate-50 flex flex-col">
+      <div className="h-12 bg-white border-b border-slate-200 flex items-center px-5 gap-3">
+        <div className="w-7 h-7 rounded-md gradient-ind text-white font-bold flex items-center justify-center">R</div>
+        <div className="font-semibold">RPOS · Home</div>
+        <div className="flex-1"></div>
+        <div className="flex items-center gap-2 text-xs text-slate-500">
+          <div className="inline-flex items-center gap-2 border border-slate-200 px-2 py-1 rounded-lg bg-white">
+            <Icon name="search" className="w-3.5 h-3.5"/> Search projects, docs, stories <span className="kbd ml-2">⌘K</span>
+          </div>
+          <div className="w-7 h-7 rounded-full bg-indigo-100 text-indigo-700 font-bold flex items-center justify-center">R</div>
+        </div>
+      </div>
+      <div className="flex-1 p-10 overflow-hidden">
+        <div className="text-[13px] text-slate-500">Good morning, Ruturaj —</div>
+        <div className="text-3xl font-bold text-slate-900 mt-1">Your Product OS</div>
+        <div className="mt-1 text-slate-600 max-w-xl">One workspace from problem → prompt → research → PM architecture → UI/UX. Start a project, or continue where you left off.</div>
+        {/* KPI row */}
+        <div className="grid grid-cols-4 gap-3 mt-6">
+          {[
+            { label:"Active Projects", value:"3", sub:"+1 this month", tone:"indigo" },
+            { label:"Personas Captured", value:"11", sub:"across 3 projects", tone:"cyan" },
+            { label:"Backlog Items", value:"46", sub:"12 in-flight", tone:"amber" },
+            { label:"Docs auto-generated", value:"128", sub:"this quarter", tone:"emerald" }
+          ].map(c=>(
+            <div key={c.label} className="bg-white border border-slate-200 rounded-xl p-4 shadow-card">
+              <div className={cls("chip", "chip-"+({indigo:"ind",cyan:"emer",amber:"warn",emerald:"good"})[c.tone])}>{c.label}</div>
+              <div className="text-2xl font-bold text-slate-900 mt-2">{c.value}</div>
+              <div className="text-xs text-slate-500">{c.sub}</div>
+            </div>
+          ))}
+        </div>
+
+        <div className="grid grid-cols-3 gap-4 mt-6">
+          <div className="col-span-2 bg-white border border-slate-200 rounded-xl p-5 shadow-card">
+            <div className="flex items-center justify-between">
+              <div className="font-semibold text-slate-900">Recent projects</div>
+              <button className="text-xs text-indigo-600 font-medium">New project →</button>
+            </div>
+            <div className="grid grid-cols-3 gap-3 mt-4">
+              {[
+                { name:"CSPO Grocery Online", stage:"Requirements", progress:34, personas:6, stories:10, color:"from-indigo-500 to-cyan-500"},
+                { name:"BFSI Platform Co-Creation", stage:"Discovery", progress:12, personas:4, stories:6, color:"from-amber-500 to-red-500"},
+                { name:"InternalOps Revamp", stage:"Design", progress:58, personas:3, stories:18, color:"from-emerald-500 to-cyan-400"}
+              ].map((p,i)=>(
+                <div key={i} className="border border-slate-200 rounded-xl overflow-hidden bg-white">
+                  <div className={cls("h-16 bg-gradient-to-br", p.color)}></div>
+                  <div className="p-3">
+                    <div className="text-sm font-semibold text-slate-900">{p.name}</div>
+                    <div className="text-xs text-slate-500 mt-0.5 mb-2">Stage · {p.stage}</div>
+                    <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden"><div className="h-full bg-indigo-500" style={{width:p.progress+"%"}}></div></div>
+                    <div className="flex justify-between text-[11px] text-slate-500 mt-2">
+                      <span>{p.personas} personas</span><span>{p.stories} stories</span><span>{p.progress}%</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-card">
+            <div className="font-semibold text-slate-900">Agent Pipeline</div>
+            <div className="mt-3 space-y-3">
+              {[
+                { n:1, name:"Prompt Tool", sub:"Crafts a detailed brief from task + examples", color:"bg-indigo-500" },
+                { n:2, name:"Research Tool", sub:"Primary + secondary, quant + qual", color:"bg-cyan-500" },
+                { n:3, name:"PM Architecture", sub:"SDLC · Personas · Stories · PRD", color:"bg-amber-500", active:true },
+                { n:4, name:"Figma UI/UX", sub:"Designs + prototypes", color:"bg-pink-500" }
+              ].map(a=>(
+                <div key={a.n} className={cls("flex items-center gap-3 p-2.5 rounded-lg border", a.active?"bg-indigo-50 border-indigo-200":"border-slate-100")}>
+                  <div className={cls("w-7 h-7 rounded-md text-white font-bold flex items-center justify-center text-xs", a.color)}>{a.n}</div>
+                  <div className="flex-1"><div className="text-sm font-medium text-slate-900">{a.name}</div><div className="text-[11px] text-slate-500">{a.sub}</div></div>
+                  {a.active && <span className="chip chip-good">active</span>}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4 mt-6">
+          <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-card">
+            <div className="font-semibold text-slate-900 mb-3">Recent activity</div>
+            <div className="space-y-2 text-sm">
+              {[
+                { t:"Added persona ‘Mr. Kulkarni — Senior’ to CSPO Grocery Online", tag:"persona", when:"2h ago" },
+                { t:"Auto-regenerated PRD v14 (+10 user stories, +2 acceptance criteria)", tag:"PRD", when:"3h ago" },
+                { t:"Released sprint 3 plan to Jira — 32 pts committed", tag:"release", when:"Yesterday" },
+                { t:"Imported CSPO backlog (20 items) via Agent 1", tag:"import", when:"2d ago" }
+              ].map((x,i)=>(
+                <div key={i} className="flex items-start gap-3 border-b border-slate-100 pb-2">
+                  <span className="w-1.5 h-1.5 mt-1.5 rounded-full bg-indigo-500"></span>
+                  <div className="flex-1 text-slate-700">{x.t} <span className="chip chip-muted ml-1">{x.tag}</span></div>
+                  <div className="text-[11px] text-slate-400 whitespace-nowrap">{x.when}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-card">
+            <div className="font-semibold text-slate-900 mb-3">Quick start</div>
+            <div className="grid grid-cols-2 gap-3">
+              {[
+                { icon:"bolt", t:"Start from a prompt", sub:"Agent 1 scaffolds the full project" },
+                { icon:"doc", t:"Import a PRD", sub:"Extract personas, stories, scope" },
+                { icon:"users", t:"Add personas", sub:"Include empathy maps" },
+                { icon:"map", t:"Build a story map", sub:"Swimlanes across releases" }
+              ].map((a,i)=>(
+                <div key={i} className="border border-dashed border-slate-300 rounded-lg p-3 hover:border-indigo-300 hover:bg-indigo-50/30 cursor-pointer">
+                  <Icon name={a.icon} className="w-4 h-4 text-indigo-600"/>
+                  <div className="text-sm font-semibold mt-1">{a.t}</div>
+                  <div className="text-[11px] text-slate-500">{a.sub}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/*─────────────────────────────────────────────────────────────────────
+  SCREEN 2 — WORKSPACE · PERSONAS
+─────────────────────────────────────────────────────────────────────*/
+function Screen_Personas(){
+  return (
+    <AppShell activeModule="personas" moduleName="Personas">
+      <div className="p-6 overflow-hidden h-full">
+        <div className="text-xs text-slate-500 flex items-center gap-2 mb-3">
+          <span className="chip chip-ind">SDLC · Requirements Gathering</span>
+          <span className="chip chip-muted">Competitor Analysis</span>
+          <span className="chip chip-muted">Stakeholder Interviews</span>
+          <span className="chip chip-muted">Feasibility</span>
+        </div>
+        {/* KPI strip */}
+        <div className="grid grid-cols-6 gap-2 mb-4">
+          {[
+            ["SDLC Stage","Requirements","ind"],
+            ["Personas","6","emer"],
+            ["User Stories","10 · 50pts","muted"],
+            ["Completion","6%","good"],
+            ["Must-haves","7","warn"],
+            ["At-risk Musts","5","red"]
+          ].map((c,i)=>(
+            <div key={i} className="bg-white border border-slate-200 rounded-lg p-3">
+              <div className={cls("chip", "chip-"+c[2])}>{c[0]}</div>
+              <div className="text-base font-bold text-slate-900 truncate mt-1.5">{c[1]}</div>
+            </div>
+          ))}
+        </div>
+        {/* Module tabs */}
+        <div className="flex items-center gap-1 mb-3 bg-white border border-slate-200 rounded-xl p-1 w-fit">
+          {["Strategy","Personas","User Stories","Backlog","Story Map"].map((t,i)=>(
+            <div key={t} className={cls("px-3.5 py-1.5 rounded-lg text-xs font-medium", i===1?"bg-indigo-50 text-indigo-700":"text-slate-500")}>{t}</div>
+          ))}
+        </div>
+        <div className="flex items-center justify-between mb-3">
+          <div>
+            <div className="text-xl font-bold text-slate-900">User Personas</div>
+            <div className="text-[12px] text-slate-500">6 personas · click "Edit" to reveal empathy map</div>
+          </div>
+          <button className="inline-flex items-center gap-1.5 bg-indigo-600 text-white text-xs font-medium px-3 py-1.5 rounded-lg"><Icon name="plus" className="w-3.5 h-3.5"/>Add persona</button>
+        </div>
+        <div className="grid grid-cols-2 gap-3 overflow-auto h-[455px] pr-1 scroll-thin">
+          {PERSONAS.map((p,i)=>(
+            <div key={i} className="bg-white border border-slate-200 rounded-xl p-4 shadow-card">
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 rounded-full gradient-ind text-white flex items-center justify-center font-bold">{p.initials}</div>
+                <div className="flex-1">
+                  <div className="font-semibold text-[14px]">{p.name}</div>
+                  <div className="flex flex-wrap gap-1 mt-0.5">
+                    {p.tags.map(t=><span key={t} className="chip chip-ind">{t}</span>)}
+                  </div>
+                </div>
+                <button className="text-xs text-slate-500 px-2 py-1 rounded hover:bg-slate-100">Edit</button>
+              </div>
+              <div className="grid grid-cols-3 gap-2 mt-3 text-[11px] text-slate-600">
+                <div><div className="text-[9px] uppercase text-slate-400">Role</div>{p.role}</div>
+                <div><div className="text-[9px] uppercase text-slate-400">Age</div>{p.age}</div>
+                <div><div className="text-[9px] uppercase text-slate-400">Location</div>{p.loc}</div>
+              </div>
+              <div className="mt-3 grid grid-cols-2 gap-2">
+                {[["Think",p.think],["Feel",p.feel],["Say",p.say],["Do",p.do]].map(([l,v],i)=>(
+                  <div key={i} className="border border-dashed border-slate-200 rounded-lg p-2 bg-slate-50">
+                    <div className="text-[9px] uppercase text-slate-500 font-semibold">{l}</div>
+                    <div className="text-[11px] text-slate-700">{v}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </AppShell>
+  );
+}
+
+/*─────────────────────────────────────────────────────────────────────
+  SCREEN 3 — WORKSPACE · USER STORIES
+─────────────────────────────────────────────────────────────────────*/
+function Screen_Stories(){
+  return (
+    <AppShell activeModule="stories" moduleName="User Stories">
+      <div className="p-6 overflow-hidden h-full">
+        <div className="text-xs text-slate-500 flex items-center gap-2 mb-3">
+          <span className="chip chip-ind">SDLC · Requirements Gathering</span>
+          <span className="chip chip-muted">Stakeholder Interviews</span>
+        </div>
+        <div className="flex items-center gap-1 mb-3 bg-white border border-slate-200 rounded-xl p-1 w-fit">
+          {["Strategy","Personas","User Stories","Backlog","Story Map"].map((t,i)=>(
+            <div key={t} className={cls("px-3.5 py-1.5 rounded-lg text-xs font-medium", i===2?"bg-indigo-50 text-indigo-700":"text-slate-500")}>{t}</div>
+          ))}
+        </div>
+        <div className="flex items-center justify-between mb-3">
+          <div>
+            <div className="text-xl font-bold text-slate-900">User Stories</div>
+            <div className="text-[12px] text-slate-500">10 stories · 50 pts total · 6% done</div>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="inline-flex items-center gap-1 border border-slate-200 bg-white px-2 py-1 rounded-lg text-xs text-slate-600"><Icon name="search" className="w-3.5 h-3.5"/>Filter</div>
+            <button className="inline-flex items-center gap-1.5 bg-indigo-600 text-white text-xs font-medium px-3 py-1.5 rounded-lg"><Icon name="plus" className="w-3.5 h-3.5"/>Add story</button>
+          </div>
+        </div>
+        <div className="h-1.5 bg-slate-200 rounded-full overflow-hidden mb-3"><div className="h-full bg-gradient-to-r from-indigo-500 to-cyan-500" style={{width:"6%"}}></div></div>
+        <div className="space-y-1.5 overflow-auto h-[530px] pr-1 scroll-thin">
+          {STORIES.map((s,i)=>(
+            <div key={s.id} className="bg-white border border-slate-200 rounded-lg px-3 py-2 flex items-center gap-2.5">
+              <Icon name="chevron" className="w-3.5 h-3.5 text-slate-400"/>
+              <span className="font-mono text-[11px] text-slate-500 w-20">{s.id}</span>
+              <span className="chip chip-muted w-28 truncate !justify-start">{s.epic}</span>
+              <span className="flex-1 text-[13px] text-slate-800 truncate">{s.story}</span>
+              <span className={priorityChip(s.priority)}>{s.priority}</span>
+              <span className="text-[11px] font-mono text-slate-500 w-10 text-center">{s.pts}</span>
+              <span className={statusChip(s.status)}>{s.status}</span>
+            </div>
+          ))}
+          {/* Expanded AC for US-004 */}
+          <div className="bg-white border border-indigo-200 rounded-lg p-3 shadow-sm ring-1 ring-indigo-100">
+            <div className="flex items-center gap-2.5">
+              <Icon name="chevron" className="w-3.5 h-3.5 text-slate-400 rotate-90"/>
+              <span className="font-mono text-[11px] text-slate-500 w-20">US-004</span>
+              <span className="chip chip-muted w-28 !justify-start">Checkout</span>
+              <span className="flex-1 text-[13px] text-slate-800 truncate">Show exact delivery slot before checkout</span>
+              <span className="chip chip-red">Must</span>
+              <span className="text-[11px] font-mono text-slate-500 w-10 text-center">5</span>
+              <span className="chip chip-ind">In Progress</span>
+            </div>
+            <div className="mt-3 bg-slate-50/70 border border-dashed border-slate-200 rounded-lg p-3 text-[12px]">
+              <div className="text-[10px] uppercase font-semibold text-slate-500 mb-1">Acceptance Criteria · Given / When / Then</div>
+              <div className="grid grid-cols-3 gap-2">
+                <div className="bg-white rounded p-2 border border-slate-200">
+                  <div className="text-[9px] uppercase font-semibold text-slate-500">Given</div>
+                  <div className="text-slate-700 mt-1">a valid cart with ≥1 item</div>
+                </div>
+                <div className="bg-white rounded p-2 border border-slate-200">
+                  <div className="text-[9px] uppercase font-semibold text-slate-500">When</div>
+                  <div className="text-slate-700 mt-1">the user proceeds to checkout</div>
+                </div>
+                <div className="bg-white rounded p-2 border border-slate-200">
+                  <div className="text-[9px] uppercase font-semibold text-slate-500">Then</div>
+                  <div className="text-slate-700 mt-1">2-hour slots for the next 24h show with live capacity</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </AppShell>
+  );
+}
+
+/*─────────────────────────────────────────────────────────────────────
+  SCREEN 4 — WORKSPACE · STRATEGY
+─────────────────────────────────────────────────────────────────────*/
+function Screen_Strategy(){
+  return (
+    <AppShell activeModule="strategy" moduleName="Strategy">
+      <div className="p-6 overflow-auto h-full">
+        <div className="text-xs text-slate-500 flex items-center gap-2 mb-3">
+          <span className="chip chip-ind">SDLC · Discovery / Ideation</span>
+          <span className="chip chip-muted">Problem Framing</span>
+          <span className="chip chip-muted">Concept Tests</span>
+        </div>
+        <div className="flex items-center gap-1 mb-3 bg-white border border-slate-200 rounded-xl p-1 w-fit">
+          {["Strategy","Personas","User Stories","Backlog","Story Map"].map((t,i)=>(
+            <div key={t} className={cls("px-3.5 py-1.5 rounded-lg text-xs font-medium", i===0?"bg-indigo-50 text-indigo-700":"text-slate-500")}>{t}</div>
+          ))}
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+          <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-card">
+            <div className="flex items-center gap-2 mb-2"><Icon name="flag" className="w-4 h-4 text-indigo-600"/><div className="font-semibold text-slate-900">Product Vision</div></div>
+            <div className="text-[13px] text-slate-700 leading-relaxed">Become India's most trusted same-day grocery platform for households and small retailers — where quality, price fairness and delivery reliability are never a trade-off.</div>
+          </div>
+          <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-card">
+            <div className="flex items-center gap-2 mb-2"><Icon name="sparkles" className="w-4 h-4 text-indigo-600"/><div className="font-semibold text-slate-900">Value Proposition</div></div>
+            <div className="text-[13px] text-slate-700 leading-relaxed">For time-pressed urban households and small kirana owners who struggle with inconsistent pricing and delivery delays, Grocery Online delivers fresh, QC-verified groceries in under 2 hours with transparent price locking — unlike generic marketplaces.</div>
+            <div className="text-[10px] text-slate-400 mt-2 italic">Structure: For [user] who [need], our [product] delivers [benefit] — unlike [alternative] because [reason].</div>
+          </div>
+          <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-card col-span-2">
+            <div className="flex items-center gap-2 mb-2"><Icon name="bolt" className="w-4 h-4 text-indigo-600"/><div className="font-semibold text-slate-900">Elevator Pitch</div></div>
+            <div className="text-[13px] text-slate-700 leading-relaxed">Grocery Online is a 2-hour grocery delivery platform purpose-built for Indian households and kiranas. We combine dark-store fulfilment, QC-verified produce and a senior-friendly voice interface so every member of the household can restock essentials without leaving home.</div>
+          </div>
+          <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-card">
+            <div className="font-semibold text-slate-900 mb-3">Business Goals</div>
+            <div className="space-y-2">
+              {[
+                "Hit 10,000 paid orders/week in Pune and Mumbai by Q4.",
+                "Achieve ≥ 92% on-time delivery rate within 2-hour SLA.",
+                "Reach ≥ 65% repeat-customer rate within 60 days of first order.",
+                "Keep QC rejection rate on fresh produce below 2%."
+              ].map((g,i)=>(
+                <div key={i} className="flex items-center gap-2">
+                  <span className="w-6 h-6 rounded-full bg-indigo-50 text-indigo-700 text-xs font-semibold flex items-center justify-center">{i+1}</span>
+                  <div className="text-[13px] text-slate-700">{g}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-card">
+            <div className="font-semibold text-slate-900 mb-3">North-Star Metric</div>
+            <div className="p-4 rounded-lg bg-gradient-to-br from-indigo-50 to-cyan-50 border border-indigo-100">
+              <div className="text-[11px] uppercase text-indigo-700 font-semibold">North Star</div>
+              <div className="text-[15px] font-bold text-slate-900 mt-1">Weekly active households with ≥ 2 orders/week</div>
+              <div className="mt-4 grid grid-cols-3 text-center gap-2">
+                <div className="bg-white/70 rounded p-2"><div className="text-[10px] text-slate-500">Current</div><div className="text-lg font-bold text-slate-900">3,240</div></div>
+                <div className="bg-white/70 rounded p-2"><div className="text-[10px] text-slate-500">Target Q4</div><div className="text-lg font-bold text-slate-900">10,000</div></div>
+                <div className="bg-white/70 rounded p-2"><div className="text-[10px] text-slate-500">Progress</div><div className="text-lg font-bold text-emerald-600">32%</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </AppShell>
+  );
+}
+
+/*─────────────────────────────────────────────────────────────────────
+  SCREEN 5 — WORKSPACE · BACKLOG KANBAN
+─────────────────────────────────────────────────────────────────────*/
+function Screen_Backlog(){
+  const cols = ["Backlog","To Do","In Progress","Done"];
+  return (
+    <AppShell activeModule="backlog" moduleName="Backlog">
+      <div className="p-6 overflow-hidden h-full">
+        <div className="flex items-center gap-1 mb-3 bg-white border border-slate-200 rounded-xl p-1 w-fit">
+          {["Strategy","Personas","User Stories","Backlog","Story Map"].map((t,i)=>(
+            <div key={t} className={cls("px-3.5 py-1.5 rounded-lg text-xs font-medium", i===3?"bg-indigo-50 text-indigo-700":"text-slate-500")}>{t}</div>
+          ))}
+        </div>
+        <div className="flex items-center justify-between mb-3">
+          <div>
+            <div className="text-xl font-bold text-slate-900 flex items-center gap-2"><Icon name="kanban"/>Backlog</div>
+            <div className="text-[12px] text-slate-500">20 items · drag between columns</div>
+          </div>
+          <button className="inline-flex items-center gap-1.5 bg-indigo-600 text-white text-xs font-medium px-3 py-1.5 rounded-lg"><Icon name="plus" className="w-3.5 h-3.5"/>Add</button>
+        </div>
+        <div className="grid grid-cols-4 gap-2 h-[560px]">
+          {cols.map(c=>(
+            <div key={c} className="bg-slate-50 border border-slate-200 rounded-xl p-2.5 overflow-hidden">
+              <div className="flex items-center justify-between mb-2 px-1">
+                <div className="text-[11px] font-bold uppercase text-slate-700">{c}</div>
+                <span className="chip chip-muted">{BACKLOG_COLS[c].length}</span>
+              </div>
+              <div className="space-y-1.5 overflow-auto h-[510px] scroll-thin pr-1">
+                {BACKLOG_COLS[c].map(b=>(
+                  <div key={b.id} className="bg-white border border-slate-200 rounded-lg p-2 shadow-sm">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] font-mono text-slate-500">{b.id}</span>
+                      <span className={priorityChip(b.pri)}>{b.pri}</span>
+                    </div>
+                    <div className="text-[12px] font-medium text-slate-800 leading-tight mt-1">{b.title}</div>
+                    <div className="mt-1.5 flex items-center justify-between text-[10px] text-slate-500">
+                      <span>{b.epic}</span>
+                      <span className="px-1.5 py-0.5 rounded bg-slate-100 font-semibold">{b.pts} pts</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </AppShell>
+  );
+}
+
+/*─────────────────────────────────────────────────────────────────────
+  SCREEN 6 — WORKSPACE · STORY MAP
+─────────────────────────────────────────────────────────────────────*/
+function Screen_StoryMap(){
+  return (
+    <AppShell activeModule="map" moduleName="Story Map">
+      <div className="p-6 overflow-auto h-full">
+        <div className="flex items-center gap-1 mb-3 bg-white border border-slate-200 rounded-xl p-1 w-fit">
+          {["Strategy","Personas","User Stories","Backlog","Story Map"].map((t,i)=>(
+            <div key={t} className={cls("px-3.5 py-1.5 rounded-lg text-xs font-medium", i===4?"bg-indigo-50 text-indigo-700":"text-slate-500")}>{t}</div>
+          ))}
+        </div>
+        <div>
+          <div className="text-xl font-bold text-slate-900 flex items-center gap-2 mb-1"><Icon name="map"/>Story Map</div>
+          <div className="text-[12px] text-slate-500 mb-4">Buyer journey × release lanes. Each cell ties to backlog items.</div>
+        </div>
+        <div className="bg-white border border-slate-200 rounded-xl shadow-card overflow-x-auto">
+          <table className="w-full text-[12px]">
+            <thead>
+              <tr className="bg-slate-900 text-white text-[10px] uppercase tracking-wide">
+                <th className="text-left p-3 w-32">Release ↓ / Activity →</th>
+                {STORYMAP.activities.map(a=><th key={a} className="text-left p-3">{a}</th>)}
+              </tr>
+            </thead>
+            <tbody>
+              {STORYMAP.lanes.map((lane,li)=>(
+                <tr key={li}>
+                  <td className="p-3 border-t border-slate-100 align-top">
+                    <span className="chip" style={{background:lane.color, color:lane.textColor, fontWeight:600}}>{lane.name}</span>
+                  </td>
+                  {lane.tasks.map((tasks,ai)=>(
+                    <td key={ai} className="p-3 border-t border-slate-100 align-top">
+                      <div className="flex flex-wrap gap-1">
+                        {tasks.map((t,i)=>(
+                          <span key={i} className="px-2 py-1 rounded-md border text-[11px]" style={{borderColor:lane.color, background:lane.color+"60", color:lane.textColor}}>{t}</span>
+                        ))}
+                      </div>
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <div className="mt-4 text-[11px] text-slate-500 flex items-center gap-4">
+          <span>🟢 MVP — validated learnings</span>
+          <span>🔵 R2 — growth enablers</span>
+          <span>🟡 R3 — delight & retention</span>
+        </div>
+      </div>
+    </AppShell>
+  );
+}
+
+/*─────────────────────────────────────────────────────────────────────
+  SCREEN 7 — LIVE PRD (presentation mode)
+─────────────────────────────────────────────────────────────────────*/
+function Screen_PRD(){
+  return (
+    <div className="h-[850px] bg-slate-900 flex items-center justify-center p-8">
+      <div className="bg-white w-full max-w-4xl h-full rounded-2xl overflow-hidden flex flex-col frame-shadow">
+        <div className="h-11 flex items-center justify-between px-5 bg-slate-900 text-white">
+          <div className="font-semibold text-sm flex items-center gap-2"><Icon name="doc" className="w-4 h-4"/> Live PRD · Presentation Mode</div>
+          <div className="flex items-center gap-2">
+            <button className="text-xs bg-white/10 px-2 py-1 rounded"><Icon name="download" className="w-3 h-3 inline"/> Export</button>
+            <div className="text-slate-400 text-sm">✕</div>
+          </div>
+        </div>
+        <div className="flex-1 overflow-auto scroll-thin p-10 space-y-5 text-slate-700">
+          <div>
+            <div className="text-2xl font-bold text-slate-900">Product Requirements Document — CSPO Grocery Online</div>
+            <div className="text-[12px] text-slate-500 italic">Auto-generated by RPOS · 2026-04-20 · PM: Ruturaj · Version 14</div>
+          </div>
+          <div>
+            <div className="text-base font-bold border-b border-slate-200 pb-1 mb-2 text-slate-900">1. Vision</div>
+            <p className="text-[14px]">Become India's most trusted same-day grocery platform for households and small retailers — where quality, price fairness and delivery reliability are never a trade-off.</p>
+          </div>
+          <div>
+            <div className="text-base font-bold border-b border-slate-200 pb-1 mb-2 text-slate-900">2. Value Proposition</div>
+            <p className="text-[14px]">For time-pressed urban households and small kirana owners who struggle with inconsistent pricing, stock-outs and delivery delays, Grocery Online delivers fresh, QC-verified groceries in under 2 hours with transparent price locking and guaranteed replacement — unlike generic marketplaces that treat groceries as an afterthought.</p>
+          </div>
+          <div>
+            <div className="text-base font-bold border-b border-slate-200 pb-1 mb-2 text-slate-900">3. Business Goals</div>
+            <ul className="list-disc ml-5 space-y-0.5 text-[14px]">
+              <li>Hit 10,000 paid orders/week in Pune and Mumbai by Q4.</li>
+              <li>Achieve ≥ 92% on-time delivery rate within 2-hour SLA.</li>
+              <li>Reach ≥ 65% repeat-customer rate within 60 days of first order.</li>
+              <li>Keep QC rejection rate on fresh produce below 2%.</li>
+            </ul>
+            <div className="mt-2 text-[13px]"><b>North-Star Metric:</b> Weekly active households with ≥ 2 orders/week</div>
+          </div>
+          <div>
+            <div className="text-base font-bold border-b border-slate-200 pb-1 mb-2 text-slate-900">4. Target Personas</div>
+            <div className="grid grid-cols-3 gap-2 mt-2">
+              {PERSONAS.map((p,i)=>(
+                <div key={i} className="border border-slate-200 rounded-lg p-3">
+                  <div className="flex items-center gap-2">
+                    <div className="w-7 h-7 rounded-full gradient-ind text-white flex items-center justify-center text-[11px] font-bold">{p.initials}</div>
+                    <div className="text-[12px] font-semibold">{p.name}</div>
+                  </div>
+                  <div className="text-[10px] text-slate-500 mt-1">{p.role}</div>
+                  <div className="text-[11px] mt-2 italic">"{p.say}"</div>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div>
+            <div className="text-base font-bold border-b border-slate-200 pb-1 mb-2 text-slate-900">5. Feature List & User Stories</div>
+            <table className="w-full text-[12px] border border-slate-200 rounded">
+              <thead><tr className="bg-slate-50 text-left">
+                <th className="p-2">ID</th><th className="p-2">Epic</th><th className="p-2">Story</th><th className="p-2">Pri</th><th className="p-2">Pts</th><th className="p-2">Status</th>
+              </tr></thead>
+              <tbody>
+                {STORIES.map(s=>(
+                  <tr key={s.id} className="border-t border-slate-100">
+                    <td className="p-2 font-mono">{s.id}</td><td className="p-2">{s.epic}</td><td className="p-2">{s.story}</td>
+                    <td className="p-2"><span className={priorityChip(s.priority)}>{s.priority}</span></td>
+                    <td className="p-2 text-center">{s.pts}</td>
+                    <td className="p-2"><span className={statusChip(s.status)}>{s.status}</span></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <div className="text-[11px] text-slate-400 italic border-t border-slate-200 pt-3">This PRD is auto-compiled by RPOS from Strategy · Personas · User Stories · Story Map modules. Edit any input upstream and this document updates in real time.</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/*─────────────────────────────────────────────────────────────────────
+  SCREEN 8 — EXPORT DIALOG
+─────────────────────────────────────────────────────────────────────*/
+function Screen_Export(){
+  return (
+    <div className="h-[850px] relative">
+      {/* Underlying Workspace (Personas, dimmed) */}
+      <div className="absolute inset-0 opacity-40 pointer-events-none"><Screen_Personas/></div>
+      {/* Overlay */}
+      <div className="absolute inset-0 bg-slate-900/30 backdrop-blur-[2px] flex items-center justify-center p-8">
+        <div className="bg-white rounded-2xl frame-shadow w-[720px] overflow-hidden">
+          <div className="h-12 bg-slate-900 text-white px-5 flex items-center justify-between">
+            <div className="flex items-center gap-2 font-semibold"><Icon name="download" className="w-4 h-4"/>Export documents</div>
+            <button className="text-slate-300"><Icon name="x"/></button>
+          </div>
+          <div className="p-6">
+            <div className="text-sm font-semibold text-slate-900 mb-1">What would you like to export?</div>
+            <div className="text-[12px] text-slate-500 mb-4">Picks pull live data from Strategy · Personas · User Stories · Story Map — no manual copy-paste.</div>
+            <div className="grid grid-cols-2 gap-3">
+              {[
+                { t:"BRD — Business Requirements", d:"For leadership sign-off", fmts:[".docx",".pdf"], sel:true },
+                { t:"PRD — Product Requirements", d:"Source of truth for engineering", fmts:[".docx",".md",".pdf"], sel:true },
+                { t:"Release Notes", d:"Per-release customer-facing", fmts:[".md",".html"] },
+                { t:"Strategy Canvas", d:"Vision · Value prop · Pitch", fmts:[".pptx",".pdf"] },
+                { t:"Backlog Tracker", d:"For Jira or Excel import", fmts:[".xlsx",".csv"], sel:true },
+                { t:"Stakeholder Deck", d:"Executive one-pager", fmts:[".pptx",".pdf"] }
+              ].map((d,i)=>(
+                <div key={i} className={cls("border rounded-lg p-3 cursor-pointer flex items-start gap-2", d.sel?"border-indigo-400 bg-indigo-50/40":"border-slate-200 bg-white")}>
+                  <div className={cls("w-4 h-4 mt-0.5 rounded-sm border flex items-center justify-center", d.sel?"bg-indigo-600 border-indigo-600":"border-slate-300")}>
+                    {d.sel && <Icon name="check" className="w-3 h-3 text-white"/>}
+                  </div>
+                  <div className="flex-1">
+                    <div className="text-[13px] font-semibold text-slate-900">{d.t}</div>
+                    <div className="text-[11px] text-slate-500">{d.d}</div>
+                    <div className="flex gap-1 mt-1.5">{d.fmts.map(f=><span key={f} className="chip chip-muted">{f}</span>)}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="mt-5 bg-slate-50 rounded-lg p-3 border border-dashed border-slate-200">
+              <div className="text-[11px] uppercase font-semibold text-slate-500 mb-1">Branding</div>
+              <div className="flex items-center gap-3 text-[12px] text-slate-700">
+                <span className="chip chip-ind">BFSI · Navy theme</span>
+                <span className="chip chip-muted">Navy header · Roboto body</span>
+                <span className="chip chip-muted">Header · Footer · ToC</span>
+              </div>
+            </div>
+            <div className="mt-5 flex items-center justify-between">
+              <div className="text-[12px] text-slate-500">4 files · ~ 1.3 MB · ready in ~3s</div>
+              <div className="flex gap-2">
+                <button className="px-3 py-2 rounded-lg bg-slate-100 text-slate-700 text-sm">Cancel</button>
+                <button className="px-4 py-2 rounded-lg bg-indigo-600 text-white text-sm font-semibold inline-flex items-center gap-1.5"><Icon name="download" className="w-4 h-4"/>Export 4 docs</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/*─────────────────────────────────────────────────────────────────────
+  SCREEN 9 — AGENT PIPELINE
+─────────────────────────────────────────────────────────────────────*/
+function Screen_Agents(){
+  return (
+    <div className="h-[850px] bg-white relative overflow-hidden dotgrid-light p-10">
+      <div className="text-xs text-slate-500">RPOS · Agent architecture</div>
+      <div className="text-3xl font-bold text-slate-900 mt-1">4 agents, one pipeline</div>
+      <div className="text-slate-600 mt-1 max-w-2xl">Each agent is specialised but shares a common workspace. The PM Architecture agent (Agent 3) is the hub that every other agent writes to and reads from.</div>
+
+      <div className="mt-10 grid grid-cols-4 gap-6 relative">
+        {/* Connecting line */}
+        <div className="absolute top-[42px] left-[12%] right-[12%] h-[2px] dashed z-0"></div>
+        {[
+          { n:1, name:"Prompt Tool", sub:"Turns a raw idea into a comprehensive, well-structured brief", inputs:["Task","Context","Examples","Format"], outputs:["Structured prompt","Task breakdown"], model:"Claude Sonnet 4.5", color:"from-indigo-500 to-indigo-600" },
+          { n:2, name:"Research Tool", sub:"Runs quant + qual, primary + secondary research against the brief", inputs:["Prompt from A1","User sources"], outputs:["Insights doc","Competitor matrix","Market sizing"], model:"Claude Opus 4.6", color:"from-cyan-500 to-cyan-600" },
+          { n:3, name:"PM Architecture", sub:"The workspace — SDLC, Personas, Stories, live docs", inputs:["Research","Manual inputs"], outputs:["BRD · PRD · Release notes","Backlog · Story Map"], model:"Claude Sonnet 4.5", color:"from-amber-500 to-amber-600", active:true },
+          { n:4, name:"Figma UI/UX", sub:"Turns personas + stories into wireframes, hi-fi, and interactive prototypes", inputs:["Personas","Stories","Journey map"], outputs:["Figma designs","Clickable prototype"], model:"Claude + Figma MCP", color:"from-pink-500 to-pink-600" }
+        ].map(a=>(
+          <div key={a.n} className={cls("relative z-10 rounded-2xl border bg-white shadow-card", a.active?"border-indigo-400 ring-2 ring-indigo-100":"border-slate-200")}>
+            <div className={cls("h-1.5 rounded-t-2xl bg-gradient-to-r", a.color)}></div>
+            <div className="p-5">
+              <div className="flex items-center gap-2">
+                <div className={cls("w-8 h-8 rounded-lg bg-gradient-to-br text-white font-bold flex items-center justify-center", a.color)}>{a.n}</div>
+                <div>
+                  <div className="font-semibold text-slate-900">{a.name}</div>
+                  <div className="text-[10px] text-slate-500">{a.model}</div>
+                </div>
+                {a.active && <span className="chip chip-good ml-auto">active</span>}
+              </div>
+              <div className="text-[12px] text-slate-600 mt-2 leading-relaxed">{a.sub}</div>
+              <div className="mt-3">
+                <div className="text-[10px] uppercase font-semibold text-slate-500 mb-1">Inputs</div>
+                <div className="flex flex-wrap gap-1 mb-2">{a.inputs.map(x=><span key={x} className="chip chip-muted">{x}</span>)}</div>
+                <div className="text-[10px] uppercase font-semibold text-slate-500 mb-1">Outputs</div>
+                <div className="flex flex-wrap gap-1">{a.outputs.map(x=><span key={x} className="chip chip-ind">{x}</span>)}</div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Data flow layer */}
+      <div className="mt-10 bg-gradient-to-br from-slate-50 to-indigo-50/40 border border-indigo-100 rounded-2xl p-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <div className="text-[11px] uppercase font-semibold text-indigo-700">Shared Workspace · Single Source of Truth</div>
+            <div className="text-lg font-bold text-slate-900 mt-1">Everything ties back to the PM Architecture workspace</div>
+          </div>
+          <div className="text-[11px] text-slate-500">Data store: Postgres · Vector embeddings: pgvector · Assets: S3</div>
+        </div>
+        <div className="grid grid-cols-5 gap-3 mt-4 text-[12px]">
+          {[
+            ["Strategy","Vision · Value Prop · Goals"],
+            ["Personas","Demographics · Empathy"],
+            ["User Stories","Epics · ACs · Points"],
+            ["Backlog","Priority · Status · Rank"],
+            ["Story Map","Journey × Release lanes"]
+          ].map(([t,s])=>(
+            <div key={t} className="bg-white border border-slate-200 rounded-lg p-3">
+              <div className="font-semibold">{t}</div>
+              <div className="text-[11px] text-slate-500">{s}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="mt-8 text-[11px] text-slate-500 italic">Agent 3 is where Ruturaj lives day-to-day. Agents 1, 2 and 4 populate and consume its data.</div>
+    </div>
+  );
+}
+
+/*─────────────────────────────────────────────────────────────────────
+  SCREEN 10 — PROMPT TOOL (Agent 1) mock
+─────────────────────────────────────────────────────────────────────*/
+function Screen_PromptTool(){
+  return (
+    <div className="h-[850px] bg-white flex">
+      <aside className="w-56 bg-slate-900 text-slate-200 flex flex-col shrink-0">
+        <div className="p-4 border-b border-white/10 flex items-center gap-2">
+          <div className="w-7 h-7 rounded-lg gradient-ind flex items-center justify-center text-white text-xs font-bold">R</div>
+          <div><div className="font-semibold text-sm">RPOS</div><div className="text-[10px] text-slate-400">Agent Pipeline</div></div>
+        </div>
+        <div className="p-4 space-y-1 text-[12px]">
+          <div className="p-2 bg-indigo-500/20 text-indigo-300 rounded-lg font-semibold flex items-center gap-2"><span className="w-5 h-5 rounded bg-indigo-500/50 text-white flex items-center justify-center text-[10px] font-bold">1</span> Prompt Tool</div>
+          <div className="p-2 text-slate-400 flex items-center gap-2"><span className="w-5 h-5 rounded bg-cyan-500/30 text-cyan-300 flex items-center justify-center text-[10px] font-bold">2</span> Research</div>
+          <div className="p-2 text-slate-400 flex items-center gap-2"><span className="w-5 h-5 rounded bg-amber-500/30 text-amber-300 flex items-center justify-center text-[10px] font-bold">3</span> PM Architecture</div>
+          <div className="p-2 text-slate-400 flex items-center gap-2"><span className="w-5 h-5 rounded bg-pink-500/30 text-pink-300 flex items-center justify-center text-[10px] font-bold">4</span> Figma UI/UX</div>
+        </div>
+      </aside>
+      <div className="flex-1 flex flex-col">
+        <div className="h-12 border-b border-slate-200 px-4 flex items-center gap-3">
+          <div className="font-semibold text-slate-900">Prompt Tool <span className="chip chip-ind">Agent 1</span></div>
+          <div className="flex-1"></div>
+          <button className="text-xs px-3 py-1.5 rounded bg-slate-100">Template</button>
+          <button className="text-xs px-3 py-1.5 rounded bg-indigo-600 text-white font-semibold inline-flex items-center gap-1"><Icon name="arrow" className="w-3.5 h-3.5"/>Send to Research</button>
+        </div>
+        <div className="flex-1 grid grid-cols-2 min-h-0">
+          <div className="p-6 space-y-3 overflow-auto border-r border-slate-200">
+            <div className="text-[11px] uppercase font-semibold text-slate-500">Task</div>
+            <div className="rounded-lg border border-slate-200 p-3 bg-white text-[13px]">Design a 2-hour grocery delivery platform for Pune &amp; Mumbai — focus on households (ages 25–70) and small kiranas.</div>
+            <div className="text-[11px] uppercase font-semibold text-slate-500 mt-3">Context</div>
+            <div className="rounded-lg border border-slate-200 p-3 bg-white text-[13px]">Indian metros, tier-1. Competition: Blinkit, Zepto, Instamart. Differentiators: QC-verified produce, senior-friendly UX, transparent price locking. MVP in 6 months, headcount of 18.</div>
+            <div className="text-[11px] uppercase font-semibold text-slate-500 mt-3">Examples of good output</div>
+            <div className="rounded-lg border border-slate-200 p-3 bg-white text-[13px]">- Start with a problem statement in ≤ 2 sentences.<br/>- At least 4 personas (1 primary, 1 senior, 1 ops).<br/>- 15+ user stories grouped by epic with MoSCoW.<br/>- A 3-release story map.</div>
+            <div className="text-[11px] uppercase font-semibold text-slate-500 mt-3">Format</div>
+            <div className="flex flex-wrap gap-1">
+              <span className="chip chip-ind">Markdown</span>
+              <span className="chip chip-muted">BRD · PRD · Story Map</span>
+              <span className="chip chip-muted">2,500 words max</span>
+            </div>
+          </div>
+          <div className="p-6 space-y-3 overflow-auto bg-gradient-to-br from-slate-50 to-indigo-50/30">
+            <div className="text-[11px] uppercase font-semibold text-slate-500">Generated prompt (preview)</div>
+            <div className="rounded-lg border border-indigo-200 bg-white p-4 text-[12px] text-slate-700 leading-relaxed space-y-2">
+              <div><b>Role.</b> You are a Senior Product Manager + Enterprise Architect designing a 2-hour grocery delivery platform for India's top-6 metros.</div>
+              <div><b>Objective.</b> Produce an end-to-end product blueprint covering vision, personas, journeys, user stories and a 3-release story map.</div>
+              <div><b>Scope.</b> MVP in 6 months, team of 18. Must include household, senior-citizen accessibility, and ops personas.</div>
+              <div><b>Constraints.</b> Compare Blinkit/Zepto/Instamart. Explicit differentiation on: (a) QC-verified produce, (b) senior-friendly UX, (c) transparent price locking.</div>
+              <div><b>Output format.</b> Markdown. Sections: 1. Problem, 2. Personas (≥4, incl. 1 primary, 1 senior, 1 ops), 3. Journey map, 4. User stories (≥15 w/ MoSCoW + points), 5. 3-release story map, 6. Risks.</div>
+              <div><b>Quality bar.</b> Each user story must include Given/When/Then. Each release lane must have items spanning every journey activity.</div>
+              <div><b>Tone.</b> Crisp, PM-native, evidence-led.</div>
+            </div>
+            <div className="flex items-center gap-2 text-[11px] text-slate-500"><Icon name="sparkles" className="w-3.5 h-3.5 text-indigo-500"/>Prompt scored 0.92 · sends to <b className="text-slate-800">Research Tool</b> next.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/*─────────────────────────────────────────────────────────────────────
+  SCREEN 11 — RELEASE ROADMAP / IRON TRIANGLE
+─────────────────────────────────────────────────────────────────────*/
+function Screen_Roadmap(){
+  return (
+    <AppShell activeModule="backlog" moduleName="Release Roadmap" hideRight={true}>
+      <div className="p-6 overflow-auto h-full">
+        <div className="flex items-center gap-1 mb-3 bg-white border border-slate-200 rounded-xl p-1 w-fit">
+          {["Backlog","Roadmap","Releases","Iron Triangle"].map((t,i)=>(
+            <div key={t} className={cls("px-3.5 py-1.5 rounded-lg text-xs font-medium", i===1?"bg-indigo-50 text-indigo-700":"text-slate-500")}>{t}</div>
+          ))}
+        </div>
+        <div className="text-xl font-bold text-slate-900 mb-2">Release Roadmap · 26 Weeks</div>
+        <div className="text-[12px] text-slate-500 mb-4">Drag release boundaries. Iron Triangle flags over-constrained releases automatically.</div>
+        <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-card">
+          <div className="grid grid-cols-[120px_1fr] gap-2 text-[12px]">
+            <div className="font-semibold">Weeks</div>
+            <div className="grid grid-cols-26 gap-[2px]">{Array.from({length:26}).map((_,i)=><div key={i} className="text-[9px] text-slate-400 text-center">{i+1}</div>)}</div>
+            <div className="font-semibold">MVP (R1)</div>
+            <div className="h-8 grid grid-cols-26 gap-[2px]">{Array.from({length:26}).map((_,i)=>(
+              <div key={i} className={i<10?"bg-emerald-400 rounded":"bg-slate-100 rounded"}></div>
+            ))}</div>
+            <div className="font-semibold">R2</div>
+            <div className="h-8 grid grid-cols-26 gap-[2px]">{Array.from({length:26}).map((_,i)=>(
+              <div key={i} className={i>=10&&i<18?"bg-sky-400 rounded":"bg-slate-100 rounded"}></div>
+            ))}</div>
+            <div className="font-semibold">R3</div>
+            <div className="h-8 grid grid-cols-26 gap-[2px]">{Array.from({length:26}).map((_,i)=>(
+              <div key={i} className={i>=18?"bg-amber-400 rounded":"bg-slate-100 rounded"}></div>
+            ))}</div>
+          </div>
+          <div className="grid grid-cols-3 gap-3 mt-5">
+            {[
+              { name:"MVP (R1)", w:"10w", s:"28 pts", c:"Committed", col:"emerald", risk:"Low" },
+              { name:"R2", w:"8w", s:"26 pts", c:"Planning", col:"sky", risk:"Medium" },
+              { name:"R3", w:"8w", s:"19 pts", c:"Roadmap", col:"amber", risk:"Low" }
+            ].map(r=>(
+              <div key={r.name} className={cls("rounded-xl p-4 border", "bg-"+r.col+"-50 border-"+r.col+"-200")}>
+                <div className="flex items-center justify-between">
+                  <div className="font-semibold">{r.name}</div>
+                  <span className={"chip chip-muted"}>{r.c}</span>
+                </div>
+                <div className="mt-2 grid grid-cols-3 text-center gap-1 text-[12px]">
+                  <div><div className="text-[10px] text-slate-500">Duration</div><div className="font-bold">{r.w}</div></div>
+                  <div><div className="text-[10px] text-slate-500">Scope</div><div className="font-bold">{r.s}</div></div>
+                  <div><div className="text-[10px] text-slate-500">Risk</div><div className="font-bold">{r.risk}</div></div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4 mt-5">
+          {/* Iron Triangle */}
+          <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-card">
+            <div className="font-semibold text-slate-900 mb-3">Iron Triangle · R2 is over-constrained</div>
+            <div className="relative h-[220px]">
+              <svg viewBox="0 0 200 180" className="w-full h-full">
+                <polygon points="100,15 15,170 185,170" fill="none" stroke="#6366F1" strokeWidth="2"/>
+                <text x="100" y="10" textAnchor="middle" className="text-[10px] fill-slate-700 font-semibold">Scope (↑26pts)</text>
+                <text x="10" y="180" textAnchor="middle" className="text-[10px] fill-slate-700 font-semibold">Time (8w)</text>
+                <text x="190" y="180" textAnchor="middle" className="text-[10px] fill-slate-700 font-semibold">Cost (18 heads)</text>
+                <circle cx="100" cy="90" r="28" fill="#FEE2E2" stroke="#EF4444"/>
+                <text x="100" y="93" textAnchor="middle" className="fill-red-700 font-semibold text-[10px]">At risk</text>
+              </svg>
+            </div>
+            <div className="text-[11px] text-slate-600 mt-2">Formula: Scope × Time × Quality vs. Cost — if ratio &gt; 1.15, flag red. Drop 2 Shoulds or extend by 1 week.</div>
+          </div>
+          {/* KPIs */}
+          <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-card">
+            <div className="font-semibold text-slate-900 mb-3">Success KPIs (boundary conditions)</div>
+            <table className="w-full text-[12px]">
+              <thead><tr className="text-left text-[10px] uppercase text-slate-500"><th className="p-1">Metric</th><th className="p-1">Min</th><th className="p-1">Target</th><th className="p-1">Max</th></tr></thead>
+              <tbody>
+                {[
+                  ["Repeat rate (60d)","45%","65%","85%"],
+                  ["On-time (2h SLA)","85%","92%","98%"],
+                  ["QC rejection","—","&lt; 2%","3.5%"],
+                  ["NPS","30","50","70"],
+                  ["Orders/week (Q4)","6k","10k","14k"]
+                ].map((r,i)=>(
+                  <tr key={i} className="border-t border-slate-100">
+                    <td className="p-1.5">{r[0]}</td>
+                    <td className="p-1.5 text-slate-500">{r[1]}</td>
+                    <td className="p-1.5 font-semibold" dangerouslySetInnerHTML={{__html:r[2]}}></td>
+                    <td className="p-1.5 text-slate-500">{r[3]}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </AppShell>
+  );
+}
+
+/*─────────────────────────────────────────────────────────────────────
+  SCREEN 12 — EMPTY STATE / NEW PROJECT
+─────────────────────────────────────────────────────────────────────*/
+function Screen_Empty(){
+  return (
+    <div className="h-[850px] bg-white flex items-center justify-center p-10">
+      <div className="max-w-2xl w-full text-center">
+        <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl gradient-ind text-white font-bold text-3xl">R</div>
+        <div className="text-3xl font-bold text-slate-900 mt-5">Start a new Product OS workspace</div>
+        <div className="text-slate-600 mt-2">Kick off with a prompt, and RPOS will scaffold personas, stories and a PRD for you. You can always edit later.</div>
+        <div className="mt-8 bg-slate-50 border border-slate-200 rounded-2xl p-6 text-left">
+          <div className="text-[11px] uppercase font-semibold text-slate-500">What are you building?</div>
+          <textarea className="w-full mt-2 border border-slate-200 rounded-lg p-3 text-sm" rows={4} defaultValue="A 2-hour grocery delivery platform for Indian households. Senior-friendly. Launch in Pune + Mumbai with 6-month MVP."></textarea>
+          <div className="flex flex-wrap gap-2 mt-3">
+            <span className="chip chip-ind">MVP in 6 months</span>
+            <span className="chip chip-ind">Team: 18</span>
+            <span className="chip chip-ind">Competitors: Blinkit, Zepto, Instamart</span>
+            <span className="chip chip-muted">+ add context</span>
+          </div>
+        </div>
+        <div className="mt-6 flex items-center justify-center gap-3">
+          <button className="px-4 py-2 rounded-lg bg-slate-100 text-slate-700 text-sm">Import existing docs</button>
+          <button className="px-5 py-2.5 rounded-lg bg-indigo-600 text-white font-semibold text-sm inline-flex items-center gap-2"><Icon name="sparkles" className="w-4 h-4"/>Scaffold workspace →</button>
+        </div>
+        <div className="mt-8 text-[11px] text-slate-400">Under the hood: Prompt Tool (A1) → Research Tool (A2) → PM Architecture (A3) → Figma (A4).</div>
+      </div>
+    </div>
+  );
+}
+
+/*─────────────────────────────────────────────────────────────────────
+  SCREEN REGISTRY
+─────────────────────────────────────────────────────────────────────*/
+const SCREENS = [
+  { id:"dashboard", group:"Home", name:"Dashboard", desc:"Landing · projects, KPIs, agent pipeline, quick start", component:Screen_Dashboard },
+  { id:"empty", group:"Home", name:"New Project", desc:"Empty state · prompt-first scaffold", component:Screen_Empty },
+  { id:"personas", group:"Workspace", name:"Personas", desc:"6 personas w/ empathy maps", component:Screen_Personas },
+  { id:"stories", group:"Workspace", name:"User Stories", desc:"Story list with AC expansion", component:Screen_Stories },
+  { id:"strategy", group:"Workspace", name:"Strategy", desc:"Vision · Value Prop · Goals · North Star", component:Screen_Strategy },
+  { id:"backlog", group:"Workspace", name:"Backlog (Kanban)", desc:"4-column kanban, 20 items", component:Screen_Backlog },
+  { id:"storymap", group:"Workspace", name:"Story Map", desc:"Journey × MVP/R2/R3 swimlanes", component:Screen_StoryMap },
+  { id:"roadmap", group:"Workspace", name:"Release Roadmap", desc:"26-week plan + Iron Triangle + KPIs", component:Screen_Roadmap },
+  { id:"prd", group:"Output", name:"Live PRD (present)", desc:"Full-screen PRD with live personas/stories", component:Screen_PRD },
+  { id:"export", group:"Output", name:"Export Dialog", desc:"BRD/PRD/Deck/Backlog multi-format", component:Screen_Export },
+  { id:"agents", group:"Architecture", name:"Agent Pipeline", desc:"The 4 agents and shared workspace", component:Screen_Agents },
+  { id:"prompt", group:"Architecture", name:"Prompt Tool (A1)", desc:"Input form → generated prompt preview", component:Screen_PromptTool }
+];
+
+/*─────────────────────────────────────────────────────────────────────
+  FIGMA-STYLE BROWSER SHELL
+─────────────────────────────────────────────────────────────────────*/
+function Browser(){
+  const [active, setActive] = useState("dashboard");
+  const [zoom, setZoom] = useState(0.78);
+  const cur = SCREENS.find(s=>s.id===active);
+  const Cur = cur.component;
+  const groups = Array.from(new Set(SCREENS.map(s=>s.group)));
+
+  // Keyboard nav
+  useEffect(()=>{
+    const h = (e)=>{
+      if (e.key==="ArrowRight" || e.key==="j") {
+        const i = SCREENS.findIndex(s=>s.id===active);
+        setActive(SCREENS[(i+1)%SCREENS.length].id);
+      } else if (e.key==="ArrowLeft" || e.key==="k") {
+        const i = SCREENS.findIndex(s=>s.id===active);
+        setActive(SCREENS[(i-1+SCREENS.length)%SCREENS.length].id);
+      } else if (e.key==="+") setZoom(z=>Math.min(1.1, z+0.05));
+      else if (e.key==="-") setZoom(z=>Math.max(0.4, z-0.05));
+      else if (e.key==="0") setZoom(0.78);
+    };
+    window.addEventListener("keydown", h);
+    return ()=>window.removeEventListener("keydown", h);
+  },[active]);
+
+  return (
+    <div className="flex h-full">
+      {/* Left — Screens panel */}
+      <aside className="w-72 bg-[#0f1218] border-r border-white/5 flex flex-col shrink-0">
+        <div className="p-4 border-b border-white/5">
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 rounded-lg gradient-ind text-white font-bold flex items-center justify-center text-xs">R</div>
+            <div>
+              <div className="font-semibold text-sm text-white">RPOS · Visual Mock</div>
+              <div className="text-[10px] text-slate-400">Rutu's Product OS · clickable screens</div>
+            </div>
+          </div>
+          <div className="mt-3 relative">
+            <Icon name="search" className="w-3.5 h-3.5 absolute top-1/2 -translate-y-1/2 left-2 text-slate-500"/>
+            <input placeholder="Search screens…" className="w-full pl-7 pr-2 py-1.5 text-xs rounded bg-[#1a1f27] text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"/>
+          </div>
+        </div>
+        <div className="flex-1 overflow-auto scroll-thin px-2 py-3">
+          {groups.map(g=>(
+            <div key={g} className="mb-4">
+              <div className="px-2 py-1 text-[10px] font-bold uppercase tracking-widest text-slate-500">{g}</div>
+              <div className="mt-1 space-y-0.5">
+                {SCREENS.filter(s=>s.group===g).map(s=>(
+                  <button key={s.id} onClick={()=>setActive(s.id)}
+                    className={cls("screen-card w-full text-left px-2 py-1.5 rounded-md text-[12px]", active===s.id?"active text-white":"text-slate-300")}>
+                    <div className="flex items-center gap-2">
+                      <span className="w-4 h-4 rounded-sm border border-white/10 bg-white/5"></span>
+                      <div className="flex-1 min-w-0">
+                        <div className="font-medium truncate">{s.name}</div>
+                        <div className="text-[10px] text-slate-500 truncate">{s.desc}</div>
+                      </div>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+        <div className="border-t border-white/5 p-3 text-[10px] text-slate-500 leading-relaxed">
+          <div>Use <span className="kbd">←</span> <span className="kbd">→</span> to navigate.</div>
+          <div><span className="kbd">+</span>/<span className="kbd">−</span> zoom · <span className="kbd">0</span> reset.</div>
+        </div>
+      </aside>
+
+      {/* Center — canvas */}
+      <div className="flex-1 canvas-bg dot-bg flex flex-col min-w-0">
+        <div className="h-11 border-b border-white/5 flex items-center px-4 gap-3 text-slate-300 text-xs">
+          <div className="flex items-center gap-2">
+            <button onClick={()=>{const i=SCREENS.findIndex(s=>s.id===active);setActive(SCREENS[(i-1+SCREENS.length)%SCREENS.length].id)}} className="w-7 h-7 rounded bg-white/5 hover:bg-white/10 flex items-center justify-center"><Icon name="chevron" className="w-3.5 h-3.5 rotate-180"/></button>
+            <button onClick={()=>{const i=SCREENS.findIndex(s=>s.id===active);setActive(SCREENS[(i+1)%SCREENS.length].id)}} className="w-7 h-7 rounded bg-white/5 hover:bg-white/10 flex items-center justify-center"><Icon name="chevron" className="w-3.5 h-3.5"/></button>
+          </div>
+          <div className="font-medium text-slate-200">{cur.name}</div>
+          <div className="text-slate-500">·</div>
+          <div className="text-slate-500 truncate flex-1">{cur.desc}</div>
+          <div className="flex items-center gap-1 ml-auto">
+            <button onClick={()=>setZoom(z=>Math.max(0.4,z-0.05))} className="w-7 h-7 rounded bg-white/5 hover:bg-white/10 flex items-center justify-center">−</button>
+            <div className="w-14 text-center text-[11px] font-mono">{Math.round(zoom*100)}%</div>
+            <button onClick={()=>setZoom(z=>Math.min(1.1,z+0.05))} className="w-7 h-7 rounded bg-white/5 hover:bg-white/10 flex items-center justify-center">+</button>
+            <button onClick={()=>setZoom(0.78)} className="px-2 h-7 rounded bg-white/5 hover:bg-white/10 text-[11px]">Fit</button>
+          </div>
+        </div>
+        <div className="flex-1 overflow-auto scroll-thin p-8 flex items-start justify-center">
+          <div style={{transform:`scale(${zoom})`, transformOrigin:"top center"}} className="transition-transform">
+            <div style={{width:1440}} className="rounded-xl overflow-hidden">
+              <Frame title={"rpos.app · " + cur.name}>
+                <Cur />
+              </Frame>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Right — inspector */}
+      <aside className="w-72 bg-[#0f1218] border-l border-white/5 flex flex-col shrink-0">
+        <div className="p-4 border-b border-white/5 text-[11px] uppercase tracking-widest text-slate-500">Inspector</div>
+        <div className="p-4 text-slate-300 text-[12px] space-y-3">
+          <div>
+            <div className="text-[10px] uppercase text-slate-500">Screen</div>
+            <div className="font-semibold text-white">{cur.name}</div>
+            <div className="text-[11px] text-slate-400">{cur.group}</div>
+          </div>
+          <div>
+            <div className="text-[10px] uppercase text-slate-500">Purpose</div>
+            <div>{cur.desc}</div>
+          </div>
+          <div>
+            <div className="text-[10px] uppercase text-slate-500">Dimensions</div>
+            <div className="font-mono">1440 × 900</div>
+          </div>
+          <div>
+            <div className="text-[10px] uppercase text-slate-500">Design tokens</div>
+            <div className="flex gap-1 mt-1">
+              <div className="w-5 h-5 rounded border border-white/10" style={{background:"#6366F1"}} title="Accent"></div>
+              <div className="w-5 h-5 rounded border border-white/10" style={{background:"#22D3EE"}} title="Accent 2"></div>
+              <div className="w-5 h-5 rounded border border-white/10" style={{background:"#0B1020"}} title="Ink"></div>
+              <div className="w-5 h-5 rounded border border-white/10" style={{background:"#F6F7FB"}} title="Surface"></div>
+              <div className="w-5 h-5 rounded border border-white/10" style={{background:"#10B981"}} title="Good"></div>
+              <div className="w-5 h-5 rounded border border-white/10" style={{background:"#F59E0B"}} title="Warn"></div>
+              <div className="w-5 h-5 rounded border border-white/10" style={{background:"#EF4444"}} title="Bad"></div>
+            </div>
+          </div>
+          <div>
+            <div className="text-[10px] uppercase text-slate-500">Fonts</div>
+            <div>Inter · system-ui fallback</div>
+          </div>
+          <div>
+            <div className="text-[10px] uppercase text-slate-500">Data source</div>
+            <div>CSPO Grocery Online · seed v1</div>
+          </div>
+          <div>
+            <div className="text-[10px] uppercase text-slate-500">Notes</div>
+            <div className="text-slate-400">Static mock for stakeholder walk-through. The working prototype lives in <span className="font-mono text-white">RPOS_Prototype.html</span>.</div>
+          </div>
+        </div>
+        <div className="mt-auto p-4 border-t border-white/5">
+          <a href="RPOS_Prototype.html" className="block w-full text-center px-3 py-2 rounded-lg bg-indigo-600 text-white text-sm font-semibold">Open working prototype →</a>
+        </div>
+      </aside>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<Browser />);
+</script>
+</body>
+</html>

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Self-serve analytics for 20,000+ billers | Ruturaj Sahasrabudhe</title>
+<meta name="description" content="Case study: first biller-facing analytics surface on India's interoperable bill-payments network. 150x adoption growth in 12 months.">
+<style>
+:root{--navy:#15243b;--ink:#1f2430;--mut:#68707e;--bg:#f6f7f9;--card:#fff;--acc:#2f6fb2}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--ink);line-height:1.65}
+.top{background:var(--navy);color:#fff;padding:14px 0}
+.top .in{max-width:760px;margin:0 auto;padding:0 20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+.top a{color:#cfd8e6;text-decoration:none;font-size:13.5px}
+.top a:hover{color:#fff}
+.top .name{font-weight:650;font-size:15px;color:#fff}
+article{max-width:760px;margin:28px auto 10px;padding:30px 34px;background:var(--card);border-radius:10px;box-shadow:0 1px 3px rgba(0,0,0,.07)}
+h1{font-size:26px;line-height:1.25;margin-bottom:10px}
+h2{font-size:18px;margin:26px 0 8px}
+p{margin:11px 0}
+em{color:var(--mut)}
+ul{margin:10px 0 10px 22px}
+li{margin:5px 0}
+hr{border:none;border-top:1px solid #e7eaee;margin:22px 0}
+strong{font-weight:650}
+a{color:var(--acc)}
+.actions{max-width:760px;margin:0 auto;padding:0 0 8px;display:flex;gap:10px;flex-wrap:wrap}
+.btn{display:inline-block;background:var(--acc);color:#fff;text-decoration:none;font-size:14px;font-weight:550;padding:9px 16px;border-radius:7px}
+.btn.ghost{background:#e8eef5;color:var(--acc)}
+footer{max-width:760px;margin:8px auto 34px;padding:0 20px;font-size:13px;color:var(--mut);text-align:center}
+@media(max-width:800px){article{margin:16px 12px;padding:22px 20px}.actions{padding:0 12px 8px}}
+</style>
+</head>
+<body>
+<div class="top"><div class="in"><span class="name">Ruturaj Sahasrabudhe</span><span><a href="index.html">Home</a>&nbsp;&nbsp;&nbsp;<a href="https://www.linkedin.com/in/ruturajsahasrabudhe">LinkedIn</a>&nbsp;&nbsp;&nbsp;<a href="mailto:ruturaj.mms@gmail.com">Email</a></span></div></div>
+<article>
+<h1>Case study: Self-serve analytics for 20,000+ billers</h1>
+<p><em>Product owner, Biller Analytics Dashboard, NPCI Bharat Billpay (NBBL), 2022-2025. Adoption figures below are aggregate metrics; the linked demo reproduces no NBBL data or designs.</em></p>
+<h2>Context</h2>
+<p>Bharat Connect (formerly Bharat Billpay / BBPS) is India&#x27;s interoperable bill-payments network: 20,000+ billers across 30 categories collecting through a central platform that sits between customer-side and biller-side operating units. The billers - electricity boards, telcos, insurers, lenders, universities - had no analytics tool at all for their collections through the network. A biller&#x27;s operations team could not see its own volumes, decline patterns, or complaint load without asking someone.</p>
+<h2>The product problem</h2>
+<p>The hard part was not building charts. It was choosing metrics that drive action across 30 categories of wildly different sophistication - a state utility and a fintech-native lender cannot be judged on the same baseline, and a vanity dashboard would die quietly. The metric set shipped: transaction volume, collections value, technical decline rate, business decline rate, and complaint counts.</p>
+<p>The decline split is the design decision I defend hardest. <strong>Technical declines</strong> (gateway failures, timeouts, connectivity) are the platform side&#x27;s job to fix. <strong>Business declines</strong> (validation failures, fetch mismatches, customer-side issues) belong to the biller&#x27;s own funnel. One metric split into two tells every viewer whose move it is - that is what turns a report into a routing mechanism.</p>
+<h2>Design choices</h2>
+<ul>
+<li><strong>Self-serve over reports-on-request.</strong> Each biller&#x27;s SPOC logs in and sees their own numbers. The alternative - a central team fielding 20,000 billers&#x27; report requests - does not scale and was the status quo failing.</li>
+<li><strong>Benchmark within category, not across the network.</strong> Mix differences would otherwise make every comparison misleading.</li>
+<li><strong>Normalise complaints per transaction</strong>, not raw counts, so big categories do not automatically look worst.</li>
+</ul>
+<h2>Outcome</h2>
+<ul>
+<li>~50,000 monthly active users at ~30-minute average session length</li>
+<li>Analytics report downloads grew from ~100 in month 1 to ~15,000 monthly by month 12 - 150x adoption growth</li>
+<li>First biller-facing analytics surface in the network&#x27;s history, replacing zero prior visibility</li>
+</ul>
+<h2>Interactive demo</h2>
+<p>A working demonstration of this product thinking - same metric architecture, fully synthetic data - is available as a single-file interactive dashboard: <a href="biller-demo.html">the interactive demo</a>. Filters, category benchmarks, and the technical-vs-business decline split are all live in the demo.</p>
+<hr>
+<p><em>Ruturaj Sahasrabudhe | ruturaj.mms@gmail.com | linkedin.com/in/ruturajsahasrabudhe</em></p>
+</article>
+<div class="actions"><a class="btn" href="biller-demo.html">Open the interactive demo</a></div>
+<footer>Ruturaj Sahasrabudhe · Product Manager, Payments and Fintech · Mumbai, India<br>All client and platform material on this site is public, aggregate, or synthetic.</footer>
+</body>
+</html>
