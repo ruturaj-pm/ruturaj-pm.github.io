@@ -1,67 +1,662 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ruturaj Sahasrabudhe - Product Case Studies</title>
-<meta name="description" content="Payments and fintech product manager. Case studies and working prototypes: agent-assisted PM tooling, biller analytics at national scale, insurance reconciliation.">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ruturaj Sahasrabudhe | Product Manager, Payments &amp; Fintech</title>
+<meta name="description" content="Payments product manager building at population scale: national bill-payment rails, acquiring operations, reconciliation, and working product prototypes.">
+<meta property="og:title" content="Ruturaj Sahasrabudhe | Product Manager, Payments &amp; Fintech">
+<meta property="og:description" content="An interactive tour through payment rails, reconciliation, and analytics at national scale - with working prototypes.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230d1726'/%3E%3Ctext x='32' y='42' font-family='Arial' font-size='26' font-weight='bold' fill='%23ffffff' text-anchor='middle'%3ERS%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,620&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-:root{--navy:#15243b;--ink:#1f2430;--mut:#68707e;--bg:#f6f7f9;--card:#fff;--acc:#2f6fb2}
+:root{
+  --night:#0d1726; --night2:#0f1b2e; --ink:#1c2230; --mut:#68707e;
+  --bg:#f7f8fa; --card:#ffffff;
+  --blue:#3b7cc4; --blue-deep:#2f6fb2; --blue-soft:#e8eef5;
+  --sand:#c89a5e; --sand-soft:#f6efe2;
+  --radius:14px;
+}
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--ink);line-height:1.6}
-.hero{background:var(--navy);color:#fff;padding:46px 20px 40px}
-.hero .in{max-width:860px;margin:0 auto}
-.hero h1{font-size:30px;margin-bottom:6px}
-.hero .role{font-size:15.5px;color:#aebed4;font-weight:550;margin-bottom:14px}
-.hero p{max-width:640px;font-size:15px;color:#d7dfeb}
-.hero .links{margin-top:16px;display:flex;gap:14px;flex-wrap:wrap}
-.hero .links a{color:#fff;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);text-decoration:none;font-size:13.5px;padding:7px 14px;border-radius:7px}
-.hero .links a:hover{background:rgba(255,255,255,.2)}
-main{max-width:860px;margin:30px auto;padding:0 20px}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
-.card{background:var(--card);border-radius:10px;padding:22px 24px;box-shadow:0 1px 3px rgba(0,0,0,.07);display:flex;flex-direction:column}
-.card .tag{font-size:11.5px;text-transform:uppercase;letter-spacing:.6px;color:var(--mut);margin-bottom:6px}
-.card h2{font-size:17.5px;margin-bottom:8px;line-height:1.3}
-.card p{font-size:14px;color:#3c4554;flex:1}
-.card .go{margin-top:14px;display:flex;gap:8px;flex-wrap:wrap}
-.card .go a{font-size:13.5px;font-weight:550;color:var(--acc);text-decoration:none;background:#e8eef5;padding:7px 12px;border-radius:6px}
-.card .go a.primary{background:var(--acc);color:#fff}
-.note{margin:26px 0 0;font-size:13px;color:var(--mut)}
-footer{max-width:860px;margin:26px auto 38px;padding:0 20px;font-size:13px;color:var(--mut)}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--ink);line-height:1.65;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+h1,h2,.display{font-family:'Fraunces',Georgia,serif}
+a{color:var(--blue-deep)}
+.wrap{max-width:1020px;margin:0 auto;padding:0 24px}
+
+/* ---------- nav ---------- */
+nav{position:fixed;top:0;left:0;right:0;z-index:90;transition:background .35s,box-shadow .35s,backdrop-filter .35s}
+nav .in{max-width:1020px;margin:0 auto;padding:16px 24px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+nav .brand{font-weight:700;font-size:15px;color:#fff;text-decoration:none;letter-spacing:.3px;transition:color .35s}
+nav .links{display:flex;gap:20px;flex-wrap:wrap}
+nav .links a{font-size:13px;font-weight:600;color:rgba(255,255,255,.75);text-decoration:none;transition:color .2s}
+nav .links a:hover{color:#fff}
+nav.solid{background:rgba(247,248,250,.88);backdrop-filter:blur(12px);box-shadow:0 1px 0 rgba(28,34,48,.08)}
+nav.solid .brand{color:var(--night)}
+nav.solid .links a{color:var(--mut)}
+nav.solid .links a:hover{color:var(--night)}
+
+/* ---------- hero ---------- */
+.hero{position:relative;min-height:100svh;background:radial-gradient(1200px 700px at 70% 20%, #14233c 0%, var(--night) 55%);color:#fff;display:flex;align-items:center;overflow:hidden}
+.hero canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.hero .veil{position:absolute;inset:0;background:radial-gradient(700px 420px at 30% 60%, rgba(13,23,38,.0), rgba(13,23,38,.55) 75%)}
+.hero .in{position:relative;z-index:2;padding:120px 0 90px;width:100%}
+.kicker{display:inline-flex;align-items:center;gap:10px;font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#9fb4cf;margin-bottom:22px}
+.kicker::before{content:"";width:34px;height:2px;background:linear-gradient(90deg,var(--blue),var(--sand))}
+.hero h1{font-size:clamp(38px,6.4vw,68px);font-weight:620;line-height:1.06;letter-spacing:-.5px;max-width:13ch}
+.hero h1 .grad{background:linear-gradient(92deg,#7db4e8 10%,var(--sand) 90%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero .sub{margin-top:22px;max-width:520px;font-size:16px;color:#c2cfdf}
+.hero .cta{margin-top:34px;display:flex;gap:14px;flex-wrap:wrap}
+.btn{display:inline-block;text-decoration:none;font-size:14px;font-weight:600;padding:12px 22px;border-radius:10px;transition:transform .22s,box-shadow .22s,background .22s}
+.btn.light{background:#fff;color:var(--night)}
+.btn.line{border:1px solid rgba(255,255,255,.35);color:#fff}
+.btn:hover{transform:translateY(-2px);box-shadow:0 10px 26px rgba(0,0,0,.35)}
+.hero .meta{margin-top:30px;font-size:13px;color:#8fa3bd}
+.scrollcue{position:absolute;left:50%;bottom:26px;transform:translateX(-50%);z-index:2;width:22px;height:36px;border:2px solid rgba(255,255,255,.35);border-radius:12px}
+.scrollcue::after{content:"";position:absolute;left:50%;top:7px;width:4px;height:8px;border-radius:2px;background:#fff;transform:translateX(-50%);animation:cue 1.8s infinite}
+@keyframes cue{0%{opacity:0;top:6px}30%{opacity:1}100%{opacity:0;top:18px}}
+
+/* ---------- intro / stats ---------- */
+.intro{padding:84px 0 30px}
+.intro .grid{display:grid;grid-template-columns:300px 1fr;gap:46px;align-items:center}
+.pic{width:100%;max-width:300px;border-radius:24px;object-fit:cover;box-shadow:0 18px 44px rgba(13,23,38,.22);outline:6px solid #fff}
+.intro h2{font-size:clamp(24px,3vw,32px);font-weight:620;color:var(--night);margin-bottom:14px;line-height:1.2}
+.intro p{font-size:15.5px;color:#39414f;max-width:56ch}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-top:30px}
+.stat{background:var(--card);border-radius:var(--radius);padding:18px 20px;box-shadow:0 1px 3px rgba(0,0,0,.06);position:relative;overflow:hidden}
+.stat::after{content:"";position:absolute;left:0;bottom:0;height:3px;width:0;background:linear-gradient(90deg,var(--blue),var(--sand));transition:width 1.2s ease .3s}
+.visible .stat::after{width:100%}
+.stat .n{font-size:27px;font-weight:800;color:var(--night)}
+.stat .n .unit{font-size:17px;font-weight:700;color:var(--blue-deep)}
+.stat .l{font-size:12.5px;color:var(--mut);margin-top:2px}
+
+/* ---------- work panels ---------- */
+.work{padding:70px 0 20px}
+.sectionhead{margin-bottom:34px}
+.sectionhead .eyebrow{font-size:12px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:var(--sand)}
+.sectionhead h2{font-size:clamp(26px,3.4vw,36px);font-weight:620;color:var(--night);margin-top:6px}
+.panel{display:grid;grid-template-columns:1.05fr .95fr;gap:44px;align-items:center;padding:44px 0;border-top:1px solid #e7eaef}
+.panel:first-of-type{border-top:none}
+.panel.flip .viz{order:-1}
+.panel .num{font-family:'Fraunces',serif;font-size:15px;color:var(--sand);font-weight:620;letter-spacing:1px}
+.panel h3{font-family:'Fraunces',serif;font-size:clamp(21px,2.6vw,27px);font-weight:620;color:var(--night);margin:6px 0 10px;line-height:1.25}
+.panel p{font-size:14.5px;color:#39414f;max-width:48ch}
+.panel .go{margin-top:18px;display:flex;gap:10px;flex-wrap:wrap}
+.panel .go a{font-size:13px;font-weight:600;color:var(--blue-deep);text-decoration:none;background:var(--blue-soft);padding:8px 14px;border-radius:8px;transition:filter .2s}
+.panel .go a.primary{background:var(--blue-deep);color:#fff}
+.panel .go a:hover{filter:brightness(.95)}
+.viz{background:var(--card);border-radius:18px;box-shadow:0 10px 34px rgba(13,23,38,.10);padding:26px;min-height:230px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+
+/* viz 1: RPOS live PRD */
+.prd{width:100%;max-width:330px}
+.prd .bar{height:10px;border-radius:6px;background:#e7ecf2;margin:10px 0;position:relative;overflow:hidden}
+.prd .bar::after{content:"";position:absolute;left:0;top:0;bottom:0;width:0;border-radius:6px;background:linear-gradient(90deg,var(--blue),#7db4e8)}
+.visible .prd .bar::after{animation:fillbar 1.1s ease forwards}
+.visible .prd .bar.b2::after{animation-delay:.25s;background:linear-gradient(90deg,#7db4e8,var(--sand))}
+.visible .prd .bar.b3::after{animation-delay:.5s}
+.visible .prd .bar.b4::after{animation-delay:.75s;background:linear-gradient(90deg,#7db4e8,var(--sand))}
+@keyframes fillbar{to{width:var(--w,80%)}}
+.prd .tag-row{display:flex;gap:8px;margin-top:14px}
+.prd .mini{font-size:11px;font-weight:700;color:var(--blue-deep);background:var(--blue-soft);border-radius:14px;padding:3px 10px;opacity:0;transform:translateY(6px);transition:opacity .5s 1s,transform .5s 1s}
+.visible .prd .mini{opacity:1;transform:none}
+.prd .cap{font-size:11.5px;color:var(--mut);margin-top:14px;text-align:center}
+
+/* viz 2: sparkline */
+.sparkwrap{width:100%;max-width:340px;text-align:center}
+.sparkwrap svg{width:100%;height:auto}
+.spark{fill:none;stroke:url(#sg);stroke-width:3;stroke-linecap:round;stroke-dasharray:560;stroke-dashoffset:560}
+.visible .spark{animation:draw 1.6s ease forwards .2s}
+@keyframes draw{to{stroke-dashoffset:0}}
+.sparkdot{fill:var(--sand);opacity:0}
+.visible .sparkdot{animation:pop .4s ease forwards 1.7s}
+@keyframes pop{from{opacity:0;r:0}to{opacity:1;r:5}}
+.bigx{font-family:'Fraunces',serif;font-size:30px;font-weight:620;color:var(--night);opacity:0;transform:scale(.8);transition:opacity .5s 1.8s,transform .5s 1.8s}
+.visible .bigx{opacity:1;transform:none}
+.sparkwrap .cap{font-size:11.5px;color:var(--mut);margin-top:6px}
+
+/* viz 3: 3-way recon match */
+.recon{width:100%;max-width:340px;height:210px;position:relative}
+.recon .src{position:absolute;display:flex;flex-direction:column;align-items:center;gap:6px;font-size:11px;font-weight:600;color:var(--mut)}
+.recon .src .dot{width:16px;height:16px;border-radius:50%}
+.recon .s1{left:6%;top:8%}.recon .s1 .dot{background:var(--blue)}
+.recon .s2{right:6%;top:8%}.recon .s2 .dot{background:var(--sand)}
+.recon .s3{left:50%;bottom:4%;transform:translateX(-50%)}.recon .s3 .dot{background:#55a868}
+.recon .mover{position:absolute;width:10px;height:10px;border-radius:50%;opacity:0}
+.recon .m1{background:var(--blue);left:9%;top:16%}
+.recon .m2{background:var(--sand);right:9%;top:16%}
+.recon .m3{background:#55a868;left:49%;bottom:13%}
+.visible .recon .m1{animation:goc1 1.2s ease forwards .3s}
+.visible .recon .m2{animation:goc2 1.2s ease forwards .45s}
+.visible .recon .m3{animation:goc3 1.2s ease forwards .6s}
+@keyframes goc1{0%{opacity:0}15%{opacity:1}100%{opacity:0;left:46%;top:44%}}
+@keyframes goc2{0%{opacity:0}15%{opacity:1}100%{opacity:0;right:46%;top:44%}}
+@keyframes goc3{0%{opacity:0}15%{opacity:1}100%{opacity:0;bottom:42%}}
+.recon .lock{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) scale(.6);width:72px;height:72px;border-radius:50%;background:var(--night);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .45s 1.55s,transform .45s 1.55s}
+.visible .recon .lock{opacity:1;transform:translate(-50%,-50%) scale(1)}
+.recon .lock svg{width:34px;height:34px}
+.recon .lock path{stroke:#fff;stroke-width:3;fill:none;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:40;stroke-dashoffset:40}
+.visible .recon .lock path{animation:draw40 .5s ease forwards 2s}
+@keyframes draw40{to{stroke-dashoffset:0}}
+.recon .matched{position:absolute;left:50%;top:calc(50% + 52px);transform:translateX(-50%);font-size:11.5px;font-weight:700;letter-spacing:1.5px;color:#3a8a55;opacity:0;transition:opacity .5s 2.3s}
+.visible .recon .matched{opacity:1}
+
+/* ---------- experience (dark) ---------- */
+.exp{margin-top:70px;background:linear-gradient(180deg,var(--night) 0%,var(--night2) 100%);color:#fff;padding:80px 0 70px;position:relative;overflow:hidden}
+.exp .sectionhead h2{color:#fff}
+.exp .tl{position:relative;margin-left:9px;padding-left:34px}
+.exp .rail{position:absolute;left:0;top:6px;bottom:6px;width:2px;background:rgba(255,255,255,.14)}
+.exp .rail .fill{position:absolute;left:0;top:0;width:100%;height:0;background:linear-gradient(180deg,var(--blue),var(--sand))}
+.exp .job{position:relative;padding-bottom:34px}
+.exp .job::before{content:"";position:absolute;left:-41px;top:6px;width:13px;height:13px;border-radius:50%;background:var(--night);border:3px solid var(--blue)}
+.exp .when{font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--sand)}
+.exp h3{font-size:17px;font-weight:700;margin:3px 0 1px;font-family:'Inter',sans-serif}
+.exp .org{font-size:13.5px;font-weight:600;color:#9fb4cf;margin-bottom:7px}
+.exp p{font-size:14px;color:#c2cfdf;max-width:64ch}
+.exp .chips{margin-top:9px;display:flex;gap:8px;flex-wrap:wrap}
+.exp .chip{font-size:11.5px;font-weight:650;color:#dbe6f3;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);padding:4px 11px;border-radius:16px}
+.exp .chlink{display:inline-block;margin-top:12px;font-size:12.5px;font-weight:700;letter-spacing:.4px;color:#7db4e8;text-decoration:none;transition:color .2s}
+.exp .chlink:hover{color:#fff}
+.exp .chlink::after{content:" \2192"}
+.exp .interlude{position:relative;padding-bottom:30px;font-size:13px;color:#8fa3bd}
+.exp .interlude::before{content:"";position:absolute;left:-39px;top:7px;width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,.25)}
+.exp .interlude .when{font-size:11.5px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#6e87a6;display:block}
+
+/* ---------- horizontal story map ---------- */
+.smap{position:relative}
+.track{position:relative;display:flex;justify-content:space-between;gap:6px;overflow-x:auto;padding:6px 4px 14px;scrollbar-width:thin}
+.tline{position:absolute;left:14px;right:14px;top:32px;height:2px;background:rgba(255,255,255,.16);border-radius:2px}
+.tpulse{position:absolute;top:-3px;left:0;width:8px;height:8px;border-radius:50%;background:linear-gradient(90deg,#7db4e8,var(--sand));box-shadow:0 0 14px rgba(125,180,232,.9);animation:tslide 8s linear infinite}
+@keyframes tslide{from{left:0}to{left:calc(100% - 8px)}}
+.node{display:flex;flex-direction:column;align-items:center;min-width:128px;flex:1;background:none;border:none;cursor:pointer;color:#fff;padding:0 6px;font-family:'Inter',sans-serif}
+.node .yr{font-size:12px;font-weight:700;letter-spacing:1px;color:#8fa3bd;margin-bottom:9px}
+.node .dot{width:16px;height:16px;border-radius:50%;background:var(--night);border:3px solid #5587bf;margin-bottom:10px;position:relative;z-index:2;transition:transform .25s,border-color .25s,box-shadow .25s}
+.node .nm{font-size:13.5px;font-weight:700;line-height:1.25}
+.node .rl{font-size:11.5px;color:#9fb4cf;margin-top:2px}
+.node:hover .dot{transform:scale(1.2)}
+.node.active .dot{border-color:var(--sand);box-shadow:0 0 0 5px rgba(200,154,94,.22);transform:scale(1.25)}
+.node.active .nm{color:var(--sand)}
+.panels{margin-top:16px}
+.chpanel{max-height:0;overflow:hidden;transition:max-height .5s ease}
+.chinner{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:22px 26px;margin-bottom:6px}
+.eyebrow2{font-size:11px;font-weight:700;letter-spacing:1.6px;text-transform:uppercase;color:var(--sand)}
+.chpanel h3{font-family:'Fraunces',Georgia,serif;font-size:20px;font-weight:620;margin:7px 0 4px}
+.chpanel p{font-size:14px;color:#c2cfdf;max-width:72ch;margin:8px 0}
+.chpanel .go{margin-top:12px;display:flex;gap:9px;flex-wrap:wrap}
+.chpanel .go a{font-size:12.5px;font-weight:650;text-decoration:none;color:#dbe6f3;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.16);padding:7px 13px;border-radius:8px;transition:background .2s}
+.chpanel .go a.primary{background:var(--sand);border-color:var(--sand);color:var(--night)}
+.chpanel .go a:hover{filter:brightness(1.1)}
+.smhint{font-size:12px;color:#6e87a6;margin-top:10px;text-align:center}
+@media (prefers-reduced-motion: reduce){.tpulse{display:none}.chpanel{transition:none}.node .dot,.node:hover .dot{transition:none;transform:none}}
+@media (max-width:760px){.track{justify-content:flex-start}.node{min-width:112px;flex:0 0 auto}}
+
+/* ---------- credentials ---------- */
+.creds{padding:74px 0 10px}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
+.panelbox{background:var(--card);border-radius:var(--radius);padding:24px 26px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.panelbox h3{font-size:15px;font-weight:700;color:var(--night);margin-bottom:12px}
+.panelbox ul{margin-left:18px}
+.panelbox li{font-size:13.8px;color:#39414f;margin:7px 0}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font-size:12.5px;font-weight:550;color:#33405a;background:var(--blue-soft);padding:6px 12px;border-radius:18px}
+
+/* ---------- contact ---------- */
+.contactband{position:relative;margin-top:80px;background:var(--night);color:#fff;overflow:hidden}
+.contactband canvas{position:absolute;inset:0;width:100%;height:100%}
+.contactband .in{position:relative;z-index:2;text-align:center;padding:84px 24px}
+.contactband h2{font-size:clamp(28px,4vw,40px);font-weight:620}
+.contactband p{color:#c2cfdf;font-size:15px;max-width:520px;margin:12px auto 26px}
+footer{padding:28px 0 40px;text-align:center;font-size:12.5px;color:var(--mut)}
+
+/* ---------- reveal ---------- */
+.reveal{opacity:0;transform:translateY(26px);transition:opacity .75s ease,transform .75s ease}
+.reveal.visible{opacity:1;transform:none}
+.d1{transition-delay:.08s}.d2{transition-delay:.16s}.d3{transition-delay:.24s}
+
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto}
+  .reveal{opacity:1;transform:none;transition:none}
+  .scrollcue::after{animation:none}
+  .visible .prd .bar::after{animation:none;width:var(--w,80%)}
+  .prd .mini,.bigx{opacity:1;transform:none;transition:none}
+  .spark{animation:none;stroke-dashoffset:0}
+  .sparkdot{animation:none;opacity:1}
+  .visible .recon .m1,.visible .recon .m2,.visible .recon .m3{animation:none;opacity:0}
+  .recon .lock{opacity:1;transform:translate(-50%,-50%) scale(1);transition:none}
+  .recon .lock path{animation:none;stroke-dashoffset:0}
+  .recon .matched{opacity:1;transition:none}
+  .stat::after{transition:none}
+  .visible .stat::after{width:100%}
+  .btn:hover{transform:none}
+}
+@media (max-width:860px){
+  .panel{grid-template-columns:1fr;gap:26px}
+  .panel.flip .viz{order:0}
+  .intro .grid{grid-template-columns:1fr;gap:30px}
+  .pic{max-width:220px}
+  .hero .in{padding:130px 0 110px}
+}
 </style>
 </head>
 <body>
-<div class="hero"><div class="in">
-  <h1>Ruturaj Sahasrabudhe</h1>
-  <div class="role">Product Manager | Payments &amp; Fintech</div>
-  <p>8+ years building payments products at population scale: acquiring operations and reconciliation at a major Indian bank, national bill-payment rails at NPCI Bharat Billpay, and insurance money-in flows. I build working software to think through product problems. The case studies below come from shipped work and running prototypes.</p>
+
+<nav id="nav"><div class="in">
+  <a class="brand" href="#top">Ruturaj Sahasrabudhe</a>
   <div class="links">
-    <a href="mailto:ruturaj.mms@gmail.com">ruturaj.mms@gmail.com</a>
-    <a href="https://www.linkedin.com/in/ruturajsahasrabudhe">LinkedIn</a>
+    <a href="#work">Case studies</a>
+    <a href="#experience">The story</a>
+    <a href="#credentials">Credentials</a>
+    <a href="#contact">Contact</a>
   </div>
-</div></div>
-<main>
+</div></nav>
+
+<header class="hero" id="top">
+  <canvas id="rails" class="rails-canvas"></canvas>
+  <div class="veil"></div>
+  <div class="wrap in">
+    <span class="kicker reveal">Payments · Product · India's rails</span>
+    <h1 class="reveal d1">Building payment products at <span class="grad">population scale</span>.</h1>
+    <p class="sub reveal d2">Eight years across India's payment infrastructure - from acquiring operations and reconciliation inside a major bank to launching products on a national bill-payments network. Every pulse on this page is how I think about money movement: nodes, rails, and proof that the numbers match.</p>
+    <div class="cta reveal d3">
+      <a class="btn light" href="#work">See the work</a>
+      <a class="btn line" href="https://www.linkedin.com/in/ruturajsahasrabudhe">LinkedIn</a>
+    </div>
+    <div class="meta reveal d3">Product Manager | Payments &amp; Fintech · Mumbai, India</div>
+  </div>
+  <div class="scrollcue" aria-hidden="true"></div>
+</header>
+
+<section class="intro wrap reveal" id="about">
   <div class="grid">
-    <div class="card">
-      <div class="tag">Personal build · Working prototype</div>
-      <h2>RPOS - an agent-assisted PM workspace</h2>
-      <p>One shared workspace state where every PM artifact (personas, stories, backlog, story map) is a live view, and the PRD regenerates on every keystroke. React prototype plus a 12-screen product mock.</p>
+    <img class="pic" src="profile.jpg" alt="Ruturaj Sahasrabudhe">
+    <div>
+      <h2>Operator first. Product builder second. In that order, on purpose.</h2>
+      <p>I spent three years running merchant settlements, reconciliation, and chargebacks before I ever wrote a PRD - so the products I ship are designed for the failure modes operators actually live with. Since then: a national pension launch, analytics for 20,000+ billers, and reconciliation tooling an insurer trusts before policy issuance.</p>
+      <div class="stats">
+        <div class="stat"><div class="n"><span data-count="8">0</span><span class="unit">+ yrs</span></div><div class="l">payments, fintech, insurtech</div></div>
+        <div class="stat"><div class="n"><span data-count="20000">0</span><span class="unit">+</span></div><div class="l">billers on analytics I designed</div></div>
+        <div class="stat"><div class="n"><span data-count="15">0</span><span class="unit">M+</span></div><div class="l">NPS subscriber base at launch</div></div>
+        <div class="stat"><div class="n"><span data-count="150">0</span><span class="unit">x</span></div><div class="l">adoption growth in 12 months</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="work wrap" id="work">
+  <div class="sectionhead reveal">
+    <span class="eyebrow">Case studies &amp; working prototypes</span>
+    <h2>Three problems, three working answers.</h2>
+  </div>
+
+  <div class="panel reveal">
+    <div>
+      <span class="num">01</span>
+      <h3>RPOS - an agent-assisted PM workspace</h3>
+      <p>One shared workspace state where personas, stories, backlog, and story map are live views - and the PRD regenerates on every keystroke. Built as a working React prototype plus a 12-screen product mock.</p>
       <div class="go"><a class="primary" href="rpos.html">Case study</a><a href="rpos-prototype.html">Live prototype</a><a href="rpos-mock.html">Visual mock</a></div>
     </div>
-    <div class="card">
-      <div class="tag">NPCI Bharat Billpay · Shipped</div>
-      <h2>Self-serve analytics for 20,000+ billers</h2>
-      <p>The first biller-facing analytics surface on India's interoperable bill-payments network: metric design that routes action, not vanity charts. 150x adoption growth in 12 months. Interactive demo with synthetic data.</p>
-      <div class="go"><a class="primary" href="biller-analytics.html">Case study</a><a href="biller-demo.html">Live demo</a></div>
-    </div>
-    <div class="card">
-      <div class="tag">Insurance · Discovery to pilot</div>
-      <h2>A 90-day reconciliation build</h2>
-      <p>Banking integration, receipting, and 2-way / 3-way reconciliation for a greenfield digital insurer - designed so premiums reconcile before policy issuance, not after.</p>
-      <div class="go"><a class="primary" href="recon-tool.html">Case study</a></div>
+    <div class="viz">
+      <div class="prd">
+        <div class="bar" style="--w:88%"></div>
+        <div class="bar b2" style="--w:64%"></div>
+        <div class="bar b3" style="--w:76%"></div>
+        <div class="bar b4" style="--w:52%"></div>
+        <div class="tag-row"><span class="mini">PRD regenerated</span><span class="mini">Backlog synced</span></div>
+        <div class="cap">The live PRD rebuilding from workspace state</div>
+      </div>
     </div>
   </div>
-  <p class="note">All client and platform material on this site is public, aggregate, or synthetic. Demos run entirely in your browser - nothing is collected.</p>
-</main>
-<footer>Ruturaj Sahasrabudhe · Mumbai, India · ruturaj.mms@gmail.com · linkedin.com/in/ruturajsahasrabudhe</footer>
+
+  <div class="panel flip reveal">
+    <div>
+      <span class="num">02</span>
+      <h3>Self-serve analytics for 20,000+ billers</h3>
+      <p>The first biller-facing analytics surface on India's interoperable bill-payments network. Metric design that routes action - technical declines to the platform, business declines to the biller. 150x adoption growth in 12 months.</p>
+      <div class="go"><a class="primary" href="biller-analytics.html">Case study</a><a href="biller-demo.html">Live demo</a></div>
+    </div>
+    <div class="viz">
+      <div class="sparkwrap">
+        <svg viewBox="0 0 340 130" aria-hidden="true">
+          <defs><linearGradient id="sg" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#3b7cc4"/><stop offset="1" stop-color="#c89a5e"/></linearGradient></defs>
+          <path class="spark" d="M10,118 C60,116 80,112 110,104 C150,93 170,82 205,62 C240,42 275,30 330,14"/>
+          <circle class="sparkdot" cx="330" cy="14" r="5"/>
+        </svg>
+        <div class="bigx">100 to 15,000 downloads</div>
+        <div class="cap">Monthly report downloads, month 1 to month 12</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel reveal">
+    <div>
+      <span class="num">03</span>
+      <h3>A 90-day reconciliation build</h3>
+      <p>Banking integration, receipting, and 2-way / 3-way reconciliation for a greenfield digital insurer - designed so premiums reconcile before policy issuance, not after. Sole product owner, discovery to pilot.</p>
+      <div class="go"><a class="primary" href="recon-tool.html">Case study</a></div>
+    </div>
+    <div class="viz">
+      <div class="recon" aria-hidden="true">
+        <div class="src s1"><span class="dot"></span>Receipting</div>
+        <div class="src s2"><span class="dot"></span>Gateway</div>
+        <div class="src s3"><span class="dot"></span>Bank</div>
+        <span class="mover m1"></span><span class="mover m2"></span><span class="mover m3"></span>
+        <div class="lock"><svg viewBox="0 0 34 34"><path d="M8 18 l7 7 l12 -14"/></svg></div>
+        <div class="matched">MATCHED · ZERO LEAKAGE</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="exp" id="experience">
+  <div class="wrap">
+    <div class="sectionhead reveal">
+      <span class="eyebrow">The story, chapter by chapter</span>
+      <h2>Maps. Money operations. National rails. Trust.</h2>
+    </div>
+    <div class="smap reveal">
+      <div class="track" id="smtrack">
+        <div class="tline"><span class="tpulse"></span></div>
+        <button class="node" data-ch="p0" aria-expanded="false"><span class="yr">2013</span><span class="dot"></span><span class="nm">Giving first</span><span class="rl">NASEOH volunteer</span></button>
+        <button class="node" data-ch="p1" aria-expanded="false"><span class="yr">2016</span><span class="dot"></span><span class="nm">Maps</span><span class="rl">HERE Technologies</span></button>
+        <button class="node" data-ch="p2" aria-expanded="false"><span class="yr">2017</span><span class="dot"></span><span class="nm">Finance school</span><span class="rl">MMS, Mumbai</span></button>
+        <button class="node" data-ch="p3" aria-expanded="false"><span class="yr">2019</span><span class="dot"></span><span class="nm">Money operations</span><span class="rl">Kotak Mahindra Bank</span></button>
+        <button class="node" data-ch="p4" aria-expanded="false"><span class="yr">2022</span><span class="dot"></span><span class="nm">National rails</span><span class="rl">NPCI Bharat Billpay</span></button>
+        <button class="node" data-ch="p5" aria-expanded="false"><span class="yr">2025</span><span class="dot"></span><span class="nm">Trust, productised</span><span class="rl">NeoSOFT Technologies</span></button>
+      </div>
+      <div class="panels">
+        <div class="chpanel" id="p0"><div class="chinner">
+          <span class="eyebrow2">Chapter 00 · Dec 2013 - Aug 2014 · Volunteer</span>
+          <h3>Giving first.</h3>
+          <p>Before any job title: nine months volunteering with NASEOH, a Mumbai NGO working with persons with disabilities, as part of St. Xavier's Social Involvement Programme. I was part of the ceramic department team - teaching underprivileged and special-needs kids, and helping sell the products they made through kiosks and stalls at malls, schools, and colleges.</p>
+          <div class="chips"><span class="chip">Teaching</span><span class="chip">Inclusion</span><span class="chip">Kiosk sales drives</span></div>
+        </div></div>
+        <div class="chpanel" id="p1"><div class="chinner">
+          <span class="eyebrow2">Chapter 01 · Mar 2016 - Jun 2017 · GIS Analyst, HERE Technologies</span>
+          <h3>Where shipping beat proposing.</h3>
+          <p>My first corporate job was enriching Western Europe maps point by point. Then Pokémon Go came out, and its geo-tagged capture mechanic looked like the answer to our slowest workflow. I proposed an in-house field-capture app, led the operations side, and shipped it with engineering: capture rate up from 30 to 65 POIs an hour at 99.93% accuracy, a 15-month plan done in 8.5. HERE gave it the Golden Impulse Award for Process and Product Excellence.</p>
+          <div class="chips"><span class="chip">117% throughput gain</span><span class="chip">99.93% accuracy</span><span class="chip">Golden Impulse Award</span></div>
+          <div class="go"><a href="here.html">Open full chapter</a></div>
+        </div></div>
+        <div class="chpanel" id="p2"><div class="chinner">
+          <span class="eyebrow2">Interlude · 2017 - 2019</span>
+          <h3>Left maps to learn money.</h3>
+          <p>Two years of Master of Management Studies in Finance (MBA equivalent, University of Mumbai) at N. L. Dalmia Institute - the deliberate pivot from geography to the thing I wanted to build products around.</p>
+        </div></div>
+        <div class="chpanel" id="p3"><div class="chinner">
+          <span class="eyebrow2">Chapter 02 · May 2019 - Jul 2022 · Manager, Digital Payments Operations (OSG)</span>
+          <h3>Learning money where it breaks.</h3>
+          <p>Three years in the engine room of Kotak's acquiring and payment-gateway business - merchant reporting, settlements, reconciliation, then end-to-end ownership of ecom chargebacks and representation. Automated the daily merchant reporting workflow from 9 hours to 1.5 at 99.98% accuracy, ran three channels with a team of three through COVID, and ended in Operation Intelligence, where fee dashboards surfaced ~INR 19 lakh a year in pricing anomalies. Promoted from Deputy Manager in 2021.</p>
+          <div class="chips"><span class="chip">83% faster reporting</span><span class="chip">99.98% accuracy</span><span class="chip">Chargebacks end to end</span></div>
+          <div class="go"><a href="kotak.html">Open full chapter</a></div>
+        </div></div>
+        <div class="chpanel" id="p4"><div class="chinner">
+          <span class="eyebrow2">Chapter 03 · Jul 2022 - Nov 2025 · Product Manager, NPCI Bharat Billpay (NBBL)</span>
+          <h3>Population scale.</h3>
+          <p>The regulator-adjacent side of India's bill-payment rails. As Category Manager I launched the National Pension System on Bharat Connect into a 15M+ subscriber base through a 5-click contribution flow. I designed the network's first Biller Analytics Dashboard for 20,000+ billers (150x adoption growth in 12 months), built bharat-connect.com from scratch, and designed the Agent Locator putting 8M+ certified agents on Google Maps while fraud complaints fell to near zero. Core team contributor on Banking Connect, India's first interoperable net-banking platform. Winner, NBBL Hackathon 2025.</p>
+          <div class="chips"><span class="chip">15M+ reach</span><span class="chip">150x adoption</span><span class="chip">8M+ agents mapped</span></div>
+          <div class="go"><a class="primary" href="npci.html">Open full chapter</a><a href="biller-analytics.html">Analytics case study</a><a href="biller-demo.html">Live demo</a></div>
+        </div></div>
+        <div class="chpanel" id="p5"><div class="chinner">
+          <span class="eyebrow2">Chapter 04 · Dec 2025 - Present · Product Manager, NeoSOFT Technologies</span>
+          <h3>Trust, productised.</h3>
+          <p>The current chapter: BFSI product work where the operator depth and the platform scale get applied one product at a time. Headline so far - sole product owner of a 90-day money-in build for a greenfield digital insurer: banking integration, receipting, and 2-way / 3-way reconciliation designed so premiums reconcile before policy issuance. Shipped to pilot ahead of the client's launch. Also: internal lead-generation automation now used daily by the sales team, and personal prototypes like RPOS.</p>
+          <div class="chips"><span class="chip">90-day delivery</span><span class="chip">Reconcile before issuance</span></div>
+          <div class="go"><a class="primary" href="neosoft.html">Open full chapter</a><a href="recon-tool.html">Recon case study</a><a href="rpos.html">RPOS</a></div>
+        </div></div>
+      </div>
+      <div class="smhint">Click any chapter on the line to expand it</div>
+    </div>
+  </div>
+</section>
+
+<section class="creds wrap reveal" id="credentials">
+  <div class="sectionhead">
+    <span class="eyebrow">Credentials</span>
+    <h2>Certified, awarded, and fluent in the stack.</h2>
+  </div>
+  <div class="two">
+    <div class="panelbox">
+      <h3>Certifications</h3>
+      <ul>
+        <li>Certified Card Payment System Professional - Nex-G Solutions, 2025</li>
+        <li>Certified Scrum Product Owner (CSPO) - Scrum Alliance, 2024</li>
+        <li>PRINCE2 Foundation and Practitioner - Simplilearn</li>
+        <li>Bloomberg Market Concepts - Bloomberg</li>
+      </ul>
+      <h3 style="margin-top:18px">Recognition</h3>
+      <ul>
+        <li>Winner, NBBL Hackathon 2025</li>
+        <li>Golden Impulse Award, HERE Technologies, 2017</li>
+      </ul>
+    </div>
+    <div class="panelbox">
+      <h3>What I work with</h3>
+      <div class="chips">
+        <span class="chip">UPI · IMPS · NEFT · RTGS</span><span class="chip">BBPS / Bharat Connect</span>
+        <span class="chip">Cards (acquiring)</span><span class="chip">Reconciliation &amp; settlements</span>
+        <span class="chip">Chargebacks</span><span class="chip">NPS / Pension</span>
+        <span class="chip">RBI &amp; PFRDA frameworks</span><span class="chip">Product strategy</span>
+        <span class="chip">V1 scoping &amp; PRDs</span><span class="chip">Go-to-Market</span>
+        <span class="chip">Agile / Scrum</span><span class="chip">Power BI</span>
+        <span class="chip">SQL</span><span class="chip">Tableau</span><span class="chip">Figma</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="contactband" id="contact">
+  <canvas id="rails2" class="rails-canvas"></canvas>
+  <div class="in reveal">
+    <h2 class="display">Let's talk payments.</h2>
+    <p>If you are building in payments, fintech, or insurance and want to compare notes on rails, reconciliation, or product analytics, my inbox is open.</p>
+    <div class="cta" style="justify-content:center;display:flex;gap:14px;flex-wrap:wrap">
+      <a class="btn light" href="mailto:ruturaj.mms@gmail.com">ruturaj.mms@gmail.com</a>
+      <a class="btn line" href="https://www.linkedin.com/in/ruturajsahasrabudhe">LinkedIn</a>
+    </div>
+  </div>
+</div>
+
+<footer class="wrap">
+  Ruturaj Sahasrabudhe · Mumbai, India<br>
+  All client and platform material on this site is public, aggregate, or synthetic. Demos run entirely in your browser.
+</footer>
+
+<script>
+(function(){
+  var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* nav state */
+  var nav = document.getElementById('nav');
+  function navState(){ if(window.scrollY > 40){ nav.classList.add('solid'); } else { nav.classList.remove('solid'); } }
+  window.addEventListener('scroll', navState, {passive:true}); navState();
+
+  /* reveals */
+  var els = document.querySelectorAll('.reveal');
+  if(!('IntersectionObserver' in window) || reduced){
+    els.forEach(function(e){ e.classList.add('visible'); });
+  } else {
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        if(en.isIntersecting){ en.target.classList.add('visible'); io.unobserve(en.target); }
+      });
+    },{threshold:.14});
+    els.forEach(function(e){ io.observe(e); });
+  }
+
+  /* count-up */
+  var counted = false;
+  function countUp(){
+    if(counted) return; counted = true;
+    document.querySelectorAll('[data-count]').forEach(function(el){
+      var target = parseInt(el.getAttribute('data-count'),10);
+      if(reduced){ el.textContent = target.toLocaleString(); return; }
+      var t0 = null, dur = 1100;
+      function step(ts){
+        if(!t0) t0 = ts;
+        var p = Math.min((ts - t0)/dur, 1);
+        el.textContent = Math.round(target*(0.5 - Math.cos(Math.PI*p)/2)).toLocaleString();
+        if(p < 1) requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+    });
+  }
+  var statsEl = document.querySelector('.stats');
+  if('IntersectionObserver' in window && statsEl && !reduced){
+    var io2 = new IntersectionObserver(function(en){ if(en[0].isIntersecting){ countUp(); io2.disconnect(); } },{threshold:.3});
+    io2.observe(statsEl);
+  } else { countUp(); }
+
+  /* rails canvas: nodes + travelling pulses */
+  function rails(canvas, density, pulseMax){
+    var ctx = canvas.getContext('2d');
+    var W, H, dpr, nodes = [], edges = [], pulses = [], running = true, inview = true;
+    function size(){
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      W = canvas.clientWidth; H = canvas.clientHeight;
+      canvas.width = W * dpr; canvas.height = H * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      build();
+    }
+    function build(){
+      nodes = []; edges = []; pulses = [];
+      var count = Math.max(24, Math.min(64, Math.floor(W * H / density)));
+      for(var i = 0; i < count; i++){
+        nodes.push({ x: Math.random()*W, y: Math.random()*H,
+          vx: (Math.random()-.5)*.12, vy: (Math.random()-.5)*.12, r: Math.random()*1.6 + .9 });
+      }
+      for(var a = 0; a < nodes.length; a++){
+        var d = [];
+        for(var b = 0; b < nodes.length; b++){
+          if(a === b) continue;
+          var dx = nodes[a].x - nodes[b].x, dy = nodes[a].y - nodes[b].y;
+          d.push({ b: b, dist: dx*dx + dy*dy });
+        }
+        d.sort(function(p, q){ return p.dist - q.dist; });
+        for(var k = 0; k < 2; k++){
+          if(d[k]){ edges.push([a, d[k].b]); }
+        }
+      }
+    }
+    function spawn(){
+      if(pulses.length >= pulseMax || edges.length === 0) return;
+      var e = edges[Math.floor(Math.random()*edges.length)];
+      pulses.push({ a: e[0], b: e[1], t: 0, sp: .004 + Math.random()*.008,
+        col: Math.random() < .75 ? '123,180,232' : '200,154,94' });
+    }
+    function frame(){
+      if(!running){ return; }
+      if(inview){
+        ctx.clearRect(0, 0, W, H);
+        ctx.lineWidth = 1;
+        for(var i = 0; i < edges.length; i++){
+          var p = nodes[edges[i][0]], q = nodes[edges[i][1]];
+          ctx.strokeStyle = 'rgba(125,150,185,.10)';
+          ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(q.x, q.y); ctx.stroke();
+        }
+        for(var j = 0; j < nodes.length; j++){
+          var n = nodes[j];
+          n.x += n.vx; n.y += n.vy;
+          if(n.x < 0 || n.x > W){ n.vx *= -1; }
+          if(n.y < 0 || n.y > H){ n.vy *= -1; }
+          ctx.fillStyle = 'rgba(159,180,207,.5)';
+          ctx.beginPath(); ctx.arc(n.x, n.y, n.r, 0, 6.2832); ctx.fill();
+        }
+        if(Math.random() < .25){ spawn(); }
+        for(var m = pulses.length - 1; m >= 0; m--){
+          var pl = pulses[m];
+          pl.t += pl.sp;
+          if(pl.t >= 1){ pulses.splice(m, 1); continue; }
+          var pa = nodes[pl.a], pb = nodes[pl.b];
+          var x = pa.x + (pb.x - pa.x)*pl.t, y = pa.y + (pb.y - pa.y)*pl.t;
+          var g = ctx.createRadialGradient(x, y, 0, x, y, 9);
+          g.addColorStop(0, 'rgba(' + pl.col + ',.95)');
+          g.addColorStop(1, 'rgba(' + pl.col + ',0)');
+          ctx.fillStyle = g;
+          ctx.beginPath(); ctx.arc(x, y, 9, 0, 6.2832); ctx.fill();
+          ctx.fillStyle = 'rgba(255,255,255,.95)';
+          ctx.beginPath(); ctx.arc(x, y, 1.8, 0, 6.2832); ctx.fill();
+        }
+      }
+      requestAnimationFrame(frame);
+    }
+    function staticDraw(){
+      ctx.clearRect(0, 0, W, H);
+      for(var i = 0; i < edges.length; i++){
+        var p = nodes[edges[i][0]], q = nodes[edges[i][1]];
+        ctx.strokeStyle = 'rgba(125,150,185,.12)';
+        ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(q.x, q.y); ctx.stroke();
+      }
+      for(var j = 0; j < nodes.length; j++){
+        ctx.fillStyle = 'rgba(159,180,207,.5)';
+        ctx.beginPath(); ctx.arc(nodes[j].x, nodes[j].y, nodes[j].r, 0, 6.2832); ctx.fill();
+      }
+    }
+    size();
+    window.addEventListener('resize', size);
+    if(reduced){ staticDraw(); return; }
+    if('IntersectionObserver' in window){
+      var vio = new IntersectionObserver(function(en){ inview = en[0].isIntersecting; },{threshold:0});
+      vio.observe(canvas);
+    }
+    document.addEventListener('visibilitychange', function(){
+      running = !document.hidden;
+      if(running){ requestAnimationFrame(frame); }
+    });
+    requestAnimationFrame(frame);
+  }
+  var c1 = document.getElementById('rails');
+  var c2 = document.getElementById('rails2');
+  if(c1){ rails(c1, 16000, 14); }
+  if(c2){ rails(c2, 26000, 8); }
+
+  /* timeline rail fill on scroll */
+  var fill = document.getElementById('railfill');
+  var expSec = document.getElementById('experience');
+  function railUpdate(){
+    if(!fill || !expSec) return;
+    var r = expSec.getBoundingClientRect();
+    var vh = window.innerHeight;
+    var p = (vh*.75 - r.top) / (r.height);
+    p = Math.max(0, Math.min(1, p));
+    fill.style.height = (p*100) + '%';
+  }
+  if(reduced){ if(fill){ fill.style.height = '100%'; } }
+  else {
+    window.addEventListener('scroll', railUpdate, {passive:true});
+    window.addEventListener('resize', railUpdate);
+    railUpdate();
+  }
+})();
+</script>
+<script>
+(function(){
+  var nodes = document.querySelectorAll('.smap .node');
+  if(!nodes.length){ return; }
+  var open = null;
+  function setH(p, expand){ p.style.maxHeight = expand ? (p.scrollHeight + 'px') : '0px'; }
+  function toggle(id, node){
+    var p = document.getElementById(id);
+    if(!p){ return; }
+    if(open === p){
+      setH(p, false); node.classList.remove('active'); node.setAttribute('aria-expanded','false'); open = null; return;
+    }
+    if(open){
+      setH(open, false);
+      var prev = document.querySelector('.smap .node.active');
+      if(prev){ prev.classList.remove('active'); prev.setAttribute('aria-expanded','false'); }
+    }
+    setH(p, true); node.classList.add('active'); node.setAttribute('aria-expanded','true'); open = p;
+  }
+  nodes.forEach(function(n){
+    n.addEventListener('click', function(){ toggle(n.getAttribute('data-ch'), n); });
+  });
+  var last = nodes[nodes.length - 1];
+  if(last){ toggle(last.getAttribute('data-ch'), last); }
+  window.addEventListener('resize', function(){ if(open){ open.style.maxHeight = open.scrollHeight + 'px'; } });
+  var tr = document.getElementById('smtrack');
+  if(tr){ tr.scrollLeft = tr.scrollWidth; }
+})();
+</script>
 </body>
 </html>
