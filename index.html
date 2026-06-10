@@ -165,7 +165,8 @@ nav.solid .links a:hover{color:var(--night)}
 
 /* ---------- horizontal story map ---------- */
 .smap{position:relative}
-.track{position:relative;display:flex;justify-content:space-between;gap:6px;overflow-x:auto;padding:6px 4px 14px;scrollbar-width:thin}
+.track{position:relative;overflow-x:auto;padding:6px 4px 14px;scrollbar-width:thin;-webkit-overflow-scrolling:touch}
+.trackrow{position:relative;display:flex;justify-content:space-between;gap:6px;width:100%}
 .tline{position:absolute;left:14px;right:14px;top:32px;height:2px;background:rgba(255,255,255,.16);border-radius:2px}
 .tpulse{position:absolute;top:-3px;left:0;width:8px;height:8px;border-radius:50%;background:linear-gradient(90deg,#7db4e8,var(--sand));box-shadow:0 0 14px rgba(125,180,232,.9);animation:tslide 8s linear infinite}
 @keyframes tslide{from{left:0}to{left:calc(100% - 8px)}}
@@ -189,7 +190,23 @@ nav.solid .links a:hover{color:var(--night)}
 .chpanel .go a:hover{filter:brightness(1.1)}
 .smhint{font-size:12px;color:#6e87a6;margin-top:10px;text-align:center}
 @media (prefers-reduced-motion: reduce){.tpulse{display:none}.chpanel{transition:none}.node .dot,.node:hover .dot{transition:none;transform:none}}
-@media (max-width:760px){.track{justify-content:flex-start}.node{min-width:112px;flex:0 0 auto}}
+@media (max-width:760px){
+  .trackrow{width:max-content;min-width:100%;justify-content:flex-start}
+  .node{min-width:106px;flex:0 0 auto}
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .stat{padding:14px 14px}
+  .stat .n{font-size:21px}
+  .stat .n .unit{font-size:14px}
+  .stat .l{font-size:11.5px}
+  .chinner{padding:18px 16px}
+  .chpanel p{font-size:13.5px}
+}
+@media (max-width:560px){
+  nav .in{padding:11px 14px}
+  nav .brand{font-size:13px}
+  nav .links{gap:11px}
+  nav .links a{font-size:11.5px}
+}
 
 /* ---------- credentials ---------- */
 .creds{padding:74px 0 10px}
@@ -234,7 +251,8 @@ footer{padding:28px 0 40px;text-align:center;font-size:12.5px;color:var(--mut)}
   .panel{grid-template-columns:1fr;gap:26px}
   .panel.flip .viz{order:0}
   .intro .grid{grid-template-columns:1fr;gap:30px}
-  .pic{max-width:220px}
+  .pic{max-width:220px;justify-self:center}
+  .intro h2,.intro > .grid p{text-align:left}
   .hero .in{padding:130px 0 110px}
 }
 </style>
@@ -274,10 +292,10 @@ footer{padding:28px 0 40px;text-align:center;font-size:12.5px;color:var(--mut)}
       <h2>Operator first. Product builder second. In that order, on purpose.</h2>
       <p>I spent three years running merchant settlements, reconciliation, and chargebacks before I ever wrote a PRD - so the products I ship are designed for the failure modes operators actually live with. Since then: a national pension launch, analytics for 20,000+ billers, and reconciliation tooling an insurer trusts before policy issuance.</p>
       <div class="stats">
-        <div class="stat"><div class="n"><span data-count="8">0</span><span class="unit">+ yrs</span></div><div class="l">payments, fintech, insurtech</div></div>
-        <div class="stat"><div class="n"><span data-count="20000">0</span><span class="unit">+</span></div><div class="l">billers on analytics I designed</div></div>
-        <div class="stat"><div class="n"><span data-count="15">0</span><span class="unit">M+</span></div><div class="l">NPS subscriber base at launch</div></div>
-        <div class="stat"><div class="n"><span data-count="150">0</span><span class="unit">x</span></div><div class="l">adoption growth in 12 months</div></div>
+        <div class="stat"><div class="n"><span data-count="8">8</span><span class="unit">+ yrs</span></div><div class="l">payments, fintech, insurtech</div></div>
+        <div class="stat"><div class="n"><span data-count="20000">20,000</span><span class="unit">+</span></div><div class="l">billers on analytics I designed</div></div>
+        <div class="stat"><div class="n"><span data-count="15">15</span><span class="unit">M+</span></div><div class="l">NPS subscriber base at launch</div></div>
+        <div class="stat"><div class="n"><span data-count="150">150</span><span class="unit">x</span></div><div class="l">adoption growth in 12 months</div></div>
       </div>
     </div>
   </div>
@@ -355,7 +373,7 @@ footer{padding:28px 0 40px;text-align:center;font-size:12.5px;color:var(--mut)}
       <h2>Maps. Money operations. National rails. Trust.</h2>
     </div>
     <div class="smap reveal">
-      <div class="track" id="smtrack">
+      <div class="track" id="smtrack"><div class="trackrow">
         <div class="tline"><span class="tpulse"></span></div>
         <button class="node" data-ch="p0" aria-expanded="false"><span class="yr">2013</span><span class="dot"></span><span class="nm">Giving first</span><span class="rl">NASEOH volunteer</span></button>
         <button class="node" data-ch="p1" aria-expanded="false"><span class="yr">2016</span><span class="dot"></span><span class="nm">Maps</span><span class="rl">HERE Technologies</span></button>
@@ -363,7 +381,7 @@ footer{padding:28px 0 40px;text-align:center;font-size:12.5px;color:var(--mut)}
         <button class="node" data-ch="p3" aria-expanded="false"><span class="yr">2019</span><span class="dot"></span><span class="nm">Money operations</span><span class="rl">Kotak Mahindra Bank</span></button>
         <button class="node" data-ch="p4" aria-expanded="false"><span class="yr">2022</span><span class="dot"></span><span class="nm">National rails</span><span class="rl">NPCI Bharat Billpay</span></button>
         <button class="node" data-ch="p5" aria-expanded="false"><span class="yr">2025</span><span class="dot"></span><span class="nm">Trust, productised</span><span class="rl">NeoSOFT Technologies</span></button>
-      </div>
+      </div></div>
       <div class="panels">
         <div class="chpanel" id="p0"><div class="chinner">
           <span class="eyebrow2">Chapter 00 · Dec 2013 - Aug 2014 · Volunteer</span>
@@ -405,7 +423,7 @@ footer{padding:28px 0 40px;text-align:center;font-size:12.5px;color:var(--mut)}
           <div class="go"><a class="primary" href="neosoft.html">Open full chapter</a><a href="recon-tool.html">Recon case study</a><a href="rpos.html">RPOS</a></div>
         </div></div>
       </div>
-      <div class="smhint">Click any chapter on the line to expand it</div>
+      <div class="smhint">Tap a chapter to expand it · swipe the timeline for earlier chapters</div>
     </div>
   </div>
 </section>
@@ -502,6 +520,7 @@ footer{padding:28px 0 40px;text-align:center;font-size:12.5px;color:var(--mut)}
     });
   }
   var statsEl = document.querySelector('.stats');
+  if(!reduced){ document.querySelectorAll('[data-count]').forEach(function(el){ el.textContent = '0'; }); }
   if('IntersectionObserver' in window && statsEl && !reduced){
     var io2 = new IntersectionObserver(function(en){ if(en[0].isIntersecting){ countUp(); io2.disconnect(); } },{threshold:.3});
     io2.observe(statsEl);
