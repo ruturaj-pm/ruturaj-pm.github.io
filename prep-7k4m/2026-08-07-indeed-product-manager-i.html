@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<title>Indeed Interview Prep</title>
+<style>
+:root { --bg:#fbfaf7; --card:#ffffff; --ink:#1d2330; --muted:#5b6475; --line:#e4e1d8; --accent:#0f6b5c; --warn:#a4481d; --soft:#eef6f3; }
+@media (prefers-color-scheme: dark) { :root { --bg:#14171d; --card:#1c2029; --ink:#e7e9ee; --muted:#9aa3b2; --line:#2c3240; --accent:#4cc3a8; --warn:#f0916a; --soft:#1f2a28; } }
+* { box-sizing:border-box; }
+body { margin:0; background:var(--bg); color:var(--ink); font:15px/1.55 system-ui,-apple-system,Segoe UI,Roboto,sans-serif; }
+main { max-width:980px; margin:0 auto; padding:20px 16px 60px; }
+h1 { font-size:24px; margin:0 0 4px; }
+h2 { font-size:18px; margin:28px 0 10px; color:var(--accent); border-bottom:2px solid var(--line); padding-bottom:4px; }
+h3 { font-size:15px; margin:14px 0 4px; }
+.meta { color:var(--muted); margin:0 0 14px; }
+.facts { display:flex; flex-wrap:wrap; gap:8px; margin:8px 0 16px; }
+.facts span { background:var(--soft); color:var(--accent); border-radius:12px; padding:2px 10px; font-size:13px; }
+.card { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:14px 16px; margin:10px 0; }
+.pitch { background:var(--soft); border-left:4px solid var(--accent); }
+table { width:100%; border-collapse:collapse; font-size:14px; }
+th, td { text-align:left; vertical-align:top; padding:8px; border-bottom:1px solid var(--line); }
+th { color:var(--muted); font-weight:600; }
+.num { font-weight:700; color:var(--accent); }
+ul { margin:6px 0; padding-left:20px; }
+li { margin:3px 0; }
+a { color:var(--accent); }
+.back { font-size:13px; }
+@media (max-width:640px) { table, thead, tbody, tr, th, td { display:block; } thead { display:none; } td { border:none; padding:4px 0; } tr { border-bottom:1px solid var(--line); padding:8px 0; } }
+@media print { body { background:#fff; } .card { break-inside:avoid; } }
+</style>
+</head>
+<body>
+<main>
+<p class="back"><a href="./">All interview prep</a></p>
+<h1>Indeed: Product Manager I</h1>
+<div class="facts"><span>Prepared answer: experimentation</span><span>Prepared 7 August 2026</span><span>Two-sided marketplace</span></div>
+
+<h2>Why this question</h2>
+<div class="card">
+<p>The JD says "launch features rapidly using data-driven testing and validation". It lists a "data-driven approach with deep curiosity about product metrics" as a required qualification. Indeed runs experiments at very large scale. Some version of "tell me about an experiment you ran" is close to certain.</p>
+</div>
+
+<h2>Where I stand</h2>
+<div class="card">
+<p>I have strong before-and-after measurement and real instrumentation. I have not run a formal A/B test with a randomised control group, a pre-registered primary metric and a significance calculation. On regulated payment rails, live money flows are not split-tested.</p>
+</div>
+
+<h2>The structure of the answer</h2>
+<div class="card">
+<ol>
+<li><b>Name the boundary first.</b> "I should be straight that most of my measurement has been pre-post and cohort-based. I have not run randomised controlled tests. Here is what I have done."</li>
+<li><b>Give the strongest true example, with numbers.</b></li>
+<li><b>Show what the real thing requires.</b> Name the machinery I would use at Indeed's scale, and the part that is hardest in a marketplace.</li>
+</ol>
+</div>
+
+<h2>Three true examples</h2>
+<div class="card">
+<h3>1. NPS on Bharat Connect: the authentication change</h3>
+<ul>
+<li><b>Hypothesis:</b> the 12-digit PRAN entry was the drop-off point in the contribution flow.</li>
+<li><b>Change:</b> replaced it with mobile-number-linked authentication, reaching a 5-click contribution path.</li>
+<li><b>Framing:</b> a funnel hypothesis validated by shipping, without a holdout group.</li>
+</ul>
+<h3>2. Biller Analytics: validation before build</h3>
+<ul>
+<li>Ran discovery with billers to decide which metrics they would act on, before anything was built. That is qualitative validation, and a fair answer to "how do you validate".</li>
+<li>Then measured adoption: ~50K MAU, ~30-minute sessions, and downloads from 100 in month 1 to ~15,000 by month 12.</li>
+<li><b>Self-critique:</b> downloads are an activity metric. The value metric is whether a biller changed a decision because of the dashboard. That is what I would want to measure at Indeed.</li>
+</ul>
+<h3>3. Agent Locator: leading and lagging indicators</h3>
+<ul>
+<li><b>Leading:</b> monthly searches from 1,000 to ~200,000 in four months.</li>
+<li><b>Lagging:</b> complaints about uncertified collectors fell from ~200 a month to near zero. Remote cash-deposit TAT fell from 4 days to 8 hours.</li>
+<li><b>The point:</b> the search number is close to a vanity metric. The complaint drop shows the product worked. Choosing it as the headline is the signal.</li>
+</ul>
+</div>
+
+<h2>Experimentation vocabulary</h2>
+<div class="card">
+<ul>
+<li><b>Randomisation unit.</b> User, session or account. At Indeed a job seeker sees many jobs, so randomising per search result leaks. Usually you randomise per user.</li>
+<li><b>Primary metric and guardrail metrics.</b> One metric you are trying to move, plus a set you must not break, such as application completion rate, employer satisfaction and latency.</li>
+<li><b>Minimum detectable effect and power.</b> The size of effect you care about sets the sample size and the runtime. This is how you answer "how long should we run it?"</li>
+<li><b>Peeking.</b> Checking results daily and stopping when it looks significant inflates false positives. Fix the runtime in advance, or use a sequential test designed for it.</li>
+<li><b>Novelty and primacy effects.</b> New things get clicked because they are new. Short tests overstate the win.</li>
+<li><b>Interference in two-sided marketplaces. Lead with this one.</b> If treated seekers see better-matched jobs, they apply to and fill roles that control seekers would have filled. Treatment and control then affect each other, so a naive A/B test overstates the effect. Remedies include cluster randomisation by geography or job category, and switchback testing over time windows. Indeed lives with this problem every day. The point comes straight from having built on a two-sided network.</li>
+<li><b>Offline and online evaluation.</b> This ties to LLM work. An offline eval set tells you whether a model output is good. An online test tells you whether users behave differently. Both are needed, and they often disagree.</li>
+</ul>
+</div>
+
+<h2>The line to say</h2>
+<div class="card pitch">
+<p>"I want to be accurate about this. I have not run formal randomised A/B tests with pre-registered metrics and power calculations. What I have done is define the success metric before the build, instrument it, and measure the outcome that matters. At Indeed's scale I would expect to work inside an existing experimentation platform. The part I would want to get right early is interference, because on a two-sided marketplace, treating one side changes the supply available to the control group."</p>
+</div>
+
+</main>
+</body>
+</html>
