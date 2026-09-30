@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>RPOS — Rutu's Product OS · Working Prototype v2</title>
+<title>RPOS: Rutu's Product OS · Working Prototype v2</title>
 <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
 <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
 <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -73,7 +73,7 @@
 
 <script type="text/babel">
 /***********************************************************************
- *  RPOS — RUTU'S PRODUCT OS  (Working Prototype · v2)
+ *  RPOS: RUTU'S PRODUCT OS  (Working Prototype · v2)
  *  v2 adds: SDLC-aware modules for all 7 stages · localStorage +
  *  multi-project switcher · MD / DOC / DOCX / PDF / PPTX / XLSX export.
  *  Seed data: CSPO Grocery Online case study.
@@ -81,12 +81,12 @@
 const { useState, useMemo, useEffect, useRef, useCallback } = React;
 
 /*─────────────────────────────────────────────────────────────────────
-  SEED DATA — CSPO Grocery Online
+  SEED DATA: CSPO Grocery Online
 ─────────────────────────────────────────────────────────────────────*/
 const SEED_STRATEGY = {
-  vision: "Become India's most trusted same-day grocery platform for households and small retailers — where quality, price fairness and delivery reliability are never a trade-off.",
-  valueProp: "For time-pressed urban households and small kirana owners who struggle with inconsistent pricing, stock-outs and delivery delays, Grocery Online delivers fresh, verified-quality groceries in under 2 hours with transparent price locking and guaranteed replacement — unlike generic marketplaces that treat groceries as an afterthought.",
-  elevatorPitch: "Grocery Online is a 2-hour grocery delivery platform purpose-built for Indian households and kiranas. We combine dark-store fulfilment, QC-verified produce and a senior-friendly voice interface so every member of the household — from a working parent to a 70-year-old grandparent — can restock essentials without leaving home.",
+  vision: "Become India's most trusted same-day grocery platform for households and small retailers, where quality, price fairness and delivery reliability are never a trade-off.",
+  valueProp: "For time-pressed urban households and small kirana owners who struggle with inconsistent pricing, stock-outs and delivery delays, Grocery Online delivers fresh, verified-quality groceries in under 2 hours with transparent price locking and guaranteed replacement, unlike generic marketplaces that treat groceries as an afterthought.",
+  elevatorPitch: "Grocery Online is a 2-hour grocery delivery platform purpose-built for Indian households and kiranas. We combine dark-store fulfilment, QC-verified produce and a senior-friendly voice interface so every member of the household, from a working parent to a 70-year-old grandparent, can restock essentials without leaving home.",
   businessGoals: [
     "Hit 10,000 paid orders/week in Pune and Mumbai by Q4.",
     "Achieve ≥ 92% on-time delivery rate within 2-hour SLA.",
@@ -97,11 +97,11 @@ const SEED_STRATEGY = {
 };
 
 const SEED_PROBLEM = {
-  statement: "Urban Indian households and kiranas lose 6–8 hours/week to grocery runs marred by stock-outs, opaque pricing and unreliable delivery windows. Existing quick-commerce apps optimise for speed of delivery over trust in freshness and price fairness.",
-  targetUsers: "Working-age households (25–45) in tier-1 metros; senior citizens with limited mobility; small kirana owners re-ordering stock.",
+  statement: "Urban Indian households and kiranas lose 6 to 8 hours/week to grocery runs marred by stock-outs, opaque pricing and unreliable delivery windows. Existing quick-commerce apps optimise for speed of delivery over trust in freshness and price fairness.",
+  targetUsers: "Working-age households (25 to 45) in tier-1 metros; senior citizens with limited mobility; small kirana owners re-ordering stock.",
   hypotheses: [
     "A 2-hour guaranteed slot with a price-lock at checkout will lift conversion by ≥ 25% vs. generic slot-free flows.",
-    "A senior-friendly (large-font, voice-first) surface will extend TAM by 18–22% among 60+ households.",
+    "A senior-friendly (large-font, voice-first) surface will extend TAM by 18 to 22% among 60+ households.",
     "A QC-reject guarantee backed by 4-hour refund will move first-order → second-order conversion by ≥ 12 pp."
   ],
   assumptions: [
@@ -113,43 +113,43 @@ const SEED_PROBLEM = {
 };
 
 const SEED_PERSONAS = [
-  { id:"p1", name:"Priya — The Homemaker",
+  { id:"p1", name:"Priya: The Homemaker",
     role:"Primary Buyer · Household", age:"34", location:"Pune (Kothrud)",
-    demographics:"Married, 2 kids (age 6 & 10). Household income ₹12–15L. Tech-comfortable on phone.",
+    demographics:"Married, 2 kids (age 6 & 10). Household income ₹12 to 15L. Tech-comfortable on phone.",
     goals:["Restock weekly essentials without shop visits","Get fresh fruits & veggies at fair prices","Avoid last-minute stock-outs on weekdays"],
     painPoints:["Quality of fresh items from apps is hit-or-miss","Delivery slots get booked by evening","Too many apps to compare prices"],
     empathy:{
       think:"Will the tomatoes actually be fresh this time?",
       feel:"Anxious on weekday mornings; relieved when delivery is on time.",
-      say:"Just tell me it'll be here by 6 pm — I'll believe it when I see it.",
+      say:"Just tell me it'll be here by 6 pm. I'll believe it when I see it.",
       do:"Keeps a running list on notes app; cross-checks prices across 2 apps."
     },
     tags:["high-frequency","price-sensitive","quality-driven"] },
-  { id:"p2", name:"Arjun — The Working Professional",
+  { id:"p2", name:"Arjun: The Working Professional",
     role:"Secondary Buyer · Bachelor/Nuclear", age:"28", location:"Mumbai (Powai)",
     demographics:"Single, IT professional. ₹18L+ income. Orders on-the-go from phone.",
     goals:["Quick reorder of staples","Impulse snacks & ready-meals","Late-night delivery options"],
-    painPoints:["Minimum order values feel forced","Search is noisy — can't find specific brands","Delivery partners struggle with office address"],
+    painPoints:["Minimum order values feel forced","Search is noisy: can't find specific brands","Delivery partners struggle with office address"],
     empathy:{
-      think:"I just need Maggi and eggs — why is checkout this long?",
+      think:"I just need Maggi and eggs. Why is checkout this long?",
       feel:"Impatient; wants frictionless one-tap reorder.",
       say:"Bhai, 10 mins ka time nahi hai.",
       do:"Uses saved lists; abandons cart if minimum order kicks in."
     },
     tags:["speed-first","low-basket-size","reorder-heavy"] },
-  { id:"p3", name:"Mr. Kulkarni — The Senior Citizen",
+  { id:"p3", name:"Mr. Kulkarni: The Senior Citizen",
     role:"Accessibility Persona", age:"71", location:"Pune (Aundh)",
     demographics:"Retired, lives with spouse. Android phone, large-font mode. Pays via UPI reluctantly.",
     goals:["Order medicines + groceries weekly","Speak to a human if something goes wrong","Pay cash on delivery when possible"],
     painPoints:["App UI text too small","Too many steps between login and checkout","OTP SMS delays"],
     empathy:{
       think:"Last time they sent the wrong dal and nobody picked up the phone.",
-      feel:"Hesitant, mildly frustrated — trusts his nephew more than the app.",
+      feel:"Hesitant, mildly frustrated. Trusts his nephew more than the app.",
       say:"Beta, can you just call and order for me?",
       do:"Asks grandchildren to place orders; writes lists by hand."
     },
     tags:["accessibility","voice-first","trust-driven"] },
-  { id:"p4", name:"Sandeep — The Delivery Partner",
+  { id:"p4", name:"Sandeep: The Delivery Partner",
     role:"Fulfilment Persona", age:"26", location:"Pune (floats)",
     demographics:"Gig worker, 6-day schedule. Android phone, 4G. Pays attention to incentives.",
     goals:["Maximise deliveries/hour","Clear route with fewer customer calls","Timely incentive payouts"],
@@ -161,7 +161,7 @@ const SEED_PERSONAS = [
       do:"Skips orders with vague addresses; clusters nearby drops."
     },
     tags:["ops","incentive-driven","route-efficiency"] },
-  { id:"p5", name:"Ms. Shah — The Store Admin",
+  { id:"p5", name:"Ms. Shah: The Store Admin",
     role:"Internal · Dark-store Ops", age:"33", location:"Pune DC-2",
     demographics:"Operations manager, 7 yrs in retail. Uses admin web dashboard + barcode scanner.",
     goals:["Keep in-stock rate ≥ 98%","Minimise pick-pack errors","Quick shift handover to next manager"],
@@ -169,17 +169,17 @@ const SEED_PERSONAS = [
     empathy:{
       think:"If tomatoes run out by 2 pm today, we're done for dinner rush.",
       feel:"Accountable, detail-oriented, always scanning.",
-      say:"Give me one dashboard — not seven.",
+      say:"Give me one dashboard, not seven.",
       do:"Walks the aisles twice a shift; overrides system when her gut says stock is wrong."
     },
     tags:["internal","dashboards","ops"] },
-  { id:"p6", name:"Ravi — The Packing Staff",
+  { id:"p6", name:"Ravi: The Packing Staff",
     role:"Internal · Fulfilment Floor", age:"24", location:"Pune DC-2",
     demographics:"Packer, full-time. Hindi/Marathi primary. Uses handheld scanner + picking app.",
     goals:["Clear picklist within SLA","Avoid wrong-item picks","Earn shift-end bonus"],
     painPoints:["Picking app crashes on low battery","Sub-aisle labels inconsistent","No photo verification on fragile items"],
     empathy:{
-      think:"Scanner phir se hang ho gaya — supervisor ko bulana padega.",
+      think:"Scanner phir se hang ho gaya. Supervisor ko bulana padega.",
       feel:"Focused, task-driven, wary of penalties.",
       say:"Aaj ka target poora hoga agar app band na ho.",
       do:"Double-scans to be safe; takes a photo with personal phone when unsure."
@@ -277,7 +277,7 @@ const SEED_BACKLOG = [
   { id:"B-14", title:"QC checklist digitisation", epic:"Dark-store Ops", priority:"Should", pts:8, status:"Backlog", rank:14 },
   { id:"B-15", title:"1-tap quality complaint flow", epic:"Trust & QC", priority:"Must", pts:5, status:"To Do", rank:15 },
   { id:"B-16", title:"Refund engine (4h SLA)", epic:"Trust & QC", priority:"Must", pts:8, status:"To Do", rank:16 },
-  { id:"B-17", title:"Push notifications — order stages", epic:"Engagement", priority:"Should", pts:3, status:"To Do", rank:17 },
+  { id:"B-17", title:"Push notifications: order stages", epic:"Engagement", priority:"Should", pts:3, status:"To Do", rank:17 },
   { id:"B-18", title:"Referral programme", epic:"Growth", priority:"Could", pts:5, status:"Backlog", rank:18 },
   { id:"B-19", title:"Weekly ops scorecard", epic:"Analytics", priority:"Could", pts:5, status:"Backlog", rank:19 },
   { id:"B-20", title:"Voice-order (senior assistance)", epic:"Accessibility", priority:"Wont", pts:13, status:"Backlog", rank:20 }
@@ -330,10 +330,10 @@ const SEED_FLOWS = [
 ];
 
 const SEED_SPRINTS = [
-  { id:"S1", name:"Sprint 01 · Foundations", dates:"Wk 1–2", capacity:32, committed:29, items:["B-01","B-02","B-08"], status:"Done" },
-  { id:"S2", name:"Sprint 02 · Discovery", dates:"Wk 3–4", capacity:34, committed:32, items:["B-03","B-04","B-06"], status:"In Progress" },
-  { id:"S3", name:"Sprint 03 · Trust & Checkout", dates:"Wk 5–6", capacity:34, committed:30, items:["B-07","B-10","B-15"], status:"Planned" },
-  { id:"S4", name:"Sprint 04 · Ops & Fulfilment", dates:"Wk 7–8", capacity:34, committed:31, items:["B-11","B-12","B-13"], status:"Planned" }
+  { id:"S1", name:"Sprint 01 · Foundations", dates:"Wk 1-2", capacity:32, committed:29, items:["B-01","B-02","B-08"], status:"Done" },
+  { id:"S2", name:"Sprint 02 · Discovery", dates:"Wk 3-4", capacity:34, committed:32, items:["B-03","B-04","B-06"], status:"In Progress" },
+  { id:"S3", name:"Sprint 03 · Trust & Checkout", dates:"Wk 5-6", capacity:34, committed:30, items:["B-07","B-10","B-15"], status:"Planned" },
+  { id:"S4", name:"Sprint 04 · Ops & Fulfilment", dates:"Wk 7-8", capacity:34, committed:31, items:["B-11","B-12","B-13"], status:"Planned" }
 ];
 
 const SEED_ARCHITECTURE = {
@@ -356,18 +356,18 @@ const SEED_ARCHITECTURE = {
 const SEED_TESTS = [
   { id:"T-01", storyRef:"US-001", title:"OTP delivery < 30s", type:"Functional", result:"Pass", owner:"QA-A", run:"2026-04-18" },
   { id:"T-02", storyRef:"US-001", title:"Lockout after 3 bad OTPs", type:"Security", result:"Pass", owner:"QA-B", run:"2026-04-18" },
-  { id:"T-03", storyRef:"US-002", title:"Reorder with OOS substitution", type:"Functional", result:"Pending", owner:"QA-A", run:"—" },
+  { id:"T-03", storyRef:"US-002", title:"Reorder with OOS substitution", type:"Functional", result:"Pending", owner:"QA-A", run:"-" },
   { id:"T-04", storyRef:"US-003", title:"WCAG AA contrast in senior mode", type:"Accessibility", result:"Pass", owner:"QA-C", run:"2026-04-17" },
   { id:"T-05", storyRef:"US-004", title:"Slot capacity atomic decrement (load)", type:"Load", result:"Fail", owner:"QA-D", run:"2026-04-19" },
-  { id:"T-06", storyRef:"US-006", title:"Pin accuracy ±20m in low-GPS zones", type:"Field", result:"Pending", owner:"QA-E", run:"—" },
+  { id:"T-06", storyRef:"US-006", title:"Pin accuracy ±20m in low-GPS zones", type:"Field", result:"Pending", owner:"QA-E", run:"-" },
   { id:"T-07", storyRef:"US-007", title:"Offline scan queue survives restart", type:"Resilience", result:"Pass", owner:"QA-B", run:"2026-04-16" },
-  { id:"T-08", storyRef:"US-008", title:"At-risk SKU badge at 4h horizon", type:"Functional", result:"Pending", owner:"QA-A", run:"—" },
-  { id:"T-09", storyRef:"US-009", title:"Refund SLA ≤ 4h", type:"E2E", result:"Pending", owner:"QA-C", run:"—" }
+  { id:"T-08", storyRef:"US-008", title:"At-risk SKU badge at 4h horizon", type:"Functional", result:"Pending", owner:"QA-A", run:"-" },
+  { id:"T-09", storyRef:"US-009", title:"Refund SLA ≤ 4h", type:"E2E", result:"Pending", owner:"QA-C", run:"-" }
 ];
 
 const SEED_RELEASE = {
   releases: [
-    { id:"R1", name:"MVP — Pune Pilot", date:"2026-05-15", channel:"Closed beta (Kothrud, Aundh)", scope:"US-001 · US-002 · US-004 · US-006 · UPI", risk:"Medium" },
+    { id:"R1", name:"MVP: Pune Pilot", date:"2026-05-15", channel:"Closed beta (Kothrud, Aundh)", scope:"US-001 · US-002 · US-004 · US-006 · UPI", risk:"Medium" },
     { id:"R2", name:"Mumbai + Trust", date:"2026-06-30", channel:"Staged rollout (25% → 100%)", scope:"Senior mode · COD · Price-lock · Refund engine", risk:"Medium" },
     { id:"R3", name:"Growth", date:"2026-08-15", channel:"GA", scope:"Voice-order · Referrals · Loyalty", risk:"Low" }
   ],
@@ -399,24 +399,24 @@ const EXEC_FUNCTIONS = ["UI","Dev","QA","Legal","Compliance","Ops","Finance","Ma
 const SEED_EXECUTION = [
   { storyId:"US-001", confidence:"high", generatedBy:"seed",
     tasks:[
-      { id:"T-001-01", fn:"UI",         scope:"Design OTP entry screen — 6-digit input, auto-read hint, 30s countdown, resend, lockout state, support CTA", est:2,   owner:"Design Lead",   status:"Done",        dep:[] },
+      { id:"T-001-01", fn:"UI",         scope:"Design OTP entry screen: 6-digit input, auto-read hint, 30s countdown, resend, lockout state, support CTA", est:2,   owner:"Design Lead",   status:"Done",        dep:[] },
       { id:"T-001-02", fn:"Dev",        scope:"Integrate SMS gateway (MSG91) with DLT-registered sender templates; retry + throttle", est:3,   owner:"Backend",       status:"Done",        dep:["T-001-01"] },
       { id:"T-001-03", fn:"Dev",        scope:"Auto-read via SMS Retriever API (Android) + native iOS pattern", est:2,   owner:"Mobile",        status:"In Progress", dep:["T-001-01"] },
       { id:"T-001-04", fn:"Dev",        scope:"3-strike lockout with 5-min backoff + audit log", est:1.5, owner:"Backend",       status:"In Progress", dep:["T-001-02"] },
       { id:"T-001-05", fn:"Dev",        scope:"Backend: phone validation, rate-limiting, OTP hashing (never plaintext)", est:2, owner:"Backend",       status:"Done",        dep:[] },
-      { id:"T-001-06", fn:"QA",         scope:"Device matrix — Android 10–14, iOS 15–17, dual-SIM, low-bandwidth", est:3,   owner:"QA Lead",       status:"Not Started", dep:["T-001-03","T-001-04"] },
-      { id:"T-001-07", fn:"QA",         scope:"Security — OTP replay, enumeration, brute-force", est:1.5, owner:"Security",      status:"Not Started", dep:["T-001-05"] },
+      { id:"T-001-06", fn:"QA",         scope:"Device matrix: Android 10-14, iOS 15-17, dual-SIM, low-bandwidth", est:3,   owner:"QA Lead",       status:"Not Started", dep:["T-001-03","T-001-04"] },
+      { id:"T-001-07", fn:"QA",         scope:"Security: OTP replay, enumeration, brute-force", est:1.5, owner:"Security",      status:"Not Started", dep:["T-001-05"] },
       { id:"T-001-08", fn:"Legal",      scope:"Review phone-collection consent copy; DPDP/PDPB compliance sign-off", est:1,   owner:"Legal",         status:"In Progress", dep:["T-001-01"] },
       { id:"T-001-09", fn:"Compliance", scope:"DLT sender registration + retention policy documentation", est:1,   owner:"Compliance",    status:"Blocked",     dep:[] },
       { id:"T-001-10", fn:"Ops",        scope:"Train CS on unlock flow; KB article; extend CS tool to unlock accounts", est:1,   owner:"Ops Lead",       status:"Not Started", dep:["T-001-04"] },
-      { id:"T-001-11", fn:"Data",       scope:"Funnel events — OTP requested / received / entered / locked / signup done", est:0.5, owner:"Analytics",     status:"Not Started", dep:["T-001-02"] },
+      { id:"T-001-11", fn:"Data",       scope:"Funnel events: OTP requested / received / entered / locked / signup done", est:0.5, owner:"Analytics",     status:"Not Started", dep:["T-001-02"] },
       { id:"T-001-12", fn:"Marketing",  scope:"Signup-screen trust microcopy (\"we never share your number\")", est:0.5, owner:"Marketing",     status:"Done",        dep:["T-001-01"] }
     ],
     risks:[
-      { id:"R-001-01", type:"external_blocker", sev:"high",   msg:"DLT sender registration in India takes 5–15 working days — schedule-killing blocker if not started on day 1", mit:"Kick off DLT process immediately; escalate via operator if >10 days", dismissed:false },
-      { id:"R-001-02", type:"ops",              sev:"medium", msg:"CS unlock tooling often missed — launch without it and ticket volume spikes", mit:"Carve out tooling work in CS sprint before GA", dismissed:false },
+      { id:"R-001-01", type:"external_blocker", sev:"high",   msg:"DLT sender registration in India takes 5 to 15 working days, a schedule-killing blocker if not started on day 1", mit:"Kick off DLT process immediately; escalate via operator if >10 days", dismissed:false },
+      { id:"R-001-02", type:"ops",              sev:"medium", msg:"CS unlock tooling often missed. Launch without it and ticket volume spikes", mit:"Carve out tooling work in CS sprint before GA", dismissed:false },
       { id:"R-001-03", type:"ux",               sev:"medium", msg:"Hard lockout frustrates legit users on mistype", mit:"Use progressive backoff; surface support path after attempt 2", dismissed:false },
-      { id:"R-001-04", type:"dependency",       sev:"medium", msg:"Legal consent copy still under review — Dev may ship with placeholder that fails audit", mit:"Block UI freeze until Legal signs off", dismissed:false }
+      { id:"R-001-04", type:"dependency",       sev:"medium", msg:"Legal consent copy still under review. Dev may ship with placeholder that fails audit", mit:"Block UI freeze until Legal signs off", dismissed:false }
     ],
     assumptions:[ "Using Indian SMS gateway with DLT compliance", "WhatsApp OTP deferred to V2", "Account creation stops at phone verification; KYC later" ]
   },
@@ -425,11 +425,11 @@ const SEED_EXECUTION = [
       { id:"T-002-01", fn:"UI",      scope:"Reorder card on home feed; show SKUs + current price delta", est:1,   owner:"Design Lead", status:"Done",        dep:[] },
       { id:"T-002-02", fn:"Dev",     scope:"Last-basket API + current-price join with freshness window", est:1.5, owner:"Backend",     status:"In Progress", dep:["T-002-01"] },
       { id:"T-002-03", fn:"Dev",     scope:"OOS substitution logic with verified-alt flag + pre-checkout sub confirmation", est:2,   owner:"Backend",     status:"In Progress", dep:["T-002-02"] },
-      { id:"T-002-04", fn:"QA",      scope:"Edge cases — empty history, all-OOS basket, price changes >10%", est:1,   owner:"QA Lead",     status:"Not Started", dep:["T-002-03"] },
+      { id:"T-002-04", fn:"QA",      scope:"Edge cases: empty history, all-OOS basket, price changes >10%", est:1,   owner:"QA Lead",     status:"Not Started", dep:["T-002-03"] },
       { id:"T-002-05", fn:"Data",    scope:"Reorder adoption, substitution accept-rate, time-to-cart delta", est:0.5, owner:"Analytics",   status:"Not Started", dep:["T-002-02"] }
     ],
     risks:[
-      { id:"R-002-01", type:"ux",           sev:"medium", msg:"Substitution acceptance is the real success metric — if users reject subs, feature shifts risk from search to substitution UX", mit:"A/B test auto-sub vs user-confirm-sub before GA", dismissed:false },
+      { id:"R-002-01", type:"ux",           sev:"medium", msg:"Substitution acceptance is the real success metric. If users reject subs, feature shifts risk from search to substitution UX", mit:"A/B test auto-sub vs user-confirm-sub before GA", dismissed:false },
       { id:"R-002-02", type:"data_quality", sev:"low",    msg:"Current-price sync lag may show stale prices", mit:"Define freshness window + stale-price fallback", dismissed:false }
     ],
     assumptions:[ "User has ≥1 completed order in history", "Substitution rules live in catalog service, not app" ]
@@ -446,7 +446,7 @@ const SEED_EXECUTION = [
       { id:"T-003-08", fn:"Marketing",  scope:"In-app announcement + tooltip copy for \"Senior-friendly view\"", est:0.5, owner:"Marketing",   status:"Not Started", dep:["T-003-03"] }
     ],
     risks:[
-      { id:"R-003-01", type:"ux",     sev:"medium", msg:"Font scaling at 120% will overflow existing fixed-height components — needs broader UI audit, not just the toggle", mit:"Scope component audit before shipping toggle", dismissed:false },
+      { id:"R-003-01", type:"ux",     sev:"medium", msg:"Font scaling at 120% will overflow existing fixed-height components. Needs broader UI audit, not just the toggle", mit:"Scope component audit before shipping toggle", dismissed:false },
       { id:"R-003-02", type:"policy", sev:"low",    msg:"Publicly claiming \"WCAG AA\" creates a compliance claim Legal should review", mit:"Route Marketing copy through Legal before GA", dismissed:false },
       { id:"R-003-03", type:"ux",     sev:"medium", msg:"Seniors may never find the toggle in Settings", mit:"Add one-time prompt at signup; let CS activate it remotely", dismissed:false }
     ],
@@ -462,7 +462,7 @@ const SEED_EXECUTION = [
       { id:"T-004-06", fn:"Data", scope:"Slot-to-order conversion, no-slot-available rate, late-delivery tied to slot choice", est:0.5, owner:"Analytics",   status:"Not Started", dep:["T-004-02"] }
     ],
     risks:[
-      { id:"R-004-01", type:"trust",      sev:"high",   msg:"Capacity under-reporting tanks trust; over-reporting causes late deliveries — tune carefully", mit:"Start with 20% buffer; shrink weekly based on on-time %", dismissed:false },
+      { id:"R-004-01", type:"trust",      sev:"high",   msg:"Capacity under-reporting tanks trust; over-reporting causes late deliveries. Tune carefully", mit:"Start with 20% buffer; shrink weekly based on on-time %", dismissed:false },
       { id:"R-004-02", type:"scale",      sev:"medium", msg:"Slot reservations without checkout completion starve inventory", mit:"5-min hold + auto-release; monitor abandoned-hold rate", dismissed:false }
     ],
     assumptions:[ "Dark-store capacity is per 2h window, configurable", "No slot-shifting after order placement in V1" ]
@@ -470,25 +470,25 @@ const SEED_EXECUTION = [
   { storyId:"US-005", confidence:"medium", generatedBy:"seed",
     tasks:[
       { id:"T-005-01", fn:"UI",         scope:"COD option in payment selection (<₹2k gate) + exact-change messaging", est:1,   owner:"Design Lead", status:"Not Started", dep:[] },
-      { id:"T-005-02", fn:"UI",         scope:"Partner app — cash-collected confirm + digital fallback UPI QR", est:1.5, owner:"Design Lead", status:"Not Started", dep:[] },
-      { id:"T-005-03", fn:"Dev",        scope:"Backend — COD flag, order-value ceiling, fulfilment routing", est:2,   owner:"Backend",     status:"Not Started", dep:["T-005-01"] },
-      { id:"T-005-04", fn:"Dev",        scope:"Partner app — cash capture + UPI QR fallback generation", est:3,   owner:"Mobile",      status:"Not Started", dep:["T-005-02"] },
+      { id:"T-005-02", fn:"UI",         scope:"Partner app: cash-collected confirm + digital fallback UPI QR", est:1.5, owner:"Design Lead", status:"Not Started", dep:[] },
+      { id:"T-005-03", fn:"Dev",        scope:"Backend: COD flag, order-value ceiling, fulfilment routing", est:2,   owner:"Backend",     status:"Not Started", dep:["T-005-01"] },
+      { id:"T-005-04", fn:"Dev",        scope:"Partner app: cash capture + UPI QR fallback generation", est:3,   owner:"Mobile",      status:"Not Started", dep:["T-005-02"] },
       { id:"T-005-05", fn:"Dev",        scope:"Refund/cancel logic when cash already collected", est:2,   owner:"Backend",     status:"Not Started", dep:["T-005-03"] },
-      { id:"T-005-06", fn:"QA",         scope:"End-to-end — order → deliver → collect → reconcile → cancel edge cases", est:2,   owner:"QA Lead",     status:"Not Started", dep:["T-005-04","T-005-05"] },
-      { id:"T-005-07", fn:"Legal",      scope:"COD T&Cs — cash-loss liability, merchant agreement alignment", est:1,   owner:"Legal",       status:"Not Started", dep:[] },
+      { id:"T-005-06", fn:"QA",         scope:"End-to-end: order → deliver → collect → reconcile → cancel edge cases", est:2,   owner:"QA Lead",     status:"Not Started", dep:["T-005-04","T-005-05"] },
+      { id:"T-005-07", fn:"Legal",      scope:"COD T&Cs: cash-loss liability, merchant agreement alignment", est:1,   owner:"Legal",       status:"Not Started", dep:[] },
       { id:"T-005-08", fn:"Compliance", scope:"Cash-handling SOP + GST invoice flow for COD orders", est:1,   owner:"Compliance",  status:"Not Started", dep:["T-005-07"] },
       { id:"T-005-09", fn:"Finance",    scope:"Daily cash reconciliation workflow + variance thresholds (est. light)", est:3,   owner:"Finance",     status:"Not Started", dep:["T-005-04"] },
       { id:"T-005-10", fn:"Ops",        scope:"Partner training on exact change, UPI fallback, fraud SOP", est:2,   owner:"Ops Lead",    status:"Not Started", dep:["T-005-04"] },
-      { id:"T-005-11", fn:"Ops",        scope:"Fraud monitoring — flag partners w/ variance spikes or refusal-rate anomalies", est:1.5, owner:"Ops Lead",    status:"Not Started", dep:["T-005-09"] },
+      { id:"T-005-11", fn:"Ops",        scope:"Fraud monitoring: flag partners w/ variance spikes or refusal-rate anomalies", est:1.5, owner:"Ops Lead",    status:"Not Started", dep:["T-005-09"] },
       { id:"T-005-12", fn:"Marketing",  scope:"\"COD available\" badge + senior-trust comms campaign", est:1,   owner:"Marketing",   status:"Not Started", dep:["T-005-03"] },
       { id:"T-005-13", fn:"Data",       scope:"COD adoption, cancellation delta vs prepaid, fraud signals", est:0.5, owner:"Analytics",   status:"Not Started", dep:["T-005-03"] }
     ],
     risks:[
       { id:"R-005-01", type:"fraud",    sev:"high",   msg:"Cash = fraud surface. Partner shrinkage needs detection from day 1, not post-launch", mit:"Ship fraud-monitoring with launch; baseline variance per partner", dismissed:false },
-      { id:"R-005-02", type:"scale",    sev:"high",   msg:"COD cancellation rates run ~12% vs ~4% prepaid in Indian quick-commerce — cancellation UX needs extra care", mit:"Add re-confirm step before dispatch for COD >₹1k", dismissed:false },
+      { id:"R-005-02", type:"scale",    sev:"high",   msg:"COD cancellation rates run ~12% vs ~4% prepaid in Indian quick-commerce. Cancellation UX needs extra care", mit:"Add re-confirm step before dispatch for COD >₹1k", dismissed:false },
       { id:"R-005-03", type:"policy",   sev:"medium", msg:"₹2,000 ceiling will be gamed via cart-splitting", mit:"Rate-limit COD orders per customer per day", dismissed:false },
-      { id:"R-005-04", type:"trust",    sev:"high",   msg:"COD is culturally critical for the senior persona — if launch is buggy, trust with that cohort collapses", mit:"Run senior-only beta before GA", dismissed:false },
-      { id:"R-005-05", type:"ops",      sev:"medium", msg:"Daily cash settlement is manual overhead — does it scale at 10x volume?", mit:"Design workflow with pluggable handoff to aggregator in V2", dismissed:false }
+      { id:"R-005-04", type:"trust",    sev:"high",   msg:"COD is culturally critical for the senior persona. If launch is buggy, trust with that cohort collapses", mit:"Run senior-only beta before GA", dismissed:false },
+      { id:"R-005-05", type:"ops",      sev:"medium", msg:"Daily cash settlement is manual overhead. Does it scale at 10x volume?", mit:"Design workflow with pluggable handoff to aggregator in V2", dismissed:false }
     ],
     assumptions:[ "Delivery partners are tightly-managed (not gig marketplace)", "India-only for V1", "UPI-on-delivery is the digital fallback, not card" ]
   },
@@ -503,7 +503,7 @@ const SEED_EXECUTION = [
       { id:"T-006-07", fn:"Data", scope:"Avg time-to-deliver delta, calls-made rate, gate-miss rate", est:0.5, owner:"Analytics",   status:"Not Started", dep:["T-006-03"] }
     ],
     risks:[
-      { id:"R-006-01", type:"data_quality", sev:"high",   msg:"Map accuracy in dense Indian urban areas is often worse than ±20m — gate field is the real primary, not a fallback", mit:"Make gate field mandatory at address capture, not optional", dismissed:false },
+      { id:"R-006-01", type:"data_quality", sev:"high",   msg:"Map accuracy in dense Indian urban areas is often worse than ±20m. Gate field is the real primary, not a fallback", mit:"Make gate field mandatory at address capture, not optional", dismissed:false },
       { id:"R-006-02", type:"ux",           sev:"low",    msg:"Customer-call prompt may be ignored if UX is friction", mit:"One-tap voice-triggered call flow", dismissed:false }
     ],
     assumptions:[ "Partner app runs on low-end Android; no iOS partners in India V1", "Gate field already exists in address schema" ]
@@ -511,7 +511,7 @@ const SEED_EXECUTION = [
   { storyId:"US-007", confidence:"high", generatedBy:"seed",
     tasks:[
       { id:"T-007-01", fn:"UI",   scope:"Offline indicator + queued-scan count surface in packer app", est:0.5, owner:"Design Lead", status:"Not Started", dep:[] },
-      { id:"T-007-02", fn:"Dev",  scope:"Local scan queue — SQLite or IndexedDB with crash-safe writes", est:2,   owner:"Mobile",      status:"Not Started", dep:["T-007-01"] },
+      { id:"T-007-02", fn:"Dev",  scope:"Local scan queue: SQLite or IndexedDB with crash-safe writes", est:2,   owner:"Mobile",      status:"Not Started", dep:["T-007-01"] },
       { id:"T-007-03", fn:"Dev",  scope:"Sync-on-reconnect with idempotent server API + conflict resolution", est:2,   owner:"Backend",     status:"Not Started", dep:["T-007-02"] },
       { id:"T-007-04", fn:"Dev",  scope:"Cold-start preserves queued scans; surface before new picks", est:1,   owner:"Mobile",      status:"Not Started", dep:["T-007-02"] },
       { id:"T-007-05", fn:"QA",   scope:"Airplane mode, flaky network, app-kill mid-shift scenarios", est:2,   owner:"QA Lead",     status:"Not Started", dep:["T-007-03","T-007-04"] },
@@ -519,7 +519,7 @@ const SEED_EXECUTION = [
       { id:"T-007-07", fn:"Data", scope:"Offline-duration histogram, queue-size anomalies, latency masking alerts", est:0.5, owner:"Analytics",   status:"Not Started", dep:["T-007-03"] }
     ],
     risks:[
-      { id:"R-007-01", type:"data_quality", sev:"high",   msg:"Duplicate scans on reconnect — server API must be idempotent", mit:"Use client-generated scan UUID as idempotency key", dismissed:false },
+      { id:"R-007-01", type:"data_quality", sev:"high",   msg:"Duplicate scans on reconnect. Server API must be idempotent", mit:"Use client-generated scan UUID as idempotency key", dismissed:false },
       { id:"R-007-02", type:"scale",        sev:"medium", msg:"A packer working offline all day generates a huge queue", mit:"Cap queue size; warn packer if cap approaching", dismissed:false },
       { id:"R-007-03", type:"data_quality", sev:"medium", msg:"Scan-to-server latency metric will mask offline-work volume", mit:"Add separate offline-hours-worked metric", dismissed:false }
     ],
@@ -530,21 +530,21 @@ const SEED_EXECUTION = [
       { id:"T-008-01", fn:"UI",      scope:"Stock-out dashboard with \"At risk\" red badge + suggested reorder qty", est:1.5, owner:"Design Lead", status:"Not Started", dep:[] },
       { id:"T-008-02", fn:"Dev",     scope:"Projected stock-out model (consumption × time × safety stock)", est:3,   owner:"Backend",     status:"Not Started", dep:[] },
       { id:"T-008-03", fn:"Dev",     scope:"Reorder-to-PO flow + audit trail + preferred-vendor rules", est:2,   owner:"Backend",     status:"Not Started", dep:["T-008-02"] },
-      { id:"T-008-04", fn:"QA",      scope:"Model edge cases — promo spikes, sparse-history SKUs, new products", est:1,   owner:"QA Lead",     status:"Not Started", dep:["T-008-02"] },
+      { id:"T-008-04", fn:"QA",      scope:"Model edge cases: promo spikes, sparse-history SKUs, new products", est:1,   owner:"QA Lead",     status:"Not Started", dep:["T-008-02"] },
       { id:"T-008-05", fn:"Finance", scope:"Vendor preference rules + PO approval thresholds + spend cap", est:1,   owner:"Finance",     status:"Not Started", dep:["T-008-03"] },
       { id:"T-008-06", fn:"Ops",     scope:"Admin training; escalation path when model errors", est:0.5, owner:"Ops Lead",    status:"Not Started", dep:["T-008-01"] },
-      { id:"T-008-07", fn:"Data",    scope:"Model accuracy tracking — predicted vs actual stockouts, drift alerts", est:1,   owner:"Analytics",   status:"Not Started", dep:["T-008-02"] }
+      { id:"T-008-07", fn:"Data",    scope:"Model accuracy tracking: predicted vs actual stockouts, drift alerts", est:1,   owner:"Analytics",   status:"Not Started", dep:["T-008-02"] }
     ],
     risks:[
-      { id:"R-008-01", type:"trust",    sev:"high",   msg:"Wrong projections erode admin trust fast — ship with confidence bands, not point estimates", mit:"Show range + historical accuracy next to each projection", dismissed:false },
+      { id:"R-008-01", type:"trust",    sev:"high",   msg:"Wrong projections erode admin trust fast. Ship with confidence bands, not point estimates", mit:"Show range + historical accuracy next to each projection", dismissed:false },
       { id:"R-008-02", type:"policy",   sev:"medium", msg:"Full auto-reorder risks over-ordering without human gate", mit:"V1: suggest-only; no auto-send to vendor", dismissed:false },
-      { id:"R-008-03", type:"data_quality", sev:"medium", msg:"Audit trail required for finance reconciliation — missing it breaks month-end close", mit:"Audit log is a launch blocker, not a nice-to-have", dismissed:false }
+      { id:"R-008-03", type:"data_quality", sev:"medium", msg:"Audit trail required for finance reconciliation. Missing it breaks month-end close", mit:"Audit log is a launch blocker, not a nice-to-have", dismissed:false }
     ],
     assumptions:[ "Consumption history ≥30 days available per SKU", "Vendor catalog integration exists; POs sent via existing tool" ]
   },
   { storyId:"US-009", confidence:"high", generatedBy:"seed",
     tasks:[
-      { id:"T-009-01", fn:"UI",      scope:"3-step issue flow — category → photo → resolution picker", est:1.5, owner:"Design Lead", status:"Not Started", dep:[] },
+      { id:"T-009-01", fn:"UI",      scope:"3-step issue flow: category → photo → resolution picker", est:1.5, owner:"Design Lead", status:"Not Started", dep:[] },
       { id:"T-009-02", fn:"Dev",     scope:"Claim service + photo upload + resolution state machine", est:2.5, owner:"Backend",     status:"Not Started", dep:["T-009-01"] },
       { id:"T-009-03", fn:"Dev",     scope:"Auto-refund / replacement flow integration with ops tooling", est:2,   owner:"Backend",     status:"Not Started", dep:["T-009-02"] },
       { id:"T-009-04", fn:"QA",      scope:"Low-bandwidth photo upload; flow under 60s target", est:1,   owner:"QA Lead",     status:"Not Started", dep:["T-009-03"] },
@@ -562,17 +562,17 @@ const SEED_EXECUTION = [
   },
   { storyId:"US-010", confidence:"medium", generatedBy:"seed",
     tasks:[
-      { id:"T-010-01", fn:"UI",   scope:"Scorecard UI — metric cards, WoW deltas, red-flag threshold, drill-down links", est:1.5, owner:"Design Lead", status:"Not Started", dep:[] },
+      { id:"T-010-01", fn:"UI",   scope:"Scorecard UI: metric cards, WoW deltas, red-flag threshold, drill-down links", est:1.5, owner:"Design Lead", status:"Not Started", dep:[] },
       { id:"T-010-02", fn:"Dev",  scope:"Metrics aggregation ETL per store per week (in-stock %, pick-pack errors, on-time %, QC rejects)", est:2,   owner:"Backend",     status:"Not Started", dep:[] },
       { id:"T-010-03", fn:"Dev",  scope:"Deltas + target comparison + red flag (>10% miss)", est:1,   owner:"Backend",     status:"Not Started", dep:["T-010-02"] },
       { id:"T-010-04", fn:"QA",   scope:"Time-zone edge cases (IST week boundaries vs UTC)", est:0.5, owner:"QA Lead",     status:"Not Started", dep:["T-010-03"] },
       { id:"T-010-05", fn:"Data", scope:"Canonical metric definitions doc + target alignment with Ops", est:1,   owner:"Analytics",   status:"Not Started", dep:[] }
     ],
     risks:[
-      { id:"R-010-01", type:"data_quality", sev:"medium", msg:"Metric definitions drift between teams — canonical definitions matter most", mit:"Lock definitions before build; publish in shared data dict", dismissed:false },
-      { id:"R-010-02", type:"scale",        sev:"low",    msg:"Could-priority — may slip under MVP pressure; don't block on it", mit:"Accept slip to R2 if dev capacity tight", dismissed:false }
+      { id:"R-010-01", type:"data_quality", sev:"medium", msg:"Metric definitions drift between teams. Canonical definitions matter most", mit:"Lock definitions before build; publish in shared data dict", dismissed:false },
+      { id:"R-010-02", type:"scale",        sev:"low",    msg:"Could-priority: may slip under MVP pressure; don't block on it", mit:"Accept slip to R2 if dev capacity tight", dismissed:false }
     ],
-    assumptions:[ "Source data exists in warehouse; no new instrumentation needed", "Weekly cadence — daily view deferred" ]
+    assumptions:[ "Source data exists in warehouse; no new instrumentation needed", "Weekly cadence, daily view deferred" ]
   }
 ];
 
@@ -640,7 +640,7 @@ const resultChip = (r) => {
 };
 
 /*─────────────────────────────────────────────────────────────────────
-  LLM STUB · Path 2b — future-proofed for live model
+  LLM STUB · Path 2b: future-proofed for live model
   ────────────────────────────────────────────────────────────────────
   callLLM({ prompt, fallback, system? }) returns { text, source }.
   source = "hardcoded" when no API key is set; "live" when routed.
@@ -661,7 +661,7 @@ async function callLLM({ prompt, fallback, system }) {
 }
 
 /* Prompt template for story → cross-functional task plan.
-   Kept here so it travels with the callLLM stub — easy to iterate. */
+   Kept here so it travels with the callLLM stub. Easy to iterate. */
 const EXEC_DECOMPOSE_PROMPT = (ctx, story) => `You are an AI Project Manager decomposing a user story into a cross-functional task plan.
 
 PRODUCT CONTEXT:
@@ -753,14 +753,14 @@ function generatePRD(p){
   const today = new Date().toISOString().slice(0,10);
   const { problem, strategy, personas, stories, backlog, storyMap, wireframes, flows, sprints, execution, architecture, tests, release, kpis, name } = p;
   const L = [];
-  L.push(`# Product Requirements Document — ${name}`);
+  L.push(`# Product Requirements Document: ${name}`);
   L.push(`*Auto-generated by RPOS · ${today}*`);
   L.push("");
   L.push(`## 1. Problem & Opportunity`);
   L.push(problem.statement || "_(not set)_");
   L.push("");
-  L.push(`**Target Users:** ${problem.targetUsers || "—"}`);
-  L.push(`**Market Size:** ${problem.marketSize || "—"}`);
+  L.push(`**Target Users:** ${problem.targetUsers || "-"}`);
+  L.push(`**Market Size:** ${problem.marketSize || "-"}`);
   if ((problem.hypotheses||[]).length){ L.push(""); L.push(`**Hypotheses**`); problem.hypotheses.forEach(h=>L.push(`- ${h}`)); }
   if ((problem.assumptions||[]).length){ L.push(""); L.push(`**Key Assumptions**`); problem.assumptions.forEach(a=>L.push(`- ${a}`)); }
   L.push("");
@@ -779,7 +779,7 @@ function generatePRD(p){
     L.push(`**Demographics:** ${pp.demographics}`);
     L.push(`**Goals:**`); pp.goals.forEach(g=>L.push(`- ${g}`));
     L.push(`**Pain Points:**`); pp.painPoints.forEach(g=>L.push(`- ${g}`));
-    L.push(`**Empathy Map — Think / Feel / Say / Do:**`);
+    L.push(`**Empathy Map (Think / Feel / Say / Do):**`);
     L.push(`- **Think:** ${pp.empathy.think}`);
     L.push(`- **Feel:** ${pp.empathy.feel}`);
     L.push(`- **Say:** ${pp.empathy.say}`);
@@ -790,7 +790,7 @@ function generatePRD(p){
   const byEpic = {};
   stories.forEach(s => { byEpic[s.epic] = byEpic[s.epic] || []; byEpic[s.epic].push(s); });
   Object.entries(byEpic).forEach(([epic, ss])=>{
-    L.push(`### Epic — ${epic}`);
+    L.push(`### Epic: ${epic}`);
     ss.forEach(s=>{
       L.push(`**${s.id} · ${s.priority} · ${s.points} pts · ${s.status}**`);
       L.push(`> ${s.story}`);
@@ -804,7 +804,7 @@ function generatePRD(p){
   storyMap.swimlanes.forEach(sw=>{
     L.push(`### ${sw.release}`);
     storyMap.activities.forEach((a, i)=>{
-      L.push(`- **${a}:** ${(sw.tasks[i]||[]).join(", ") || "—"}`);
+      L.push(`- **${a}:** ${(sw.tasks[i]||[]).join(", ") || "-"}`);
     });
     L.push("");
   });
@@ -814,7 +814,7 @@ function generatePRD(p){
   backlog.forEach(b=>L.push(`| ${b.id} | ${b.title} | ${b.epic} | ${b.priority} | ${b.pts} | ${b.status} |`));
   L.push("");
   if ((wireframes||[]).length){
-    L.push(`## 7. Design — Wireframes & Flows`);
+    L.push(`## 7. Design: Wireframes & Flows`);
     L.push(`### Wireframes`);
     L.push(`| ID | Screen | Persona | Status | Notes |`);
     L.push(`|---|---|---|---|---|`);
@@ -825,7 +825,7 @@ function generatePRD(p){
     L.push("");
   }
   if ((sprints||[]).length || (architecture && architecture.summary)){
-    L.push(`## 8. Delivery — Sprints & Architecture`);
+    L.push(`## 8. Delivery: Sprints & Architecture`);
     if ((sprints||[]).length){
       L.push(`### Sprint Plan`);
       L.push(`| Sprint | Dates | Capacity | Committed | Items | Status |`);
@@ -839,12 +839,12 @@ function generatePRD(p){
       if ((architecture.stack||[]).length){
         L.push("");
         L.push(`**Stack**`);
-        architecture.stack.forEach(s=>L.push(`- **${s.layer}** — ${s.tech}`));
+        architecture.stack.forEach(s=>L.push(`- **${s.layer}**: ${s.tech}`));
       }
       if ((architecture.risks||[]).length){
         L.push("");
         L.push(`**Technical Risks**`);
-        architecture.risks.forEach(r=>L.push(`- **${r.id}** ${r.risk} — _mitigation:_ ${r.mitigation}`));
+        architecture.risks.forEach(r=>L.push(`- **${r.id}** ${r.risk}. _Mitigation:_ ${r.mitigation}`));
       }
       L.push("");
     }
@@ -861,7 +861,7 @@ function generatePRD(p){
     const pct   = total ? Math.round((done/total)*100) : 0;
     const byFn = {};
     allTasks.forEach(t=>{ byFn[t.fn] = (byFn[t.fn]||0)+1; });
-    L.push(`## 8a. Execution Status — AI Project Manager`);
+    L.push(`## 8a. Execution Status: AI Project Manager`);
     L.push(`_Cross-functional breakdown auto-generated by RPOS AI PM. Confidence and ownership tracked per task._`);
     L.push("");
     L.push(`**Overall progress:** ${done}/${total} tasks Done (${pct}%) · ${prog} In Progress · ${blk} Blocked · ${allRisks.length} open risk${allRisks.length===1?"":"s"}`);
@@ -878,19 +878,19 @@ function generatePRD(p){
       const t = pl.tasks||[];
       const d = t.filter(x=>x.status==="Done").length;
       const b = t.filter(x=>x.status==="Blocked").length;
-      L.push(`| ${pl.storyId} | ${t.length} | ${d} | ${b} | ${pl.confidence||"—"} |`);
+      L.push(`| ${pl.storyId} | ${t.length} | ${d} | ${b} | ${pl.confidence||"-"} |`);
     });
     L.push("");
     if (allRisks.length){
       L.push(`### Open Risks & Blockers`);
       allRisks.sort((a,b)=>{ const o={high:0,med:1,low:2}; return (o[a.sev]??3)-(o[b.sev]??3); }).forEach(r=>{
-        L.push(`- **[${(r.sev||"").toUpperCase()}] ${r.type||"risk"}** — ${r.msg}  _mitigation:_ ${r.mit||"—"}`);
+        L.push(`- **[${(r.sev||"").toUpperCase()}] ${r.type||"risk"}**: ${r.msg}  _mitigation:_ ${r.mit||"-"}`);
       });
       L.push("");
     }
   }
   if ((tests||[]).length){
-    L.push(`## 9. QA — Test Plan & Coverage`);
+    L.push(`## 9. QA: Test Plan & Coverage`);
     L.push(`| Test ID | Story | Type | Result | Owner | Last Run |`);
     L.push(`|---|---|---|---|---|---|`);
     tests.forEach(t=>L.push(`| ${t.id} | ${t.storyRef} | ${t.type} | ${t.result} | ${t.owner} | ${t.run} |`));
@@ -916,7 +916,7 @@ function generatePRD(p){
     L.push("");
   }
   L.push(`---`);
-  L.push(`_RPOS auto-compiles this PRD from every module — edit any input and this document updates in real time._`);
+  L.push(`_RPOS auto-compiles this PRD from every module. Edit any input and this document updates in real time._`);
   return L.join("\n");
 }
 
@@ -1200,7 +1200,7 @@ function StrategyModule({ strategy, setStrategy }){
       <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-card">
         <h3 className="text-sm font-semibold text-slate-900 flex items-center gap-2 mb-3"><Icon name="sparkles" className="w-4 h-4 text-indigo-600"/>Value Proposition</h3>
         <TA value={strategy.valueProp} onChange={e=>setStrategy({...strategy, valueProp:e.target.value})} rows={4} />
-        <p className="text-[11px] text-slate-400 mt-1">Structure: For [user] who [need], our [product] delivers [benefit] — unlike [alternative] because [reason].</p>
+        <p className="text-[11px] text-slate-400 mt-1">Structure: For [user] who [need], our [product] delivers [benefit], unlike [alternative] because [reason].</p>
       </div>
       <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-card">
         <h3 className="text-sm font-semibold text-slate-900 flex items-center gap-2 mb-3"><Icon name="bolt" className="w-4 h-4 text-indigo-600"/>Elevator Pitch</h3>
@@ -1385,7 +1385,7 @@ function StoryRow({ story, onChange, onDelete, personas }){
         <div className="border-t border-slate-100 p-4 bg-slate-50/50">
           <Field label="Persona">
             <Select value={story.persona} onChange={e=>upd({persona:e.target.value})}>
-              {personas.map(p=><option key={p.id}>{p.name.split(" —")[0]} ({p.role.split(" ·")[0]})</option>)}
+              {personas.map(p=><option key={p.id}>{p.name.split(":")[0]} ({p.role.split(" ·")[0]})</option>)}
             </Select>
           </Field>
           <div className="mt-3">
@@ -1414,7 +1414,7 @@ function StoriesModule({ stories, setStories, personas }){
   const [filter, setFilter] = useState("");
   const [sortBy, setSortBy] = useState("id");
   const addStory = ()=>setStories([{
-    id:uid("US"), epic:"New Epic", persona: personas[0]?.name || "—",
+    id:uid("US"), epic:"New Epic", persona: personas[0]?.name || "-",
     story:"As a [user], I want [action] so that [benefit]",
     priority:"Should", points:3, status:"Backlog",
     ac:[{given:"",when:"",then:""}]
@@ -1530,7 +1530,7 @@ function StoryMapModule({ storyMap, setStoryMap }){
   return (
     <div>
       <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2 mb-1"><Icon name="map"/> Story Map</h2>
-      <p className="text-sm text-slate-500 mb-4">Buyer journey across MVP · R2 · R3 — inputs sync to the PRD release plan.</p>
+      <p className="text-sm text-slate-500 mb-4">Buyer journey across MVP · R2 · R3. Inputs sync to the PRD release plan.</p>
       <div className="bg-white border border-slate-200 rounded-xl shadow-card overflow-x-auto">
         <table className="min-w-full text-sm">
           <thead>
@@ -1570,7 +1570,7 @@ function StoryMapModule({ storyMap, setStoryMap }){
 ─────────────────────────────────────────────────────────────────────*/
 function WireframesModule({ wireframes, setWireframes, personas }){
   const upd = (idx, patch)=>setWireframes(wireframes.map((w,i)=> i===idx ? {...w, ...patch}:w));
-  const add = ()=>setWireframes([{id:uid("W"), screen:"New Screen", persona:(personas[0]&&personas[0].name.split(" —")[0])||"—", notes:"", status:"Draft"}, ...wireframes]);
+  const add = ()=>setWireframes([{id:uid("W"), screen:"New Screen", persona:(personas[0]&&personas[0].name.split(":")[0])||"-", notes:"", status:"Draft"}, ...wireframes]);
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
@@ -1757,8 +1757,8 @@ function TestPlanModule({ tests, setTests, stories }){
       (s.ac||[]).forEach((a,idx)=>{
         next.push({
           id: uid("T"), storyRef: s.id,
-          title: `AC${idx+1} — ${(a.then||"").slice(0,80) || "New test"}`,
-          type: "Functional", result:"Pending", owner:"—", run:"—"
+          title: `AC${idx+1}: ${(a.then||"").slice(0,80) || "New test"}`,
+          type: "Functional", result:"Pending", owner:"-", run:"-"
         });
       });
     });
@@ -1773,7 +1773,7 @@ function TestPlanModule({ tests, setTests, stories }){
         </div>
         <div className="flex items-center gap-2">
           <Btn size="sm" variant="subtle" icon={<Icon name="sparkles"/>} onClick={generateFromAC}>Generate from AC</Btn>
-          <Btn icon={<Icon name="plus"/>} onClick={()=>setTests([{id:uid("T"), storyRef:"", title:"New test", type:"Functional", result:"Pending", owner:"—", run:today}, ...tests])}>Add test</Btn>
+          <Btn icon={<Icon name="plus"/>} onClick={()=>setTests([{id:uid("T"), storyRef:"", title:"New test", type:"Functional", result:"Pending", owner:"-", run:today}, ...tests])}>Add test</Btn>
         </div>
       </div>
       <div className="bg-white border border-slate-200 rounded-xl shadow-card overflow-hidden">
@@ -2022,7 +2022,7 @@ function fnColor(fn){
 function buildStatusReportFallback(execution, stories){
   const today = new Date().toISOString().slice(0,10);
   const L = [];
-  L.push(`# Execution Status Report — ${today}`);
+  L.push(`# Execution Status Report: ${today}`);
   L.push("");
   const allTasks = execution.flatMap(p => p.tasks || []);
   const done = allTasks.filter(t=>t.status==="Done").length;
@@ -2050,7 +2050,7 @@ function buildStatusReportFallback(execution, stories){
     L.push(`> ${title}`);
     const blk = (p.tasks||[]).filter(t=>t.status==="Blocked");
     if (blk.length){
-      L.push(`**Blocked:** ${blk.map(t=>`${t.fn} — ${t.scope}`).join("; ")}`);
+      L.push(`**Blocked:** ${blk.map(t=>`${t.fn}: ${t.scope}`).join("; ")}`);
     }
     L.push("");
   });
@@ -2074,7 +2074,7 @@ function buildReplanFallback(execution, stories){
     L.push(`## Deferrable to next release`);
     coulds.forEach(p => {
       const s = stories.find(st=>st.id===p.storyId);
-      L.push(`- **${p.storyId}** (${s.priority}) — ${(p.tasks||[]).length} tasks · can slip to R2/R3 without MVP impact`);
+      L.push(`- **${p.storyId}** (${s.priority}): ${(p.tasks||[]).length} tasks · can slip to R2/R3 without MVP impact`);
     });
     L.push("");
   }
@@ -2083,16 +2083,16 @@ function buildReplanFallback(execution, stories){
   if (blocked.length){
     L.push(`## Active schedule blockers`);
     blocked.forEach(({t, sid}) => {
-      L.push(`- **${sid} · ${t.fn}** — ${t.scope}`);
+      L.push(`- **${sid} · ${t.fn}**: ${t.scope}`);
       L.push(`  - Owner: ${t.owner || "unassigned"} · Est: ${t.est}d`);
     });
     L.push("");
   }
   // Heuristic 3: Hidden dependency reversals
   L.push(`## Sequencing recommendations`);
-  L.push(`- **US-001** — Compliance (DLT registration) is currently blocked; kick off day 1 regardless of Dev readiness. DLT lead time is 5–15 working days.`);
-  L.push(`- **US-005** — Finance reconciliation workflow should precede partner-app cash capture. Reorder T-005-09 before T-005-04 to avoid rework.`);
-  L.push(`- **US-008** — Audit trail must land with first reorder PO, not after. It's a launch blocker for finance reconciliation.`);
+  L.push(`- **US-001**: Compliance (DLT registration) is currently blocked; kick off day 1 regardless of Dev readiness. DLT lead time is 5 to 15 working days.`);
+  L.push(`- **US-005**: Finance reconciliation workflow should precede partner-app cash capture. Reorder T-005-09 before T-005-04 to avoid rework.`);
+  L.push(`- **US-008**: Audit trail must land with first reorder PO, not after. It's a launch blocker for finance reconciliation.`);
   L.push("");
   L.push(`_Review these with the PM before applying. Re-plan is advisory, not auto-applied._`);
   return L.join("\n");
@@ -2111,7 +2111,7 @@ function TaskRow({ task, plan, allTasks, onChange }){
       <td className="px-2 py-2 text-[12px] text-slate-700 align-top">{task.scope}</td>
       <td className="px-2 py-2 align-top">
         <input value={task.owner || ""}
-          placeholder="—"
+          placeholder="-"
           onChange={e=>onChange({...task, owner:e.target.value})}
           className="w-28 text-[11px] border border-slate-200 rounded px-1.5 py-0.5 bg-white focus:outline-none focus:border-indigo-400"/>
       </td>
@@ -2123,7 +2123,7 @@ function TaskRow({ task, plan, allTasks, onChange }){
           {TASK_STATUSES.map(s=><option key={s} value={s}>{s}</option>)}
         </select>
       </td>
-      <td className="px-2 py-2 text-[10px] text-slate-400 align-top whitespace-nowrap">{depNames || "—"}</td>
+      <td className="px-2 py-2 text-[10px] text-slate-400 align-top whitespace-nowrap">{depNames || "-"}</td>
     </tr>
   );
 }
@@ -2287,7 +2287,7 @@ function TeamLoadView({ execution }){
                   </div>
                 </td>
                 <td className="px-3 py-2 text-center">{v.active}</td>
-                <td className="px-3 py-2 text-center">{v.blocked > 0 ? <span className="chip chip-red">{v.blocked}</span> : "—"}</td>
+                <td className="px-3 py-2 text-center">{v.blocked > 0 ? <span className="chip chip-red">{v.blocked}</span> : "-"}</td>
                 <td className="px-3 py-2 text-center">{v.total}</td>
                 <td className={cls("px-3 py-2 text-center font-semibold", overloaded ? "text-red-600" : "text-slate-700")}>{v.days}d</td>
                 <td className="px-3 py-2">
@@ -2436,7 +2436,7 @@ function ExecutionModule({ execution, setExecution, stories }){
       <div className="grid grid-cols-4 gap-2">
         {[
           { label:"Tasks", value: `${doneTasks}/${totalTasks}`, tone:"bg-slate-100 text-slate-700" },
-          { label:"Completion", value: totalTasks ? Math.round(doneTasks/totalTasks*100)+"%" : "—", tone:"bg-emerald-50 text-emerald-700" },
+          { label:"Completion", value: totalTasks ? Math.round(doneTasks/totalTasks*100)+"%" : "-", tone:"bg-emerald-50 text-emerald-700" },
           { label:"Blocked", value: blockedTasks, tone: blockedTasks ? "bg-red-50 text-red-700" : "bg-slate-100 text-slate-500" },
           { label:"High-sev risks", value: highRisks, tone: highRisks ? "bg-amber-50 text-amber-700" : "bg-slate-100 text-slate-500" }
         ].map(c=>(
@@ -2500,16 +2500,16 @@ function DashboardStrip({ project, activeStageName }){
   const execBlk   = execTasks.filter(t=>t.status==="Blocked").length;
   const execRisks = (execution||[]).flatMap(pl=>(pl.risks||[]).filter(r=>!r.dismissed)).length;
   const execPct   = execTasks.length ? Math.round((execDone/execTasks.length)*100) : 0;
-  const execLabel = execTasks.length ? `${execPct}% · ${execBlk?`${execBlk} blkd`:`${execRisks} risk${execRisks===1?"":"s"}`}` : "—";
+  const execLabel = execTasks.length ? `${execPct}% · ${execBlk?`${execBlk} blkd`:`${execRisks} risk${execRisks===1?"":"s"}`}` : "-";
   const cards = [
     { label:"SDLC Stage", value:activeStageName, tone:"indigo" },
     { label:"Personas", value:personas.length, tone:"cyan" },
     { label:"User Stories", value:stories.length + " · " + totalPts + "pts", tone:"slate" },
-    { label:"Completion", value: totalPts? Math.round(donePts/totalPts*100)+"%":"—", tone:"green" },
+    { label:"Completion", value: totalPts? Math.round(donePts/totalPts*100)+"%":"-", tone:"green" },
     { label:"Must-haves", value:mustCount, tone:"amber" },
     { label:"At-risk Musts", value:atRisk, tone:atRisk>3?"red":"slate" },
     { label:"AI PM Exec", value: execLabel, tone: execBlk>0?"red":(execTasks.length?"violet":"slate") },
-    { label:"Tests Pass", value: tests.length ? `${testPass}/${tests.length}` : "—", tone:"green" },
+    { label:"Tests Pass", value: tests.length ? `${testPass}/${tests.length}` : "-", tone:"green" },
     { label:"KPIs", value: kpis.length, tone:"pink" }
   ];
   const tones = { indigo:"bg-indigo-50 text-indigo-700", cyan:"bg-cyan-50 text-cyan-700", slate:"bg-slate-100 text-slate-700", green:"bg-emerald-50 text-emerald-700", amber:"bg-amber-50 text-amber-700", red:"bg-red-50 text-red-700", pink:"bg-pink-50 text-pink-700", violet:"bg-violet-50 text-violet-700" };
@@ -2640,7 +2640,7 @@ function ProjectSwitcher({ ws, onSelect, onNew, onRename, onDelete }){
 }
 
 /*─────────────────────────────────────────────────────────────────────
-  SIDEBAR — SDLC NAV (content-aware)
+  SIDEBAR: SDLC NAV (content-aware)
 ─────────────────────────────────────────────────────────────────────*/
 function Sidebar({ active, setActive, stageProgress }){
   return (
@@ -2708,7 +2708,7 @@ function TopBar({ ws, onSelect, onNew, onRename, onDelete, onExport, onPresent, 
 }
 
 /*─────────────────────────────────────────────────────────────────────
-  PRESENT (demo) OVERLAY — full-screen live PRD
+  PRESENT (demo) OVERLAY: full-screen live PRD
 ─────────────────────────────────────────────────────────────────────*/
 function PresentOverlay({ prd, onClose }){
   return (
@@ -2798,7 +2798,7 @@ function App(){
   }, [cur]);
 
   const stageMeta = SDLC_STAGES.find(s=>s.id===cur.activeStage) || SDLC_STAGES[0];
-  const moduleName = (MODULE_META[cur.activeModule] || {}).name || "—";
+  const moduleName = (MODULE_META[cur.activeModule] || {}).name || "-";
   const activeModules = stageMeta.modules;
 
   return (

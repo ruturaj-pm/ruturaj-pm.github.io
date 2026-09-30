@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>PyQuest — learn Python by doing</title>
+<title>PyQuest: learn Python by doing</title>
 <meta name="description" content="A free, gamified Python course that runs entirely in your browser. No account, no paywall.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
@@ -201,7 +201,7 @@ textarea.editor::placeholder{color:#7E948A}
   <div id="viewHome">
     <div class="hero">
       <h1>Learn Python <em>by doing</em>.</h1>
-      <p>Tiny lessons, real code, instant feedback. 6 modules, 28 lessons, free forever — no account, no paywall, runs entirely on your device.</p>
+      <p>Tiny lessons, real code, instant feedback. 6 modules, 28 lessons, free forever. No account, no paywall, runs entirely on your device.</p>
       <div class="tabs">
         <button class="tab on" id="tabLearn" onclick="showTab('learn')">Lessons</button>
         <button class="tab" id="tabPlay" onclick="showTab('play')">Playground</button>
@@ -216,7 +216,7 @@ textarea.editor::placeholder{color:#7E948A}
     <div id="panePlay" class="hidden">
       <div class="card" style="margin-top:18px">
         <h3>Playground</h3>
-        <p style="color:var(--ink-soft); font-size:.92rem; margin-top:6px">A blank page. Try anything you've learned. (<code>input()</code> returns empty text here — it comes alive inside lessons.)</p>
+        <p style="color:var(--ink-soft); font-size:.92rem; margin-top:6px">A blank page. Try anything you've learned. (<code>input()</code> returns empty text here. It comes alive inside lessons.)</p>
         <textarea class="editor" id="playEditor" spellcheck="false" autocapitalize="off" autocomplete="off" placeholder='print("hello from the playground")'></textarea>
         <div class="run-row"><button class="btn btn-primary" id="playRun" onclick="runPlayground()">Run ▸</button></div>
         <div class="console" id="playOut"></div>
@@ -245,9 +245,9 @@ textarea.editor::placeholder{color:#7E948A}
       <div class="crest">🐍</div>
       <div class="small">PyQuest · Certificate of Completion</div>
       <h2>This certifies that</h2>
-      <div class="name" id="certName">—</div>
+      <div class="name" id="certName">-</div>
       <div class="line"></div>
-      <div class="body">completed all 6 modules of PyQuest — 28 hands-on lessons covering Python fundamentals: output, variables, f-strings, conditionals, loops, lists, and functions — by writing and passing every line of code themselves.</div>
+      <div class="body">completed all 6 modules of PyQuest (28 hands-on lessons covering Python fundamentals: output, variables, f-strings, conditionals, loops, lists, and functions) by writing and passing every line of code themselves.</div>
       <div class="date" id="certDate"></div>
     </div>
     <div class="run-row no-print" style="justify-content:center; margin-top:16px">
@@ -281,8 +281,8 @@ textarea.editor::placeholder{color:#7E948A}
 <script>
 /* =====================================================================
    CURRICULUM
-   This block is the entire course. To add or edit lessons, edit here —
-   no other code needs to change. Step types: learn | quiz | code.
+   This block is the entire course. To add or edit lessons, edit here.
+   No other code needs to change. Step types: learn | quiz | code.
    See README.md for the full authoring guide.
    ===================================================================== */
 const MODULES = [
@@ -290,23 +290,23 @@ const MODULES = [
 /* ---------------- MODULE 1 ---------------- */
 { id:"m1", num:1, title:"Python foundations",
   lessons:[
-  { id:"m1l1", title:"Say hello", sub:"print() — your first command", xp:25,
+  { id:"m1l1", title:"Say hello", sub:"print(): your first command", xp:25,
     steps:[
       { type:"learn", title:"Computers are obedient, not smart",
-        body:["Python does <em>exactly</em> what you tell it — nothing more. Your first command: <code>print()</code> puts text on the screen.",
+        body:["Python does <em>exactly</em> what you tell it, nothing more. Your first command: <code>print()</code> puts text on the screen.",
               "Text always goes inside quotes. Press <strong>Run</strong> below and watch it obey."],
         example:'print("Hello, world!")\nprint("I am giving orders to a computer.")' },
       { type:"quiz", title:"Quick check",
         q:'What appears on screen when you run <code>print("42")</code>?',
         opts:["42","\"42\" (with the quotes)","Nothing","An error"], answer:0,
-        why:"Quotes tell Python where text starts and ends — they never get printed themselves." },
+        why:"Quotes tell Python where text starts and ends. They never get printed themselves." },
       { type:"code", title:"Your turn",
         task:'Make the screen say exactly: <strong>Hello, Python!</strong>',
         starter:'# Write one line of code below:\n',
         checks:[{kind:"output", mode:"exact", value:"Hello, Python!", msg:"The output should be exactly: Hello, Python!"}],
-        hint:'print("Hello, Python!") — capital H, capital P, and the exclamation mark all matter.' }
+        hint:'print("Hello, Python!")\nCapital H, capital P, and the exclamation mark all matter.' }
     ]},
-  { id:"m1l2", title:"Remember things", sub:"variables — labeled boxes", xp:25,
+  { id:"m1l2", title:"Remember things", sub:"variables: labeled boxes", xp:25,
     steps:[
       { type:"learn", title:"Variables are labeled boxes",
         body:["A variable stores a value under a name so you can reuse it: <code>city = \"Mumbai\"</code>.",
@@ -322,9 +322,9 @@ const MODULES = [
         checks:[
           {kind:"code", contains:"food", msg:"Use a variable named food."},
           {kind:"output", mode:"contains", value:"I love", msg:"The output should start with: I love"}],
-        hint:'food = "vada pav" — the value needs quotes because it is text. print() with a comma adds the space for you.' }
+        hint:'food = "vada pav"\nThe value needs quotes because it is text. print() with a comma adds the space for you.' }
     ]},
-  { id:"m1l3", title:"String glue", sub:"f-strings — drop variables into text", xp:25,
+  { id:"m1l3", title:"String glue", sub:"f-strings: drop variables into text", xp:25,
     steps:[
       { type:"learn", title:"f-strings: fill in the blanks",
         body:["Put an <code>f</code> before the quotes and Python fills anything inside <code>{ }</code> with a variable's value.",
@@ -338,7 +338,7 @@ const MODULES = [
         task:'The variables are ready. Use <strong>one f-string</strong> to print exactly: <strong>Ada is 36 years old</strong>',
         starter:'name = "Ada"\nage = 36\n# your f-string print below:\n',
         checks:[
-          {kind:"code", containsAny:['f"',"f'"], msg:"Use an f-string — an f right before the opening quote."},
+          {kind:"code", containsAny:['f"',"f'"], msg:"Use an f-string: an f right before the opening quote."},
           {kind:"output", mode:"exact", value:"Ada is 36 years old", msg:"Expected exactly: Ada is 36 years old"}],
         hint:'print(f"{name} is {age} years old")' }
     ]},
@@ -353,14 +353,14 @@ const MODULES = [
         opts:["5","23","2 + 3","An error"], answer:1,
         why:"With quotes they're text, and + glues text together. Drop the quotes to get real addition." },
       { type:"code", title:"Your turn",
-        task:'A samosa costs ₹15. You\'re buying for the whole team — 12 of them. Use <strong>*</strong> to print the total cost as a plain number.',
+        task:'A samosa costs ₹15. You\'re buying for the whole team, 12 of them. Use <strong>*</strong> to print the total cost as a plain number.',
         starter:'price = 15\nqty = 12\n',
         checks:[
-          {kind:"code", contains:"*", msg:"Make Python do the multiplying — use *."},
+          {kind:"code", contains:"*", msg:"Make Python do the multiplying: use *."},
           {kind:"output", mode:"exact", value:"180", msg:"Expected exactly: 180"}],
         hint:'print(price * qty)' }
     ]},
-  { id:"m1l5", title:"Ask the user", sub:"input() — programs that listen", xp:25,
+  { id:"m1l5", title:"Ask the user", sub:"input(): programs that listen", xp:25,
     steps:[
       { type:"learn", title:"input() pauses and listens",
         body:["<code>input(\"Name? \")</code> shows a question, waits for typing, and hands back whatever was typed.",
@@ -370,9 +370,9 @@ const MODULES = [
       { type:"quiz", title:"Quick check",
         q:'A user types <strong>25</strong> into <code>input()</code>. What does Python hand back?',
         opts:["The number 25","The text \"25\"","Nothing"], answer:1,
-        why:"input() always returns text — even when it looks like a number. Converting it comes in Module 2." },
+        why:"input() always returns text, even when it looks like a number. Converting it comes in Module 2." },
       { type:"code", title:"Your turn",
-        task:'Ask for the user\'s name with <code>input()</code>, then greet them: <strong>Welcome, NAME!</strong> — the test user will type <em>Rohan</em>.',
+        task:'Ask for the user\'s name with <code>input()</code>, then greet them: <strong>Welcome, NAME!</strong> (the test user will type <em>Rohan</em>).',
         starter:'name = input("Your name? ")\n',
         inputs:["Rohan"],
         checks:[
@@ -383,14 +383,14 @@ const MODULES = [
   { id:"m1l6", title:"Mini-boss: chai shop greeter", sub:"everything so far, combined", xp:40, boss:true,
     steps:[
       { type:"learn", title:"⚔️ Boss rules",
-        body:["No new concepts — just you combining <code>input()</code>, variables, and an f-string.",
+        body:["No new concepts: just you combining <code>input()</code>, variables, and an f-string.",
               "You're writing the greeter for a chai shop's ordering kiosk. Worth <strong>40 XP</strong>."] },
       { type:"code", title:"The boss fight",
         task:'1) Ask the customer\'s <strong>name</strong>. 2) Ask their <strong>drink</strong>. 3) Print: <strong>Hi NAME, one DRINK coming up!</strong><br>The test customer answers <em>Zara</em>, then <em>masala chai</em>.',
         starter:'# Step 1: ask the name\n# Step 2: ask the drink\n# Step 3: greet with an f-string\n',
         inputs:["Zara","masala chai"],
         checks:[
-          {kind:"code", contains:"input", msg:"Use input() — twice."},
+          {kind:"code", contains:"input", msg:"Use input() twice."},
           {kind:"code", containsAny:['f"',"f'"], msg:"Use an f-string for the greeting."},
           {kind:"output", mode:"contains", value:"Hi Zara, one masala chai coming up!", msg:"Expected: Hi Zara, one masala chai coming up!"}],
         hint:'name = input("Name? ")  then  drink = input("Drink? ")  then  print(f"Hi {name}, one {drink} coming up!")' }
@@ -398,18 +398,18 @@ const MODULES = [
 ]},
 
 /* ---------------- MODULE 2 ---------------- */
-{ id:"m2", num:2, title:"Decisions — if / else",
+{ id:"m2", num:2, title:"Decisions: if / else",
   lessons:[
-  { id:"m2l1", title:"True or False", sub:"comparisons — Python's yes/no", xp:25,
+  { id:"m2l1", title:"True or False", sub:"comparisons: Python's yes/no", xp:25,
     steps:[
       { type:"learn", title:"Every comparison has an answer",
         body:["Ask Python a comparison and it answers <code>True</code> or <code>False</code>. These answers are called <em>booleans</em>.",
-              "The operators: <code>&gt;</code> <code>&lt;</code> <code>&gt;=</code> <code>&lt;=</code> <code>==</code> (equal) <code>!=</code> (not equal). Note: <strong>two</strong> equals signs to compare — one <code>=</code> means \u201cgets\u201d."],
+              "The operators: <code>&gt;</code> <code>&lt;</code> <code>&gt;=</code> <code>&lt;=</code> <code>==</code> (equal) <code>!=</code> (not equal). Note: <strong>two</strong> equals signs to compare. One <code>=</code> means \u201cgets\u201d."],
         example:'print(5 > 3)\nprint(10 == 9)\nprint("chai" != "coffee")' },
       { type:"quiz", title:"Quick check",
         q:'What does <code>print(3 == 3)</code> show?',
         opts:["True","False","3","An error"], answer:0,
-        why:"== asks \u201care these equal?\u201d — and 3 equals 3, so Python answers True." },
+        why:"== asks \u201care these equal?\u201d, and 3 equals 3, so Python answers True." },
       { type:"code", title:"Your turn",
         task:'Use <code>==</code> to ask Python whether <strong>7 * 8</strong> equals <strong>56</strong>, and print the answer.',
         starter:'',
@@ -439,13 +439,13 @@ const MODULES = [
   { id:"m2l3", title:"Otherwise: else", sub:"a plan B for False", xp:25,
     steps:[
       { type:"learn", title:"else: when the if says no",
-        body:["<code>else</code> catches every case the <code>if</code> didn't. One of the two branches always runs — never both.",
+        body:["<code>else</code> catches every case the <code>if</code> didn't. One of the two branches always runs, never both.",
               "Same rules: colon, then indented lines."],
         example:'balance = 120\nprice = 200\nif balance >= price:\n    print("Purchase successful")\nelse:\n    print("Not enough balance")' },
       { type:"quiz", title:"Quick check",
         q:'When does the <code>else</code> branch run?',
         opts:["Always","When the if condition is False","When the if condition is True"], answer:1,
-        why:"else is the fallback — it runs exactly when the if condition turned out False." },
+        why:"else is the fallback: it runs exactly when the if condition turned out False." },
       { type:"code", title:"Your turn",
         task:'Pass mark is 40. If <code>marks</code> is at least 40, print <strong>Pass</strong>, otherwise print <strong>Try again</strong>.',
         starter:'marks = 35\n',
@@ -458,12 +458,12 @@ const MODULES = [
     steps:[
       { type:"learn", title:"elif: else-if, checked in order",
         body:["When there are several possibilities, chain them: <code>if → elif → elif → else</code>. Python checks top to bottom and runs the <strong>first</strong> True branch only.",
-              "Order matters — put the strictest condition first."],
+              "Order matters: put the strictest condition first."],
         example:'signal = "amber"\nif signal == "red":\n    print("Stop")\nelif signal == "amber":\n    print("Slow down")\nelse:\n    print("Go")' },
       { type:"quiz", title:"Quick check",
         q:'In an if / elif / else chain, how many branches run?',
         opts:["All the True ones","Exactly one","At least two"], answer:1,
-        why:"Python takes the first True branch and skips the rest — exactly one branch runs." },
+        why:"Python takes the first True branch and skips the rest. Exactly one branch runs." },
       { type:"code", title:"Your turn",
         task:'Grades: 90+ is <strong>A</strong>, 70+ is <strong>B</strong>, everything else <strong>C</strong>. Print the grade for <code>score</code>. (It\'s 75, so the answer is B.)',
         starter:'score = 75\n',
@@ -472,10 +472,10 @@ const MODULES = [
           {kind:"output", mode:"exact", value:"B", msg:"score is 75 → expected exactly: B"}],
         hint:'if score >= 90: → "A", elif score >= 70: → "B", else: → "C"' }
     ]},
-  { id:"m2l5", title:"Text to number", sub:"int() — because input() gives text", xp:25,
+  { id:"m2l5", title:"Text to number", sub:"int(): because input() gives text", xp:25,
     steps:[
       { type:"learn", title:"int() converts text to a real number",
-        body:["Remember: <code>input()</code> always hands back <em>text</em>. <code>\"16\" &gt;= 18</code> would crash — you can't compare text to a number.",
+        body:["Remember: <code>input()</code> always hands back <em>text</em>. <code>\"16\" &gt;= 18</code> would crash: you can't compare text to a number.",
               "Wrap it: <code>age = int(input(\"Age? \"))</code> turns the typed text into a number you can do math and comparisons with."],
         example:'age = int(input("How old are you? "))\nprint(age + 1)',
         exampleInputs:["29"] },
@@ -509,7 +509,7 @@ const MODULES = [
 ]},
 
 /* ---------------- MODULE 3 ---------------- */
-{ id:"m3", num:3, title:"Loops — repeat without repeating yourself",
+{ id:"m3", num:3, title:"Loops: repeat without repeating yourself",
   lessons:[
   { id:"m3l1", title:"while: repeat until done", sub:"loops with a condition", xp:25,
     steps:[
@@ -532,13 +532,13 @@ const MODULES = [
   { id:"m3l2", title:"for + range: counted repeats", sub:"the everyday loop", xp:25,
     steps:[
       { type:"learn", title:"for: repeat an exact number of times",
-        body:["<code>for i in range(3):</code> runs the block 3 times, with <code>i</code> counting <code>0, 1, 2</code>. Yes — Python counts from <strong>0</strong>.",
+        body:["<code>for i in range(3):</code> runs the block 3 times, with <code>i</code> counting <code>0, 1, 2</code>. Yes, Python counts from <strong>0</strong>.",
               "<code>range(1, 6)</code> counts 1 to 5: the end number is never included."],
         example:'for i in range(3):\n    print("hi number", i)\nfor i in range(1, 4):\n    print(i)' },
       { type:"quiz", title:"Quick check",
         q:'What numbers does <code>range(3)</code> produce?',
         opts:["1, 2, 3","0, 1, 2","0, 1, 2, 3"], answer:1,
-        why:"range starts at 0 and stops before the end number — so range(3) is 0, 1, 2." },
+        why:"range starts at 0 and stops before the end number, so range(3) is 0, 1, 2." },
       { type:"code", title:"Your turn",
         task:'Print <strong>Python</strong> exactly <strong>4 times</strong> using a for loop.',
         starter:'',
@@ -548,7 +548,7 @@ const MODULES = [
           {kind:"output", mode:"exact", value:"Python\nPython\nPython\nPython", msg:"Expected the word Python on 4 lines."}],
         hint:'for i in range(4):\n    print("Python")' }
     ]},
-  { id:"m3l3", title:"The running total", sub:"accumulators — loops that build up", xp:25,
+  { id:"m3l3", title:"The running total", sub:"accumulators: loops that build up", xp:25,
     steps:[
       { type:"learn", title:"Start at zero, add as you go",
         body:["The most useful loop pattern in existence: create <code>total = 0</code> before the loop, then add to it on every lap.",
@@ -559,17 +559,17 @@ const MODULES = [
         opts:["Python requires every program to start with 0","The loop needs an existing value to add onto","To make the loop run faster"], answer:1,
         why:"total = total + i needs a total to exist on the first lap. Zero is the neutral starting point for addition." },
       { type:"code", title:"Your turn",
-        task:'Use a loop and a running total to print the sum of <strong>1 to 10</strong>. (Spoiler: it\'s 55 — make Python earn it.)',
+        task:'Use a loop and a running total to print the sum of <strong>1 to 10</strong>. (Spoiler: it\'s 55. Make Python earn it.)',
         starter:'total = 0\n',
         checks:[
-          {kind:"code", containsAny:["for","while"], msg:"Use a loop — no calculators."},
+          {kind:"code", containsAny:["for","while"], msg:"Use a loop. No calculators."},
           {kind:"output", mode:"exact", value:"55", msg:"Expected exactly: 55"}],
         hint:'for i in range(1, 11):\n    total = total + i\nprint(total)' }
     ]},
   { id:"m3l4", title:"Emergency exit: break", sub:"stopping a loop early", xp:25,
     steps:[
       { type:"learn", title:"break: leave immediately",
-        body:["<code>break</code> exits the loop on the spot — the rest of the laps are cancelled.",
+        body:["<code>break</code> exits the loop on the spot. The rest of the laps are cancelled.",
               "Classic use: searching for something, stopping the moment you find it."],
         example:'for n in range(1, 10):\n    if n == 4:\n        break\n    print(n)\nprint("Stopped early")' },
       { type:"quiz", title:"Quick check",
@@ -577,30 +577,30 @@ const MODULES = [
         opts:["Pauses the loop for a second","Exits the loop immediately","Restarts the loop from 0"], answer:1,
         why:"break abandons the loop instantly and jumps to the first line after it." },
       { type:"code", title:"Your turn",
-        task:'Loop upward from 1, printing each number — but use <code>break</code> to stop <strong>before printing 4</strong>. Output should be 1, 2, 3.',
+        task:'Loop upward from 1, printing each number, but use <code>break</code> to stop <strong>before printing 4</strong>. Output should be 1, 2, 3.',
         starter:'for n in range(1, 10):\n',
         checks:[
           {kind:"code", contains:"break", msg:"Use break to bail out."},
-          {kind:"output", mode:"exact", value:"1\n2\n3", msg:"Expected exactly: 1, 2, 3 — one per line."}],
+          {kind:"output", mode:"exact", value:"1\n2\n3", msg:"Expected exactly: 1, 2, 3. One per line."}],
         hint:'    if n == 4:\n        break\n    print(n)' }
     ]},
   { id:"m3l5", title:"Boss: chai-coffee", sub:"the classic interview question, desi edition", xp:40, boss:true,
     steps:[
       { type:"learn", title:"⚔️ Boss rules",
-        body:["This is FizzBuzz — a famous test that real interviewers have used for decades. You already know everything it needs.",
+        body:["This is FizzBuzz, a famous test that real interviewers have used for decades. You already know everything it needs.",
               "For numbers 1 to 15: multiples of 3 print <code>chai</code>, multiples of 5 print <code>coffee</code>, multiples of <em>both</em> print <code>chai coffee</code>, everything else prints the number. Check both-at-once <strong>first</strong>. 40 XP."] },
       { type:"code", title:"The boss fight",
-        task:'Loop 1 to 15. Multiple of 3 and 5 → <strong>chai coffee</strong> · of 3 → <strong>chai</strong> · of 5 → <strong>coffee</strong> · else the number.<br>Tip: <code>n % 3 == 0</code> means \u201cn divides evenly by 3\u201d — <code>%</code> gives the remainder.',
+        task:'Loop 1 to 15. Multiple of 3 and 5 → <strong>chai coffee</strong> · of 3 → <strong>chai</strong> · of 5 → <strong>coffee</strong> · else the number.<br>Tip: <code>n % 3 == 0</code> means \u201cn divides evenly by 3\u201d. <code>%</code> gives the remainder.',
         starter:'for n in range(1, 16):\n',
         checks:[
           {kind:"code", contains:"%", msg:"Use % (remainder) to test divisibility."},
-          {kind:"output", mode:"exact", value:"1\n2\nchai\n4\ncoffee\nchai\n7\n8\nchai\ncoffee\n11\nchai\n13\n14\nchai coffee", msg:"Not quite the expected 15 lines. Check the order of your conditions — both-at-once must be tested first."}],
+          {kind:"output", mode:"exact", value:"1\n2\nchai\n4\ncoffee\nchai\n7\n8\nchai\ncoffee\n11\nchai\n13\n14\nchai coffee", msg:"Not quite the expected 15 lines. Check the order of your conditions: both-at-once must be tested first."}],
         hint:'    if n % 3 == 0 and n % 5 == 0:\n        print("chai coffee")\n    elif n % 3 == 0:\n        print("chai")\n    elif n % 5 == 0:\n        print("coffee")\n    else:\n        print(n)' }
     ]}
 ]},
 
 /* ---------------- MODULE 4 ---------------- */
-{ id:"m4", num:4, title:"Lists — many things in one box",
+{ id:"m4", num:4, title:"Lists: many things in one box",
   lessons:[
   { id:"m4l1", title:"Making lists", sub:"square brackets + len()", xp:25,
     steps:[
@@ -620,34 +620,34 @@ const MODULES = [
           {kind:"output", mode:"exact", value:"3", msg:"Three cities → expected exactly: 3"}],
         hint:'cities = ["Mumbai", "Pune", "Delhi"]\nprint(len(cities))' }
     ]},
-  { id:"m4l2", title:"Grabbing one item", sub:"indexing — position numbers", xp:25,
+  { id:"m4l2", title:"Grabbing one item", sub:"indexing: position numbers", xp:25,
     steps:[
       { type:"learn", title:"Every item has a position number",
-        body:["Grab one item with its index: <code>colors[0]</code> is the <strong>first</strong> item — positions start at 0, like range().",
+        body:["Grab one item with its index: <code>colors[0]</code> is the <strong>first</strong> item. Positions start at 0, like range().",
               "Negative indexes count from the end: <code>colors[-1]</code> is always the last item."],
         example:'colors = ["red", "green", "blue"]\nprint(colors[0])\nprint(colors[-1])' },
       { type:"quiz", title:"Quick check",
         q:'For <code>items = ["a", "b", "c"]</code>, what is <code>items[1]</code>?',
         opts:["a","b","c"], answer:1,
-        why:"Index 0 is \"a\", so index 1 is \"b\". Off-by-one trips up every programmer alive — you're in good company." },
+        why:"Index 0 is \"a\", so index 1 is \"b\". Off-by-one trips up every programmer alive. You're in good company." },
       { type:"code", title:"Your turn",
-        task:'Print the <strong>last</strong> item of the list — using its index, not by typing the word.',
+        task:'Print the <strong>last</strong> item of the list, using its index, not by typing the word.',
         starter:'queue = ["Asha", "Dev", "Meera", "Zara"]\n',
         checks:[
-          {kind:"code", containsAny:["[-1]","[3]"], msg:"Use an index — [-1] is the elegant way."},
+          {kind:"code", containsAny:["[-1]","[3]"], msg:"Use an index: [-1] is the elegant way."},
           {kind:"output", mode:"exact", value:"Zara", msg:"Expected exactly: Zara"}],
         hint:'print(queue[-1])' }
     ]},
-  { id:"m4l3", title:"Growing a list", sub:"append() — add to the end", xp:25,
+  { id:"m4l3", title:"Growing a list", sub:"append(): add to the end", xp:25,
     steps:[
       { type:"learn", title:"append: stick it on the end",
-        body:["Lists are alive — <code>orders.append(\"chai\")</code> adds an item to the end of the list.",
+        body:["Lists are alive: <code>orders.append(\"chai\")</code> adds an item to the end of the list.",
               "The dot means \u201cdo this <em>to</em> the list\u201d. You'll meet many dot-commands; append is the busiest."],
         example:'orders = ["samosa"]\norders.append("chai")\norders.append("lassi")\nprint(orders)' },
       { type:"quiz", title:"Quick check",
         q:'Where does <code>append()</code> put the new item?',
         opts:["At the start","Wherever it fits alphabetically","At the end"], answer:2,
-        why:"Always the end. (Inserting elsewhere is possible too — but append covers 95% of real life.)" },
+        why:"Always the end. (Inserting elsewhere is possible too, but append covers 95% of real life.)" },
       { type:"code", title:"Your turn",
         task:'Start with the order list below, <strong>append</strong> <code>"chai"</code> to it, then print the whole list.',
         starter:'orders = ["samosa"]\n',
@@ -656,7 +656,7 @@ const MODULES = [
           {kind:"output", mode:"exact", value:"['samosa', 'chai']", msg:"Expected the printed list: ['samosa', 'chai']"}],
         hint:'orders.append("chai")\nprint(orders)' }
     ]},
-  { id:"m4l4", title:"Looping over a list", sub:"for — once per item", xp:25,
+  { id:"m4l4", title:"Looping over a list", sub:"for: once per item", xp:25,
     steps:[
       { type:"learn", title:"for visits every item",
         body:["<code>for snack in snacks:</code> runs the block once per item, with <code>snack</code> holding the current one.",
@@ -665,13 +665,13 @@ const MODULES = [
       { type:"quiz", title:"Quick check",
         q:'How many times does the loop body run for a list of 5 items?',
         opts:["Once","5 times","Until you press stop"], answer:1,
-        why:"Once per item — the loop variable takes each value in turn, start to end." },
+        why:"Once per item: the loop variable takes each value in turn, start to end." },
       { type:"code", title:"Your turn",
         task:'Greet every friend in the list with <strong>Hi NAME</strong>, one per line, using a loop and an f-string.',
         starter:'friends = ["Asha", "Dev", "Meera"]\n',
         checks:[
           {kind:"code", contains:"for", msg:"Use a for loop over the list."},
-          {kind:"output", mode:"exact", value:"Hi Asha\nHi Dev\nHi Meera", msg:"Expected: Hi Asha / Hi Dev / Hi Meera — one per line."}],
+          {kind:"output", mode:"exact", value:"Hi Asha\nHi Dev\nHi Meera", msg:"Expected: Hi Asha / Hi Dev / Hi Meera. One per line."}],
         hint:'for friend in friends:\n    print(f"Hi {friend}")' }
     ]},
   { id:"m4l5", title:"Boss: the bill splitter", sub:"every group dinner, automated", xp:40, boss:true,
@@ -683,7 +683,7 @@ const MODULES = [
         task:'1) Sum the <code>prices</code> with a loop into <code>total</code>. 2) Print the total (it\'s 400). 3) Print the split between <strong>4</strong> friends (100.0).',
         starter:'prices = [120, 80, 200]\ntotal = 0\n',
         checks:[
-          {kind:"code", contains:"for", msg:"Sum with a loop — that's the skill being tested."},
+          {kind:"code", contains:"for", msg:"Sum with a loop. That's the skill being tested."},
           {kind:"output", mode:"contains", value:"400", msg:"First print the total: 400"},
           {kind:"output", mode:"contains", value:"100.0", msg:"Then the split: 400 / 4 → 100.0 (division always gives a decimal)."}],
         hint:'for p in prices:\n    total = total + p\nprint(total)\nprint(total / 4)' }
@@ -691,34 +691,34 @@ const MODULES = [
 ]},
 
 /* ---------------- MODULE 5 ---------------- */
-{ id:"m5", num:5, title:"Functions — name your own commands",
+{ id:"m5", num:5, title:"Functions: name your own commands",
   lessons:[
   { id:"m5l1", title:"def: teach Python a new trick", sub:"defining and calling", xp:25,
     steps:[
       { type:"learn", title:"Define once, use forever",
-        body:["<code>def cheer():</code> teaches Python a new command. The indented lines are what it does. <strong>Defining runs nothing</strong> — the function only fires when you <em>call</em> it: <code>cheer()</code>.",
-              "You've been calling functions all along — print(), input(), len() — now you get to make your own."],
+        body:["<code>def cheer():</code> teaches Python a new command. The indented lines are what it does. <strong>Defining runs nothing</strong>. The function only fires when you <em>call</em> it: <code>cheer()</code>.",
+              "You've been calling functions all along: print(), input(), len(). Now you get to make your own."],
         example:'def cheer():\n    print("You got this!")\n\ncheer()\ncheer()' },
       { type:"quiz", title:"Quick check",
         q:'You run a file containing only a <code>def</code> block, no call. What prints?',
         opts:["The function's output","Nothing","An error"], answer:1,
         why:"def only teaches. Nothing happens until the function is called by name with ()." },
       { type:"code", title:"Your turn",
-        task:'Define a function <strong>cheer</strong> that prints <strong>You got this!</strong> — then call it <strong>twice</strong>.',
+        task:'Define a function <strong>cheer</strong> that prints <strong>You got this!</strong>, then call it <strong>twice</strong>.',
         starter:'def cheer():\n    # what should it do?\n\n',
         checks:[
           {kind:"code", contains:"def", msg:"Define the function with def."},
-          {kind:"output", mode:"exact", value:"You got this!\nYou got this!", msg:"Expected the cheer twice — are you calling it two times?"}],
+          {kind:"output", mode:"exact", value:"You got this!\nYou got this!", msg:"Expected the cheer twice. Are you calling it two times?"}],
         hint:'def cheer():\n    print("You got this!")\n\ncheer()\ncheer()' }
     ]},
   { id:"m5l2", title:"Parameters", sub:"functions that take input", xp:25,
     steps:[
       { type:"learn", title:"Pass values in through the brackets",
-        body:["<code>def greet(name):</code> — that <code>name</code> is a <em>parameter</em>: a variable that gets its value from whoever calls the function.",
+        body:["<code>def greet(name):</code>. That <code>name</code> is a <em>parameter</em>: a variable that gets its value from whoever calls the function.",
               "<code>greet(\"Zara\")</code> runs the function with name set to \"Zara\". Same recipe, different ingredients."],
         example:'def greet(name):\n    print(f"Hello, {name}!")\n\ngreet("Zara")\ngreet("Dev")' },
       { type:"quiz", title:"Quick check",
-        q:'In <code>def greet(name):</code> … <code>greet("Dev")</code> — what is <code>name</code> while the function runs?',
+        q:'In <code>def greet(name):</code> … <code>greet("Dev")</code>, what is <code>name</code> while the function runs?',
         opts:['The text "name"','The text "Dev"',"Empty"], answer:1,
         why:"The call hands \"Dev\" in, and the parameter name carries it inside the function." },
       { type:"code", title:"Your turn",
@@ -738,12 +738,12 @@ const MODULES = [
       { type:"quiz", title:"Quick check",
         q:'What\'s the key difference between <code>print</code> and <code>return</code>?',
         opts:["No difference","print shows a value; return hands it back to the code for further use","return is just a faster print"], answer:1,
-        why:"Returned values can be stored and reused — that's what makes functions composable building blocks." },
+        why:"Returned values can be stored and reused. That's what makes functions composable building blocks." },
       { type:"code", title:"Your turn",
         task:'Write <strong>total(price, qty)</strong> that <strong>returns</strong> price × qty. Then print <code>total(15, 12)</code>.',
         starter:'def total(price, qty):\n    # return the product\n\n',
         checks:[
-          {kind:"code", contains:"return", msg:"The function must return the value — not print it."},
+          {kind:"code", contains:"return", msg:"The function must return the value, not print it."},
           {kind:"output", mode:"exact", value:"180", msg:"print(total(15, 12)) → expected exactly: 180"}],
         hint:'def total(price, qty):\n    return price * qty\n\nprint(total(15, 12))' }
     ]},
@@ -751,7 +751,7 @@ const MODULES = [
     steps:[
       { type:"learn", title:"⚔️ Boss rules",
         body:["The chai shop needs a billing function it can reuse for every customer. Chai is ₹15 a cup.",
-              "Write it once, call it twice — that's the whole point of functions. 40 XP."] },
+              "Write it once, call it twice. That's the whole point of functions. 40 XP."] },
       { type:"code", title:"The boss fight",
         task:'Write <strong>bill(name, cups)</strong> that <strong>returns</strong> the text <strong>NAME owes ₹AMOUNT</strong> where amount = cups × 15. Then print <code>bill("Zara", 3)</code> and <code>bill("Dev", 2)</code>.',
         starter:'def bill(name, cups):\n    # build and return the f-string\n\n',
@@ -764,7 +764,7 @@ const MODULES = [
 ]},
 
 /* ---------------- MODULE 6 ---------------- */
-{ id:"m6", num:6, title:"Capstone — Chai Shop 2.0",
+{ id:"m6", num:6, title:"Capstone: Chai Shop 2.0",
   lessons:[
   { id:"m6l1", title:"Final boss: the full program", sub:"input · int · if · math · f-strings", xp:60, boss:true,
     steps:[
@@ -776,14 +776,14 @@ const MODULES = [
         starter:'# 1) name = ...\n# 2) cups = ...\n# 3) compute the bill (+ discount if 5 or more)\n# 4) print the receipt\n',
         inputs:["Zara","6"],
         checks:[
-          {kind:"code", contains:"int(", msg:"Cups must be a number — int(input(...))."},
+          {kind:"code", contains:"int(", msg:"Cups must be a number: int(input(...))."},
           {kind:"code", contains:"if", msg:"The discount needs an if."},
           {kind:"output", mode:"contains", value:"Zara", msg:"The receipt should mention the customer's name."},
           {kind:"output", mode:"contains", value:"81.0", msg:"6 cups × ₹15 = 90, minus 10% → 81.0 should appear in the output."}],
         hint:'name = input("Name? ")\ncups = int(input("Cups? "))\nbill = cups * 15\nif cups >= 5:\n    bill = bill * 0.9\nprint(f"Receipt for {name}")\nprint(f"Total: ₹{bill}")' },
-      { type:"learn", title:"🎓 You're done — now what?",
-        body:["That program — input, conversion, branching, arithmetic, formatted output — is the skeleton of most software you've ever used. You wrote it.",
-              "Three good next moves: <strong>1)</strong> claim your certificate on the home screen, <strong>2)</strong> add your own module to this site (the README shows how — the curriculum is one editable block), <strong>3)</strong> go deeper free at <strong>cs50.harvard.edu/python</strong>. Onward. 🐍"] }
+      { type:"learn", title:"🎓 You're done. Now what?",
+        body:["That program (input, conversion, branching, arithmetic, formatted output) is the skeleton of most software you've ever used. You wrote it.",
+              "Three good next moves: <strong>1)</strong> claim your certificate on the home screen, <strong>2)</strong> add your own module to this site (the README shows how: the curriculum is one editable block), <strong>3)</strong> go deeper free at <strong>cs50.harvard.edu/python</strong>. Onward. 🐍"] }
     ]}
 ]}
 ];
@@ -879,7 +879,7 @@ function toast(msg){
 
 /* ============================ PYODIDE ENGINE ============================ */
 let pyodide = null, engineReady = false, engineState = "loading", engineBooting = false;
-/* Official Pyodide CDN (jsdelivr) first — see pyodide.org docs. The npm/cdnjs
+/* Official Pyodide CDN (jsdelivr) first. See pyodide.org docs. The npm/cdnjs
    mirrors do NOT include the WASM runtime, so they are not used as indexURL. */
 const PYO_CDNS = [
   "https://cdn.jsdelivr.net/pyodide/v0.29.4/full/",
@@ -896,18 +896,18 @@ async function bootEngine(){
       await loadScript(base + "pyodide.js");
       pyodide = await loadPyodide({ indexURL: base });
       engineReady = true; engineState = "ready"; engineBooting = false;
-      dot.className = "dot ready"; txt.textContent = "Python engine ready — code runs on your device.";
+      dot.className = "dot ready"; txt.textContent = "Python engine ready. Code runs on your device.";
       toast("Python engine ready 🐍");
       return;
     }catch(e){ console.warn("pyodide failed at " + base, e); }
   }
   engineBooting = false; engineState = "error";
   dot.className = "dot err";
-  txt.textContent = "Couldn't load the Python engine — check your internet, then tap any Run button to retry.";
+  txt.textContent = "Couldn't load the Python engine. Check your internet, then tap any Run button to retry.";
 }
 function engineGate(){
   if (engineState === "error"){ toast("Retrying the Python engine…"); bootEngine(); }
-  else toast("Python is still loading (~10 MB on first visit) — a few more seconds…");
+  else toast("Python is still loading (~10 MB on first visit). A few more seconds…");
 }
 async function runPython(code, inputs){
   const out = [];
@@ -944,18 +944,18 @@ async function runPython(code, inputs){
 }
 function friendlyError(raw){
   if (raw.includes("PYQUEST_TIMEOUT")){
-    return { headline:"Your program ran too long — almost certainly an infinite loop. Does your while condition ever become False? Is something inside the loop changing?", detail:"Stopped automatically after 300,000 steps." };
+    return { headline:"Your program ran too long: almost certainly an infinite loop. Does your while condition ever become False? Is something inside the loop changing?", detail:"Stopped automatically after 300,000 steps." };
   }
   const m = raw.match(/(\w*Error|\w*Exception)(:[^\n]*)?/g);
   const last = m ? m[m.length-1] : "";
   const lineM = raw.match(/line (\d+)/g);
   const ln = lineM ? lineM[lineM.length-1] : null;
-  let hint = "Python stopped. Read the message below — it usually names the problem.";
+  let hint = "Python stopped. Read the message below. It usually names the problem.";
   if (/SyntaxError/.test(last)) hint = "Python couldn't read that line. Check for a missing quote, bracket, or colon at the end of if/for/while/def lines.";
   else if (/NameError/.test(last)) hint = "You used a name Python hasn't seen yet. Spelling and CAPITALS matter.";
   else if (/IndentationError|TabError/.test(last)) hint = "Python is strict about spaces at the start of a line. Lines inside if/for/while/def need exactly one extra level of indent (4 spaces).";
-  else if (/TypeError/.test(last)) hint = "You mixed types — like math on text. Did you forget int() around an input()?";
-  else if (/ValueError/.test(last)) hint = "A value couldn't be converted — int() only works on text that looks like a whole number.";
+  else if (/TypeError/.test(last)) hint = "You mixed types, like math on text. Did you forget int() around an input()?";
+  else if (/ValueError/.test(last)) hint = "A value couldn't be converted: int() only works on text that looks like a whole number.";
   else if (/IndexError/.test(last)) hint = "You asked for a list position that doesn't exist. Remember: positions start at 0.";
   return { headline: hint, detail: (ln ? ln + " · " : "") + (last || raw.split("\n").slice(-3).join(" ")) };
 }
@@ -1143,7 +1143,7 @@ async function checkChallenge(){
   if (!r.ok){
     const fe = friendlyError(r.err||"");
     ver.className = "verdict fail"; ver.style.display = "block";
-    ver.innerHTML = '<span class="big">Not yet — Python hit an error</span>' + fe.headline +
+    ver.innerHTML = '<span class="big">Not yet: Python hit an error</span>' + fe.headline +
       '<br><code style="font-size:.8em; opacity:.8">' + escapeHtml(fe.detail) + '</code>';
     return;
   }
@@ -1158,7 +1158,7 @@ async function checkChallenge(){
     }
     if (!pass){
       ver.className = "verdict fail"; ver.style.display = "block";
-      ver.innerHTML = '<span class="big">So close — one check failed</span>' + escapeHtml(c.msg);
+      ver.innerHTML = '<span class="big">So close: one check failed</span>' + escapeHtml(c.msg);
       return;
     }
   }
@@ -1191,7 +1191,7 @@ function claimCertificate(){
   showCert();
 }
 function showCert(){
-  document.getElementById("certName").textContent = S.certName || "—";
+  document.getElementById("certName").textContent = S.certName || "-";
   document.getElementById("certDate").textContent = "Completed on " + (S.certDate || "");
   document.getElementById("viewHome").classList.add("hidden");
   document.getElementById("certView").style.display = "block";
