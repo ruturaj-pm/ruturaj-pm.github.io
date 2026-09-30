@@ -4,79 +4,108 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow, noarchive">
-<title>Interview Prep</title>
-<style>
-:root { --bg:#fbfaf7; --card:#ffffff; --ink:#1d2330; --muted:#5b6475; --line:#e4e1d8; --accent:#0f6b5c; --warn:#a4481d; --soft:#eef6f3; }
-@media (prefers-color-scheme: dark) { :root { --bg:#14171d; --card:#1c2029; --ink:#e7e9ee; --muted:#9aa3b2; --line:#2c3240; --accent:#4cc3a8; --warn:#f0916a; --soft:#1f2a28; } }
-* { box-sizing:border-box; }
-body { margin:0; background:var(--bg); color:var(--ink); font:15px/1.55 system-ui,-apple-system,Segoe UI,Roboto,sans-serif; }
-main { max-width:980px; margin:0 auto; padding:20px 16px 60px; }
-h1 { font-size:24px; margin:0 0 4px; }
-h2 { font-size:18px; margin:28px 0 10px; color:var(--accent); border-bottom:2px solid var(--line); padding-bottom:4px; }
-h3 { font-size:15px; margin:4px 0 6px; }
-.meta { color:var(--muted); margin:0 0 14px; }
-.card { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:14px 16px; margin:10px 0; }
-table { width:100%; border-collapse:collapse; font-size:14px; }
-th, td { text-align:left; vertical-align:top; padding:8px; border-bottom:1px solid var(--line); }
-th { color:var(--muted); font-weight:600; }
-ul { margin:6px 0; padding-left:20px; }
-li { margin:3px 0; }
-a { color:var(--accent); }
-.tag { color:var(--muted); font-size:13px; }
-@media (max-width:640px) { table, thead, tbody, tr, th, td { display:block; } thead { display:none; } td { border:none; padding:2px 0; } tr { border-bottom:1px solid var(--line); padding:8px 0; } }
-</style>
+<title>Interview prep</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,620&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="prep.css">
 </head>
 <body>
-<main>
-<h1>Interview prep</h1>
-<p class="meta">Preparation notes by company, role and date.</p>
+<div class="bar"><div class="wrap">
+  <a class="brand" href="./">Interview prep</a>
+  <div class="links"><a class="on" href="./">All preps</a><a href="stories.html">Story bank</a></div>
+</div></div>
 
-<h2>By date</h2>
-<div class="card">
-<table>
-<thead><tr><th>Date</th><th>Company</th><th>Role</th><th>Round</th></tr></thead>
-<tbody>
-<tr><td>28 Sep 2026</td><td>LenDenClub</td><td><a href="2026-09-28-lendenclub-pm-platforms-and-new-initiatives.html">Manager (M2), PM Platforms and New Initiatives</a></td><td>First interview</td></tr>
-<tr><td>09 Sep 2026</td><td>Tide</td><td><a href="2026-09-09-tide-senior-pm-ongoing-monitoring.html">Senior Product Manager, Ongoing Monitoring</a></td><td>Functional screen</td></tr>
-<tr><td>04 Sep 2026</td><td>Porch Group</td><td><a href="2026-09-04-porch-senior-product-manager-warranty.html">Senior Product Manager, Warranty</a></td><td>Hiring manager round</td></tr>
-<tr><td>20 Aug 2026</td><td>Netcore Cloud</td><td><a href="2026-08-20-netcore-product-manager-growth.html">Product Manager, Growth</a></td><td>First interview</td></tr>
-<tr><td>07 Aug 2026</td><td>Indeed</td><td><a href="2026-08-07-indeed-product-manager-i.html">Product Manager I</a></td><td>Prepared answer: experimentation</td></tr>
-<tr><td>04 Aug 2026</td><td>Poonawalla Fincorp</td><td><a href="2026-08-04-poonawalla-fincorp-pmo-risk-process-technology.html">PMO, Risk Process and Technology</a></td><td>Face-to-face round prep</td></tr>
-<tr><td>25 Jun 2026</td><td>Poonawalla Fincorp</td><td><a href="2026-06-25-poonawalla-fincorp-product-manager-app-experience.html">Product Manager, App Experience</a></td><td>Hiring manager round</td></tr>
-<tr><td>09 Jun 2026</td><td>Coda Payments</td><td><a href="2026-06-09-coda-payments-lead-pm-interview-rounds.html">Lead Product Manager</a></td><td>Rounds 1 to 4 (prepared)</td></tr>
-<tr><td>09 Jun 2026</td><td>Coda Payments</td><td><a href="2026-06-09-coda-payments-product-manager-intro-call.html">Product Manager</a></td><td>Intro call</td></tr>
-</tbody>
-</table>
+<header class="head"><div class="wrap">
+  <div class="kicker">Interview prep</div>
+  <h1>Every prep, by company, role and date</h1>
+  <p class="sub">Search across all pages, or filter by company, role type and month. My stories live once in the <a href="stories.html" style="color:#f0d3a8">story bank</a>.</p>
+</div></header>
+
+<main><div class="wrap">
+
+<div class="tools" role="search">
+  <input id="q" type="search" placeholder="Search all preps, for example reconciliation, fraud, UPI" aria-label="Search all preps">
+  <select id="co" aria-label="Company"><option value="">All companies</option></select>
+  <select id="ty" aria-label="Role type"><option value="">All role types</option></select>
+  <select id="mo" aria-label="Month"><option value="">All months</option></select>
 </div>
+<p class="count" id="count"></p>
+<div class="grid" id="grid"></div>
+<p class="empty" id="empty">No prep matches. Try a shorter word.</p>
 
-<h2>By company</h2>
-<div class="card"><h3>LenDenClub</h3><span class="tag">P2P lending platform</span>
-<ul><li><a href="2026-09-28-lendenclub-pm-platforms-and-new-initiatives.html">Manager (M2), PM Platforms and New Initiatives</a>, first interview, 28 Sep 2026</li></ul></div>
-
-<div class="card"><h3>Tide</h3><span class="tag">Acquiring fraud and risk</span>
-<ul><li><a href="2026-09-09-tide-senior-pm-ongoing-monitoring.html">Senior Product Manager, Ongoing Monitoring</a>, functional screen, 9 Sep 2026</li></ul></div>
-
-<div class="card"><h3>Porch Group</h3><span class="tag">Home warranty and insurance</span>
-<ul><li><a href="2026-09-04-porch-senior-product-manager-warranty.html">Senior Product Manager, Warranty</a>, hiring manager round, 4 Sep 2026</li></ul></div>
-
-<div class="card"><h3>Netcore Cloud</h3><span class="tag">Martech and customer engagement</span>
-<ul><li><a href="2026-08-20-netcore-product-manager-growth.html">Product Manager, Growth</a>, first interview, 20 Aug 2026</li></ul></div>
-
-<div class="card"><h3>Indeed</h3><span class="tag">Two-sided marketplace</span>
-<ul><li><a href="2026-08-07-indeed-product-manager-i.html">Product Manager I</a>, prepared answer on experimentation, 7 Aug 2026</li></ul></div>
-
-<div class="card"><h3>Poonawalla Fincorp</h3><span class="tag">Consumer and MSME lending</span>
-<ul>
-<li><a href="2026-08-04-poonawalla-fincorp-pmo-risk-process-technology.html">PMO, Risk Process and Technology</a>, face-to-face round prep, 4 Aug 2026</li>
-<li><a href="2026-06-25-poonawalla-fincorp-product-manager-app-experience.html">Product Manager, App Experience</a>, hiring manager round, 25 Jun 2026</li>
+<noscript>
+<div class="card"><ul>
+<li><a href="2026-09-28-lendenclub-pm-platforms-and-new-initiatives.html">LenDenClub: Manager (M2), PM Platforms and New Initiatives</a>, 28 Sep 2026</li>
+<li><a href="2026-09-09-tide-senior-pm-ongoing-monitoring.html">Tide: Senior Product Manager, Ongoing Monitoring</a>, 9 Sep 2026</li>
+<li><a href="2026-09-04-porch-senior-product-manager-warranty.html">Porch Group: Senior Product Manager, Warranty</a>, 4 Sep 2026</li>
+<li><a href="2026-08-20-netcore-product-manager-growth.html">Netcore Cloud: Product Manager, Growth</a>, 20 Aug 2026</li>
+<li><a href="2026-08-07-indeed-product-manager-i.html">Indeed: Product Manager I</a>, 7 Aug 2026</li>
+<li><a href="2026-08-04-poonawalla-fincorp-pmo-risk-process-technology.html">Poonawalla Fincorp: PMO, Risk Process and Technology</a>, 4 Aug 2026</li>
+<li><a href="2026-06-25-poonawalla-fincorp-product-manager-app-experience.html">Poonawalla Fincorp: Product Manager, App Experience</a>, 25 Jun 2026</li>
+<li><a href="2026-06-09-coda-payments-lead-pm-interview-rounds.html">Coda Payments: Lead Product Manager</a>, 9 Jun 2026</li>
+<li><a href="2026-06-09-coda-payments-product-manager-intro-call.html">Coda Payments: Product Manager</a>, 9 Jun 2026</li>
 </ul></div>
+</noscript>
 
-<div class="card"><h3>Coda Payments</h3><span class="tag">Payments, settlement and reconciliation</span>
-<ul>
-<li><a href="2026-06-09-coda-payments-lead-pm-interview-rounds.html">Lead Product Manager</a>, rounds 1 to 4, prepared 9 Jun 2026</li>
-<li><a href="2026-06-09-coda-payments-product-manager-intro-call.html">Product Manager</a>, intro call, 9 Jun 2026</li>
-</ul></div>
+</div></main>
+<footer><div class="wrap"><a href="stories.html">Story bank</a></div></footer>
 
-</main>
+<script>
+const PREPS = [
+  {f:"2026-09-28-lendenclub-pm-platforms-and-new-initiatives.html", co:"LenDenClub", role:"Manager (M2), PM Platforms and New Initiatives", round:"First interview", date:"2026-09-28", type:"Product Manager", tags:["P2P lending","Platforms","AI agents","Payments"]},
+  {f:"2026-09-09-tide-senior-pm-ongoing-monitoring.html", co:"Tide", role:"Senior Product Manager, Ongoing Monitoring", round:"Functional screen", date:"2026-09-09", type:"Senior Product Manager", tags:["Fraud and risk","Acquiring","Monitoring"]},
+  {f:"2026-09-04-porch-senior-product-manager-warranty.html", co:"Porch Group", role:"Senior Product Manager, Warranty", round:"Hiring manager round", date:"2026-09-04", type:"Senior Product Manager", tags:["Home warranty","Insurance","Claims"]},
+  {f:"2026-08-20-netcore-product-manager-growth.html", co:"Netcore Cloud", role:"Product Manager, Growth", round:"First interview", date:"2026-08-20", type:"Product Manager", tags:["Martech","Growth","Engagement"]},
+  {f:"2026-08-07-indeed-product-manager-i.html", co:"Indeed", role:"Product Manager I", round:"Prepared answer: experimentation", date:"2026-08-07", type:"Product Manager", tags:["Marketplace","Experimentation"]},
+  {f:"2026-08-04-poonawalla-fincorp-pmo-risk-process-technology.html", co:"Poonawalla Fincorp", role:"PMO, Risk Process and Technology", round:"Face-to-face round prep", date:"2026-08-04", type:"PMO", tags:["Lending","Risk tech","Programme management"]},
+  {f:"2026-06-25-poonawalla-fincorp-product-manager-app-experience.html", co:"Poonawalla Fincorp", role:"Product Manager, App Experience", round:"Hiring manager round", date:"2026-06-25", type:"Product Manager", tags:["Consumer lending","App experience"]},
+  {f:"2026-06-09-coda-payments-lead-pm-interview-rounds.html", co:"Coda Payments", role:"Lead Product Manager", round:"Rounds 1 to 4 (prepared)", date:"2026-06-09", type:"Lead Product Manager", tags:["Payments","Settlement","Reconciliation"]},
+  {f:"2026-06-09-coda-payments-product-manager-intro-call.html", co:"Coda Payments", role:"Product Manager", round:"Intro call", date:"2026-06-09", type:"Product Manager", tags:["Payments","Settlement","Reconciliation"]}
+];
+const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const $ = id => document.getElementById(id);
+const fmt = d => { const [y,m,dd] = d.split("-"); return `${+dd} ${MONTHS[+m-1]} ${y}`; };
+const monthKey = d => d.slice(0,7);
+const monthLabel = k => { const [y,m] = k.split("-"); return `${MONTHS[+m-1]} ${y}`; };
+const esc = s => s.replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const TEXT = {};
+
+function fill(sel, values, label) {
+  [...new Set(values)].sort((a,b) => label ? b.localeCompare(a) : a.localeCompare(b))
+    .forEach(v => { const o = document.createElement("option"); o.value = v; o.textContent = label ? label(v) : v; sel.appendChild(o); });
+}
+fill($("co"), PREPS.map(p => p.co));
+fill($("ty"), PREPS.map(p => p.type));
+fill($("mo"), PREPS.map(p => monthKey(p.date)), monthLabel);
+
+function render() {
+  const q = $("q").value.trim().toLowerCase();
+  const co = $("co").value, ty = $("ty").value, mo = $("mo").value;
+  const hits = PREPS.filter(p =>
+    (!co || p.co === co) && (!ty || p.type === ty) && (!mo || monthKey(p.date) === mo) &&
+    (!q || [p.co, p.role, p.round, p.type, ...p.tags].join(" ").toLowerCase().includes(q) || (TEXT[p.f] || "").includes(q))
+  ).sort((a,b) => b.date.localeCompare(a.date));
+  $("grid").innerHTML = hits.map(p => {
+    const inPage = q && !([p.co, p.role, p.round, p.type, ...p.tags].join(" ").toLowerCase().includes(q));
+    return `<a class="tile" href="${p.f}">
+      <span class="co">${esc(p.co)}</span>
+      <span class="role">${esc(p.role)}</span>
+      <span class="meta">${esc(p.round)} | ${fmt(p.date)}</span>
+      <span class="tags">${p.tags.map(t => `<span>${esc(t)}</span>`).join("")}${inPage ? "<span>match in page</span>" : ""}</span>
+    </a>`;
+  }).join("");
+  $("empty").style.display = hits.length ? "none" : "block";
+  $("count").textContent = `${hits.length} of ${PREPS.length} preps`;
+}
+["q","co","ty","mo"].forEach(id => $(id).addEventListener("input", render));
+render();
+
+// Full-text search: load each page's text once, then re-render.
+Promise.all(PREPS.map(p => fetch(p.f).then(r => r.ok ? r.text() : "").then(h => {
+  const doc = new DOMParser().parseFromString(h, "text/html");
+  TEXT[p.f] = (doc.body ? doc.body.textContent : "").replace(/\s+/g, " ").toLowerCase();
+}).catch(() => {}))).then(render);
+</script>
 </body>
 </html>
