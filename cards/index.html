@@ -154,10 +154,34 @@ footer p+p{margin-top:8px}
 .tip li{margin:5px 0}
 .tip .src{font-size:12px;color:var(--muted);margin-top:8px}
 @media (prefers-reduced-motion: reduce){.fill{transition:none}}
+
+/* Travel peer comparison */
+.page-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px}
+.page-tabs button{font:600 14px var(--body);padding:11px 17px;border:1px solid var(--line);border-radius:999px;background:var(--panel);color:var(--muted);cursor:pointer}
+.page-tabs button[aria-selected="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.page-tabs button:focus-visible,.peer-select:focus-visible{outline:2px solid var(--dbmc);outline-offset:3px}
+[hidden]{display:none!important}
+.peer-select{font:600 14px var(--body);background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:9px;padding:10px;max-width:100%;width:100%}
+.peer-picker{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:end;margin:20px 0 12px}
+.peer-picker label{display:block;font-weight:600;margin-bottom:6px}
+.peer-table{min-width:0;table-layout:fixed}
+.peer-table th:first-child{width:22%}
+.peer-table td{width:39%;overflow-wrap:anywhere}
+.peer-table td p+p{margin-top:7px}
+.peer-sources{display:grid;gap:8px;margin-top:12px;padding-left:20px;font-size:13px}
+#panel-peers a{color:var(--dbmc-ink);text-underline-offset:3px}
+.peer-summary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media(max-width:600px){.peer-picker,.peer-summary{grid-template-columns:1fr}.peer-table{font-size:12px}.peer-table th,.peer-table td{padding:9px 8px}.peer-table th:first-child{width:24%}.page-tabs button{flex:1;padding:10px 12px;font-size:12px}}
+
 </style>
 </head>
 <body>
 <div class="wrap">
+<nav class="page-tabs" role="tablist" aria-label="Card comparisons">
+<button id="tab-hdfc" role="tab" aria-selected="true" aria-controls="panel-hdfc" tabindex="0">Infinia vs Diners Black</button>
+<button id="tab-peers" role="tab" aria-selected="false" aria-controls="panel-peers" tabindex="-1">Diners Black vs other cards</button>
+</nav>
+<div id="panel-hdfc" role="tabpanel" aria-labelledby="tab-hdfc">
 
 <header class="top">
   <a class="home" href="../">&#8592; Ruturaj Sahasrabudhe</a>
@@ -366,7 +390,52 @@ footer p+p{margin-top:8px}
   <p>An independent guide by Ruturaj Sahasrabudhe. It is not from HDFC Bank and is not financial advice. Card terms change often, so check HDFC's own pages before you decide.</p>
 </footer>
 </div>
-
+<div id="panel-peers" role="tabpanel" aria-labelledby="tab-peers" hidden>
+<header class="top">
+<a class="home" href="../">&#8592; Ruturaj Sahasrabudhe</a>
+<div class="eyebrow">Travel cards · beyond Infinia</div>
+<h1>What compares with Diners Black?</h1>
+<p class="muted">Keep Diners Club Black Metal on one side. Pick a rival on the other. Compare the travel you actually use, rather than treating every reward point as a rupee.</p>
+<div class="asof"><span class="pill">Official issuer sources checked · 1 Oct 2026</span><span class="pill">Fees and forex shown before applicable taxes</span></div>
+</header>
+<section aria-labelledby="peer-short">
+<h2 id="peer-short">Same conversation, different strengths</h2>
+<div class="peer-summary">
+<div class="ans"><h3>ATLAS: the travel-earning rival</h3><p>Earn accelerated miles on direct airline and hotel bookings, not only a bank portal. Transfer value depends on the partner and redemption. Lounge visits are tier-limited.</p></div>
+<div class="ans"><h3>Emeralde Metal and AURUM: lounge rivals</h3><p>Emeralde Private Metal matches unlimited domestic and international access. AURUM combines unlimited international access with 16 domestic visits a year and 1.99% forex.</p></div>
+<div class="ans"><h3>Amex Travel: a milestone alternative</h3><p>The current milestones are Rs 1.9, 4 and 7 lakh. The Rs 10,000 Taj voucher is now at Rs 7 lakh, not Rs 4 lakh. Eight domestic lounge visits do not match Diners' lounge coverage.</p></div>
+<div class="ans"><h3>Regalia Gold: a cheaper step below</h3><p>Rs 2,500 annual fee, spend-linked domestic lounges and flight vouchers. Useful at a lower budget, but not an equal-tier replacement for Diners Black Metal.</p></div>
+</div>
+</section>
+<section aria-labelledby="peer-table-heading">
+<h2 id="peer-table-heading">Compare one card at a time</h2>
+<div class="peer-picker">
+<div><span class="eyebrow">Your benchmark</span><h3>HDFC Diners Club Black Metal</h3></div>
+<div><label for="peer-choice">Compare against</label><select id="peer-choice" class="peer-select">
+<option value="atlas">Axis Bank ATLAS</option><option value="emeralde">ICICI Emeralde Private Metal</option><option value="aurum">SBI Card AURUM</option><option value="regalia">HDFC Regalia Gold</option><option value="amex">Amex Platinum Travel</option></select></div>
+</div>
+<div class="tablewrap"><table class="peer-table"><caption class="small muted" style="text-align:left;padding:12px 14px">Eligible spends only. Issuer caps, exclusions and redemption rules apply.</caption><thead><tr><th scope="col">What matters</th><th scope="col" class="dbmc">Diners Black Metal</th><th scope="col" id="peer-name">Axis Bank ATLAS</th></tr></thead><tbody id="peer-rows"></tbody></table></div>
+<p id="peer-fit" class="example" aria-live="polite"></p>
+</section>
+<section aria-labelledby="charge-title"><div class="panel"><div class="eyebrow">A tier above, not a like-for-like rival</div><h2 id="charge-title" style="margin-top:8px">American Express Platinum Charge</h2><p>Rs 66,000 + applicable taxes a year. The focus is the Global Lounge Collection, hotel programmes and premium travel benefits. Compare it as a separate luxury-travel decision, not as a Rs 5,000-12,500-fee alternative to Diners Black.</p><p class="small muted" style="margin-top:8px">It is a charge card, not the Platinum Travel credit card. The issuer's lounge collection lists 1,550+ lounges; access and guest rules vary by network and lounge.</p></div></section>
+<section aria-labelledby="peer-rules"><h2 id="peer-rules">Before calling one the winner</h2><div class="answers">
+<div class="ans"><h3>Reward points are not the same currency</h3><p>Diners' up-to-Rs 1 flight/hotel value is not cash back. ATLAS miles and Amex points have partner-specific values. Do not compare their earn rates as guaranteed percentages.</p></div>
+<div class="ans"><h3>Foreign spend has a real cost</h3><p>Forex markup is separate from the exchange rate and applicable tax. ATLAS and Amex Travel charge 3.5%, versus roughly 2% on the other cards here. Rewards do not automatically cancel that cost.</p></div>
+<div class="ans"><h3>Check the actual trip</h3><p>Compare your lounge list, merchant acceptance, booking price and award availability before applying. Unlimited lounge access is still subject to programme rules and lounge capacity.</p></div>
+</div></section>
+<section aria-labelledby="peer-sources-title"><details><summary id="peer-sources-title">Official sources and term notes</summary>
+<ul class="peer-sources">
+<li><a href="https://www.hdfcbank.com/personal/pay/cards/credit-cards/diners-club-black-metal-edition" target="_blank" rel="noopener noreferrer">HDFC Diners Black Metal: benefits, fees, forex and redemption</a> · <a href="https://www.hdfcbank.com/content/bbp/repositories/723fb80a-2dde-42a3-9793-7ae1be57c87f/?path=/Personal/Pay/Cards/Credit%20Card/Credit%20Card%20Landing%20Page/Credit%20Cards/Super%20Premium/Diners%20Club%20Black%20Metal%20Edition/Diners-club-black-metal-T-and-C.pdf" target="_blank" rel="noopener noreferrer">Reward terms</a></li>
+<li><a href="https://www.axisbank.com/docs/default-source/default-document-library/credit-cards/terms-and-conditions-of-features-of-axis-bank-atlas-credit-card.pdf" target="_blank" rel="noopener noreferrer">ATLAS: earn, caps, tiers, transfers and lounges</a> · <a href="https://www.axisbank.com/docs/default-source/ld/soc/credit-cards/mitc-credit-cards" target="_blank" rel="noopener noreferrer">Fees and forex</a></li>
+<li><a href="https://www.icicibank.com/personal-banking/cards/credit-card/emeralde-private-metal-credit-card" target="_blank" rel="noopener noreferrer">ICICI Emeralde Private Metal</a> (not the standard Emeralde card)</li>
+<li><a href="https://www.sbicard.com/aurum/" target="_blank" rel="noopener noreferrer">AURUM rewards and milestones</a> · <a href="https://www.sbicard.com/aurum/benefits.html" target="_blank" rel="noopener noreferrer">Lounges and forex</a> · <a href="https://www.sbicard.com/en/most-important-terms-and-conditions.page" target="_blank" rel="noopener noreferrer">Fees and waiver</a></li>
+<li><a href="https://www.hdfcbank.com/personal/pay/cards/credit-cards/regalia-gold-credit-card" target="_blank" rel="noopener noreferrer">Regalia Gold benefits and reward value</a> · <a href="https://www.hdfcbank.com/personal/pay/cards/credit-cards/regalia-gold-credit-card/fees-and-charges" target="_blank" rel="noopener noreferrer">Fees and forex</a>. The main issuer page currently lists 5 points/Rs 200 and spend-linked domestic lounge access; older summaries may differ.</li>
+<li><a href="https://www.americanexpress.com/in/credit-cards/platinum-travel-credit-card/" target="_blank" rel="noopener noreferrer">Amex Travel product</a> · <a href="https://www.americanexpress.com/in/benefits/platinum-travel-credit-card/" target="_blank" rel="noopener noreferrer">Milestones and redemption</a> · <a href="https://www.americanexpress.com/content/dam/amex/in/legal-disclosures/Schedule-of-Fee-and-Charges.pdf?inav=in_sitefooter_top_links_schedule_of_fees_and_charges" target="_blank" rel="noopener noreferrer">Fees and forex</a></li>
+<li><a href="https://www.americanexpress.com/in/charge-cards/platinum-card/" target="_blank" rel="noopener noreferrer">Amex Platinum Charge: annual fee and travel benefits</a></li>
+</ul><p class="small muted" style="margin-top:12px">Checked 1 Oct 2026. This tab does not assume September SmartBuy multipliers continue in October. Memberships and milestone vouchers have their own restrictions; points values, transfer ratios and partner availability can change. ICICI's retrieved product page does not establish a rupee value for its reward points, so none is assumed here.</p></details></section>
+<footer><p>An independent comparison by Ruturaj Sahasrabudhe. Not affiliated with the issuers and not financial advice. Recheck the linked terms before deciding.</p></footer>
+</div>
+</div>
 <script>
 (function(){
   const EX = {everyday:60000, dining:5000, nopoints:5000, hotels:10000, flights:10000, vouchers:10000, income:300000, relation:500000};
@@ -482,6 +551,17 @@ footer p+p{margin-top:8px}
   $("reset").addEventListener("click", () => { ids.forEach(k => $(k).value = EX[k]); use = 1; year = "later"; segs(); render(); });
   $("form").addEventListener("submit", e => e.preventDefault());
   render();
+})();
+</script>
+<script>
+(function(){
+const cards={"atlas": {"name": "Axis Bank ATLAS", "fit": "Choose ATLAS for eligible direct airline/hotel spend and airline/hotel transfers. Do not treat 5 EDGE Miles as guaranteed 5% cash back.", "values": ["Rs 5,000 + taxes / Rs 5,000 + taxes", "No standard spend-based annual fee waiver in the issuer fee schedule.", "2 EDGE Miles per Rs 100 eligible spend. Excludes categories including fuel, utilities, insurance, rent, wallet and government payments.", "5 EDGE Miles per Rs 100 on Travel EDGE and direct airline/hotel merchants, capped at Rs 2 lakh combined spend/month; then 2. Other travel agents/OTAs earn 2.", "1 EDGE Mile = Rs 1 on Travel EDGE. Partner transfers use current ratios; annual cap 150,000 EDGE Miles, split 30,000 Group A / 120,000 Group B.", "2,500 miles at Rs 3 lakh; another 2,500 at Rs 7.5 lakh; another 5,000 at Rs 15 lakh. Tier qualifying exclusions apply.", "8 / 12 / 18 visits per anniversary year for Silver / Gold / Platinum, shared with guests.", "4 / 6 / 12 visits per anniversary year for Silver / Gold / Platinum, shared with guests.", "3.5% + applicable taxes", "A travel-earning peer, not an unlimited-lounge peer. Silver initially; Gold at Rs 7.5 lakh, Platinum at Rs 15 lakh eligible annual spend."]}, "emeralde": {"name": "ICICI Emeralde Private Metal", "fit": "Choose Emeralde Private Metal for premium lounge coverage and lifestyle benefits. Compare its actual redemption catalogue rather than assuming every point is worth Rs 1.", "values": ["Rs 12,499 + GST / Rs 12,499 + GST", "Spend over Rs 10 lakh for next-year waiver.", "6 points per Rs 200 retail spend. Grocery, utilities and education each capped at 1,000 points/statement; insurance at 5,000.", "Taj Epicure Plus membership; two EaseMyTrip vouchers worth up to Rs 6,000 on Rs 8 lakh annual spend. Domestic flight/hotel cancellation refund benefit up to Rs 12,000, subject to terms.", "Issuer lists a reward catalogue, including travel/luggage and vouchers. No verified uniform rupee value or transfer rate is assumed here.", "Travel vouchers at Rs 8 lakh; annual fee waiver above Rs 10 lakh.", "Unlimited for primary and Plus card members.", "Unlimited; complimentary Priority Pass for primary and Plus members.", "2% + applicable taxes", "Invitation-only. Higher annual fee than Diners Black; strong lounges without establishing equal flight/hotel reward value."]}, "aurum": {"name": "SBI Card AURUM", "fit": "Choose AURUM for international lounges and low forex alongside lifestyle benefits. Its verified base reward value is 1%, not Diners-style travel return.", "values": ["Rs 9,999 + taxes / Rs 9,999 + taxes", "Rs 12 lakh or more annual spend in the preceding year.", "4 AURUM Reward Points per Rs 100 non-fuel spend, subject to terms. At Rs 0.25/point, base value is 1%.", "Club Marriott membership and concierge booking assistance. Travel value mainly comes from vouchers and benefits, rather than accelerated direct travel earning.", "1 AURUM Reward Point = Rs 0.25. Issuer says points do not expire. 40,000 welcome points on first annual-fee payment.", "Issuer lists Rs 5,000 / 10,000 / 9,999 / 20,000 milestone vouchers at Rs 5 / 10 / 12 / 20 lakh annual spend, plus Rs 1,500 at Rs 1 lakh monthly spend. Voucher terms apply.", "4 visits/quarter (16/year); applies to add-on members as well, under programme rules.", "Unlimited through complimentary DreamFolks membership, plus one complimentary guest visit per quarter.", "1.99% + applicable taxes", "A genuine lounge/forex competitor. Lower base reward return; do not buy it only for the metal-card positioning."]}, "regalia": {"name": "HDFC Regalia Gold", "fit": "Choose Regalia Gold for a lower fee and moderate travel benefits. It sits below Diners Black, rather than being a full replacement.", "values": ["Rs 2,500 + taxes / Rs 2,500 + taxes", "Rs 4 lakh in 12 billing cycles of the anniversary year.", "Current official page: 5 points per Rs 200 retail spend; 5X on select brands, subject to terms.", "SmartBuy flight vouchers: Rs 5,000 at Rs 5 lakh annual spend and another Rs 5,000 at Rs 7.5 lakh. Boarding Edge travel benefits have separate limits.", "Rs 0.50/point on flights/hotels, up to 70% of booking value. Base travel value from 5 points/Rs 200 is 1.25%.", "Rs 1,500 quarterly vouchers at Rs 1.5 lakh spend; flight vouchers at Rs 5/7.5 lakh annual spend. Claim and voucher expiry rules apply.", "3 visits/quarter only after Rs 60,000 spend in the preceding calendar quarter.", "6 visits/calendar year outside India using Priority Pass, for primary/add-on members within the programme allowance; apply after 4 retail transactions.", "2% + applicable taxes", "Cheaper to hold, but spend-linked domestic lounges and lower point value than Diners Black."]}, "amex": {"name": "Amex Platinum Travel", "fit": "Choose Platinum Travel when its current milestone ladder and hotel/airline redemptions fit your spend. It is not an unlimited international-lounge alternative to Diners Black.", "values": ["Rs 5,000 + taxes / Rs 5,000 + taxes", "No standard automatic spend-based waiver shown on the current product page.", "1 Membership Rewards point per Rs 50, excluding fuel, insurance, utilities, cash and specified EMI transactions.", "3X via Reward Multiplier on participating brands; check merchant terms. Airline/hotel loyalty transfers are available.", "Value depends on the redemption. Platinum Travel Collection examples include Rs 10,000 Taj voucher for 20,000 points; no single cash-equivalent value assumed.", "Current issuer ladder: 7,500 points at Rs 1.9 lakh; 10,000 at Rs 4 lakh; another 22,500 at Rs 7 lakh, plus Rs 10,000 Taj voucher at Rs 7 lakh. Issuer notes threshold/bonus point components.", "8 complimentary visits/year, limited to 2 per quarter, at participating Indian lounges.", "Priority Pass membership is included, but visits are chargeable. Membership does not mean free international lounge entry.", "3.5% + applicable taxes", "Milestone and redemption focused; Amex acceptance and domestic lounge coverage need checking. Distinct from Platinum Charge."]}}, labels=["Joining / annual fee", "Renewal fee waiver", "Everyday rewards", "Flights and hotels", "Points redemption", "Spend milestones", "Domestic lounges", "International lounges", "Forex markup", "Main trade-off"], benchmark=["Rs 10,000 + taxes / Rs 10,000 + taxes", "Rs 8 lakh in 12 months", "5 points per Rs 150 on eligible spend. 2X on eligible weekend dining.", "Up to 10X via SmartBuy, subject to current offers and caps. Check the booking price against direct rates.", "Up to Rs 1 per point on SmartBuy flights/hotels. Points can pay up to 70% of booking value. Also offers air-mile redemption routes.", "10,000 bonus points for Rs 4 lakh spend in a calendar quarter, subject to eligible-spend rules.", "Unlimited for primary and add-on members at participating lounges.", "Unlimited for primary and add-on members through the Diners programme.", "2% + applicable taxes", "Strong portal reward value and lounges; merchant and lounge coverage must suit your trip. Not exclusively a SmartBuy card."];
+const select=document.getElementById('peer-choice');
+function renderPeer(){const card=cards[select.value];document.getElementById('peer-name').textContent=card.name;const tbody=document.getElementById('peer-rows');tbody.replaceChildren();labels.forEach((label,i)=>{const tr=document.createElement('tr');const th=document.createElement('th');th.scope='row';th.textContent=label;tr.appendChild(th);[benchmark[i],card.values[i]].forEach(text=>{const td=document.createElement('td');td.textContent=text;tr.appendChild(td)});tbody.appendChild(tr)});document.getElementById('peer-fit').textContent=card.fit;}
+select.addEventListener('change',renderPeer);renderPeer();
+const tabs=[...document.querySelectorAll('.page-tabs [role="tab"]')];
+function activate(tab){tabs.forEach(t=>{const active=t===tab;t.setAttribute('aria-selected',String(active));t.tabIndex=active?0:-1;document.getElementById(t.getAttribute('aria-controls')).hidden=!active});}
+tabs.forEach((tab,i)=>{tab.addEventListener('click',()=>activate(tab));tab.addEventListener('keydown',e=>{let n;if(e.key==='ArrowRight')n=(i+1)%tabs.length;if(e.key==='ArrowLeft')n=(i+tabs.length-1)%tabs.length;if(e.key==='Home')n=0;if(e.key==='End')n=tabs.length-1;if(n!==undefined){e.preventDefault();activate(tabs[n]);tabs[n].focus()}})});
 })();
 </script>
 </body>
